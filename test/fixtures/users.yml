@@ -1,0 +1,13 @@
+alice:
+  email: alice@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, "password") %>
+  sign_in_count: 0
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+bob:
+  email: bob@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, "password") %>
+  sign_in_count: 0
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

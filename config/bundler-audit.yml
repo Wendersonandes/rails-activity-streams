@@ -1,0 +1,12 @@
+# Audit all gems listed in the Gemfile for known security problems by running bin/bundler-audit.
+# CVEs that are not relevant to the application can be enumerated on the ignore list below.
+
+# Audit all gems listed in the Gemfile for known security problems by running bin/bundler-audit.
+# CVEs that are not relevant to the application can be enumerated on the ignore list below.
+#
+# Devise 4.9.x advisories — not applicable:
+#   GHSA-57hq-95w6-v4fc: Confirmable race condition  (we don't use :confirmable)
+#   GHSA-jp94-3292-c3xv: Timeoutable redirect         (we don't use :timeoutable)
+# Run with: bin/bundler-audit --ignore GHSA-57hq-95w6-v4fc --ignore GHSA-jp94-3292-c3xv
+
+ignore: []
