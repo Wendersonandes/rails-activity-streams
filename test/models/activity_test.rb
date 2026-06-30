@@ -1,5 +1,34 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: activities
+#
+#  id             :bigint           not null, primary key
+#  verb           :integer          not null
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  author_id      :bigint           not null
+#  owner_id       :bigint           not null
+#  parent_id      :bigint
+#  user_author_id :bigint
+#
+# Indexes
+#
+#  index_activities_on_author_id       (author_id)
+#  index_activities_on_created_at      (created_at)
+#  index_activities_on_owner_id        (owner_id)
+#  index_activities_on_parent_id       (parent_id)
+#  index_activities_on_user_author_id  (user_author_id)
+#  index_activities_on_verb            (verb)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (author_id => actors.id) ON DELETE => restrict
+#  fk_rails_...  (owner_id => actors.id) ON DELETE => restrict
+#  fk_rails_...  (parent_id => activities.id) ON DELETE => nullify
+#  fk_rails_...  (user_author_id => users.id) ON DELETE => restrict
+#
 class ActivityTest < ActiveSupport::TestCase
   setup do
     seed_permissions_and_relations

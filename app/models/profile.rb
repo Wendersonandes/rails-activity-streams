@@ -38,5 +38,7 @@ class Profile < ApplicationRecord
            :notification_settings, :activity_object_id,
            to: :actor, allow_nil: true
 
+  accepts_nested_attributes_for :actor, update_only: true
+
   validates :user, presence: true
 end

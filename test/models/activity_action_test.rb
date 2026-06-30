@@ -1,5 +1,26 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: activity_actions
+#
+#  id                 :bigint           not null, primary key
+#  follow             :boolean          default(FALSE)
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  activity_object_id :bigint           not null
+#  actor_id           :bigint           not null
+#
+# Indexes
+#
+#  index_activity_actions_on_activity_object_id               (activity_object_id)
+#  index_activity_actions_on_actor_id_and_activity_object_id  (actor_id,activity_object_id) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (activity_object_id => activity_objects.id) ON DELETE => restrict
+#  fk_rails_...  (actor_id => actors.id) ON DELETE => restrict
+#
 class ActivityActionTest < ActiveSupport::TestCase
   setup do
     seed_permissions_and_relations

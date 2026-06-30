@@ -1,0 +1,44 @@
+<%= content_for :title, @actor.name %>
+
+<div class="max-w-2xl mx-auto">
+  <div class="bg-white rounded-lg shadow p-6 mb-6 border border-gray-100">
+    <div class="flex items-start gap-4">
+      <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0">
+        <%= @actor.name.first.upcase %>
+      </div>
+      <div class="flex-1">
+        <h1 class="text-2xl font-bold text-gray-900"><%= @actor.name %></h1>
+        <% if @actor.description.present? %>
+          <p class="text-gray-600 mt-1"><%= @actor.description %></p>
+        <% end %>
+        <div class="flex gap-4 mt-2 text-sm text-gray-500">
+          <span><%= @actor.authored_activities.count %> posts</span>
+          <% if @actor.sent_active_contact_ids.any? %>
+            <span><%= @actor.sent_active_contact_ids.size %> connections</span>
+          <% end %>
+        </div>
+      </div>
+      <% if current_actor && current_actor != @actor %>
+        <div>
+          <% if current_actor.connected_with?(@actor) %>
+            <%= button_to "Remove", contact_path(current_actor.contact_to(@actor)), method: :delete, class: "text-sm bg-red-100 text-red-700 px-3 py-1.5 rounded hover:bg-red-200 cursor-pointer" %>
+          <% else %>
+            <%= link_to "Connect", contacts_path(actor_id: @actor.slug, as: :friend), data: { turbo_method: :post }, class: "text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <% if @activities.any? %>
+      <%= render partial: "shared/activity", collection: @activities, as: :activity %>
+    <% else %>
+      <div class="text-center text-gray-500 py-8"><p>No posts yet.</p></div>
+    <% end %>
+  </div>
+
+  <% if @pagy.pages > 1 %>
+    <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
+  <% end %>
+</div>

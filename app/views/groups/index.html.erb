@@ -1,0 +1,41 @@
+<%= content_for :title, "Groups" %>
+
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Groups</h1>
+    <% if current_actor %>
+      <%= link_to "New Group", new_group_path, class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" %>
+    <% end %>
+  </div>
+
+  <% if @groups.any? %>
+    <div class="grid grid-cols-1 gap-4">
+      <% @groups.each do |group_actor| %>
+        <% group = group_actor.subject %>
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-100 flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-gray-900"><%= link_to group.name, group_path(group), class: "hover:underline" %></h3>
+            <% if group.description.present? %>
+              <p class="text-sm text-gray-500 mt-0.5"><%= truncate(group.description, length: 80) %></p>
+            <% end %>
+          </div>
+          <% if current_actor && current_actor != group_actor %>
+            <% if current_actor.connected_with?(group_actor) %>
+              <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">Member</span>
+            <% else %>
+              <%= link_to "Join", contacts_path(actor_id: group_actor.slug, as: :friend), data: { turbo_method: :post }, class: "text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700" %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center text-gray-500 py-12">
+      <p>No groups yet.</p>
+    </div>
+  <% end %>
+
+  <% if @pagy.pages > 1 %>
+    <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
+  <% end %>
+</div>

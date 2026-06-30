@@ -1,5 +1,13 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: groups
+#
+#  id         :bigint           not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
 class GroupTest < ActiveSupport::TestCase
   test "responds to actor association" do
     group = Group.new

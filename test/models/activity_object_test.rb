@@ -1,5 +1,38 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: activity_objects
+#
+#  id              :bigint           not null, primary key
+#  comment_count   :integer          default(0)
+#  description     :text
+#  follower_count  :integer          default(0)
+#  like_count      :integer          default(0)
+#  objectable_type :string           not null
+#  payload         :jsonb
+#  title           :string           default("")
+#  visit_count     :integer          default(0)
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  author_id       :bigint
+#  objectable_id   :bigint           not null
+#  owner_id        :bigint
+#  user_author_id  :bigint
+#
+# Indexes
+#
+#  index_activity_objects_on_author_id                          (author_id)
+#  index_activity_objects_on_objectable_type_and_objectable_id  (objectable_type,objectable_id) UNIQUE
+#  index_activity_objects_on_owner_id                           (owner_id)
+#  index_activity_objects_on_user_author_id                     (user_author_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (author_id => actors.id) ON DELETE => restrict
+#  fk_rails_...  (owner_id => actors.id) ON DELETE => restrict
+#  fk_rails_...  (user_author_id => users.id) ON DELETE => restrict
+#
 class ActivityObjectTest < ActiveSupport::TestCase
   setup do
     seed_permissions_and_relations

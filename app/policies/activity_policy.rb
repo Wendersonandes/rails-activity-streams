@@ -1,4 +1,8 @@
 class ActivityPolicy < ApplicationPolicy
+  def index?
+    user.present?
+  end
+
   def show?
     record.public? || actor && record.visible_to?(actor)
   end

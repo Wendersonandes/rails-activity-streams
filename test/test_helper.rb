@@ -4,11 +4,20 @@ require "rails/test_help"
 
 module ActiveSupport
   class TestCase
+    # Run tests in parallel with threads
     parallelize(workers: :number_of_processors)
+
+    # Setup all fixtures in test/fixtures/*.yml
     fixtures :all
+
+    include Devise::Test::IntegrationHelpers
 
     def create_profile_for(user, name: nil)
       ProfileCreation.new(user, name: name || user.email.split("@").first).call
+    end
+
+    def sign_in_user(user)
+      post user_session_path, params: { user: { email: user.email, password: "password123" } }
     end
 
     def seed_permissions_and_relations

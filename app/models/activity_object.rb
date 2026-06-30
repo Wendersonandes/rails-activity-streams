@@ -32,7 +32,7 @@
 #  fk_rails_...  (user_author_id => users.id) ON DELETE => restrict
 #
 class ActivityObject < ApplicationRecord
-  delegated_type :objectable, types: %w[Profile Group]
+  delegated_type :objectable, types: %w[Profile Group Post]
 
   belongs_to :author, class_name: "Actor", optional: true
   belongs_to :owner, class_name: "Actor", optional: true

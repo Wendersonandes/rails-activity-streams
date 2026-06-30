@@ -1,5 +1,25 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: ties
+#
+#  id          :bigint           not null, primary key
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  contact_id  :bigint           not null
+#  relation_id :bigint           not null
+#
+# Indexes
+#
+#  index_ties_on_contact_id_and_relation_id  (contact_id,relation_id) UNIQUE
+#  index_ties_on_relation_id                 (relation_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (contact_id => contacts.id) ON DELETE => restrict
+#  fk_rails_...  (relation_id => relations.id) ON DELETE => restrict
+#
 class TieTest < ActiveSupport::TestCase
   setup do
     seed_permissions_and_relations

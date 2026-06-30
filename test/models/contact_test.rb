@@ -1,5 +1,28 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: contacts
+#
+#  id          :bigint           not null, primary key
+#  ties_count  :integer          default(0)
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  inverse_id  :bigint
+#  receiver_id :bigint           not null
+#  sender_id   :bigint           not null
+#
+# Indexes
+#
+#  index_contacts_on_inverse_id                 (inverse_id)
+#  index_contacts_on_sender_id_and_receiver_id  (sender_id,receiver_id) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (inverse_id => contacts.id) ON DELETE => nullify
+#  fk_rails_...  (receiver_id => actors.id) ON DELETE => restrict
+#  fk_rails_...  (sender_id => actors.id) ON DELETE => restrict
+#
 class ContactTest < ActiveSupport::TestCase
   setup do
     seed_permissions_and_relations

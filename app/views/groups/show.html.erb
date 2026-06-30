@@ -1,0 +1,40 @@
+<%= content_for :title, @group.name %>
+
+<div class="max-w-2xl mx-auto">
+  <div class="bg-white rounded-lg shadow p-6 mb-6 border border-gray-100">
+    <div class="flex items-start gap-4">
+      <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0">
+        G
+      </div>
+      <div class="flex-1">
+        <h1 class="text-2xl font-bold text-gray-900"><%= @group.name %></h1>
+        <% if @group.description.present? %>
+          <p class="text-gray-600 mt-1"><%= @group.description %></p>
+        <% end %>
+        <div class="flex gap-4 mt-2 text-sm text-gray-500">
+          <span><%= @group.actor.authored_activities.count %> posts</span>
+        </div>
+        <% if current_actor == @group.actor %>
+          <div class="mt-3 flex gap-2">
+            <%= link_to "Edit", edit_group_path(@group), class: "text-sm text-blue-600 hover:underline" %>
+            <%= button_to "Delete", group_path(@group), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "text-sm text-red-600 hover:underline bg-transparent border-0 cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <% if @activities.any? %>
+      <%= render partial: "shared/activity", collection: @activities, as: :activity %>
+    <% else %>
+      <div class="text-center text-gray-500 py-8">
+        <p>No posts yet.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @pagy.pages > 1 %>
+    <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
+  <% end %>
+</div>

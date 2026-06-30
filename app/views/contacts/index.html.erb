@@ -1,0 +1,47 @@
+<%= content_for :title, "Contacts" %>
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Contacts</h1>
+
+  <% if @pending.any? %>
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+      <h2 class="text-sm font-semibold text-yellow-800 mb-3">Pending Requests</h2>
+      <div class="space-y-2">
+        <% @pending.each do |contact| %>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-700"><%= contact.sender.name %></span>
+            <div class="flex gap-2">
+              <%= button_to "Accept", contacts_path(actor_id: contact.sender.slug, as: :friend), params: { actor_id: contact.sender.slug }, class: "text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 cursor-pointer" %>
+              <%= button_to "Decline", contact_path(contact), method: :delete, class: "text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 cursor-pointer" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @contacts.any? %>
+    <div class="bg-white rounded-lg shadow border border-gray-100 divide-y">
+      <% @contacts.each do |contact| %>
+        <div class="flex items-center justify-between p-4">
+          <div>
+            <span class="font-medium text-gray-900"><%= link_to contact.receiver.name, actor_path(contact.receiver), class: "hover:underline" %></span>
+            <% contact.relations.each do |rel| %>
+              <span class="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"><%= rel.name %></span>
+            <% end %>
+          </div>
+          <%= button_to "Remove", contact_path(contact), method: :delete, class: "text-sm text-red-600 hover:underline bg-transparent border-0 cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center text-gray-500 py-12 bg-white rounded-lg shadow border border-gray-100">
+      <p>No contacts yet.</p>
+      <p class="text-sm mt-2">Visit a profile or group and click "Connect".</p>
+    </div>
+  <% end %>
+
+  <% if @pagy.pages > 1 %>
+    <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
+  <% end %>
+</div>

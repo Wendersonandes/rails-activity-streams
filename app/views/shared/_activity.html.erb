@@ -1,0 +1,38 @@
+<%= tag.div id: dom_id(activity), class: "bg-white rounded-lg shadow p-4 mb-4 border border-gray-100" do %>
+  <div class="flex items-start gap-3">
+    <div class="flex-1">
+      <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+        <%= link_to activity.author.name, actor_path(activity.author), class: "font-semibold text-gray-900 hover:underline" %>
+        <span>&middot;</span>
+        <span><%= time_ago_in_words(activity.created_at) %> ago</span>
+        <% if activity.represented_author? && activity.user_author %>
+          <span class="text-xs bg-gray-100 px-2 py-0.5 rounded">via <%= activity.user_author.email %></span>
+        <% end %>
+      </div>
+
+      <% activity.activity_objects.each do |ao| %>
+        <div class="text-gray-800">
+          <% if ao.title.present? %>
+            <h3 class="font-medium text-gray-900"><%= ao.title %></h3>
+          <% end %>
+          <% if ao.description.present? %>
+            <p class="mt-1"><%= ao.description %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="flex items-center gap-4 mt-3 text-sm text-gray-500">
+        <% ao = activity.direct_object %>
+        <% if ao %>
+          <%= button_to activity_activity_actions_path(activity), method: :post, class: "flex items-center gap-1 hover:text-blue-600 bg-transparent border-0 cursor-pointer p-0" do %>
+            <span><%= ao.like_count %></span> Likes
+          <% end %>
+          <span><%= ao.comment_count %> Comments</span>
+        <% end %>
+        <% if activity.parent.present? %>
+          <span class="text-xs">in reply to <%= link_to activity.parent.author.name, activity_path(activity.parent), class: "hover:underline" %></span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -1,5 +1,31 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: actors
+#
+#  id                    :bigint           not null, primary key
+#  actorable_type        :string           not null
+#  description           :text
+#  email                 :string
+#  name                  :string           not null
+#  notification_settings :jsonb
+#  slug                  :string           not null
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#  activity_object_id    :bigint
+#  actorable_id          :bigint           not null
+#
+# Indexes
+#
+#  index_actors_on_activity_object_id               (activity_object_id)
+#  index_actors_on_actorable_type_and_actorable_id  (actorable_type,actorable_id) UNIQUE
+#  index_actors_on_slug                             (slug) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (activity_object_id => activity_objects.id) ON DELETE => nullify
+#
 class ActorTest < ActiveSupport::TestCase
   setup do
     seed_permissions_and_relations

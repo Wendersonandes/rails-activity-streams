@@ -24,7 +24,19 @@ module SocialStream
       "colleague" =>  { name: "Colleague",  permissions: [ [ "read", "activity" ] ],                                                                     receiver_type: "Profile" },
       "acquaintance" => { name: "Acquaintance", permissions: [ [ "read", "activity" ] ],                                                                 receiver_type: "Profile" }
     },
-    "group" => {}
+    "group" => {
+      "admin" => {
+        name: "Admin",
+        permissions: [
+          [ "create", "activity" ],
+          [ "read",   "activity" ],
+          [ "update",  "activity" ],
+          [ "destroy", "activity" ],
+          [ "represent", nil ]
+        ],
+        receiver_type: "Profile"
+      }
+    }
   }.freeze
 
   self.system_relations = {}.freeze

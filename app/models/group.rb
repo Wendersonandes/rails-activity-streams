@@ -13,4 +13,6 @@ class Group < ApplicationRecord
   delegate :name, :name=, :email, :email=, :slug, :description, :description=,
            :notification_settings, :activity_object_id,
            to: :actor, allow_nil: true
+
+  accepts_nested_attributes_for :actor
 end

@@ -1,0 +1,41 @@
+<%= content_for :title, "Edit Profile" %>
+
+<div class="max-w-lg mx-auto">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Profile</h1>
+
+  <%= form_with model: @profile, url: profile_path, method: :patch, class: "bg-white rounded-lg shadow p-6 border border-gray-100" do |f| %>
+    <%= f.fields_for :actor do |af| %>
+      <%= af.hidden_field :id %>
+      <div class="mb-4">
+        <%= af.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= af.text_field :name, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <div class="mb-4">
+        <%= af.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= af.email_field :email, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <div class="mb-4">
+        <%= af.label :description, "Bio", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= af.text_area :description, rows: 3, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+    <% end %>
+
+    <div class="border-t border-gray-100 pt-4 mb-4">
+      <h3 class="text-sm font-semibold text-gray-500 mb-3">Contact Info</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div><%= f.label :phone, class: "block text-xs text-gray-500" %><%= f.text_field :phone, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
+        <div><%= f.label :mobile, class: "block text-xs text-gray-500" %><%= f.text_field :mobile, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
+        <div class="col-span-2"><%= f.label :website, class: "block text-xs text-gray-500" %><%= f.text_field :website, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
+        <div><%= f.label :city, class: "block text-xs text-gray-500" %><%= f.text_field :city, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
+        <div><%= f.label :country, class: "block text-xs text-gray-500" %><%= f.text_field :country, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <%= f.submit "Save", class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer" %>
+      <%= link_to "Cancel", actor_path(current_actor), class: "text-sm text-gray-500 hover:text-gray-700" %>
+    </div>
+  <% end %>
+</div>

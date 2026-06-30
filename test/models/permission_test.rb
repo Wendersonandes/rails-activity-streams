@@ -1,5 +1,19 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: permissions
+#
+#  id         :bigint           not null, primary key
+#  action     :integer          not null
+#  object     :integer
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  index_permissions_on_action_and_object  (action,object) UNIQUE
+#
 class PermissionTest < ActiveSupport::TestCase
   test "validates presence of action" do
     permission = Permission.new(object: :activity)

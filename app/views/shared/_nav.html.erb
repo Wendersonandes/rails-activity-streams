@@ -1,0 +1,25 @@
+<nav class="bg-white shadow fixed top-0 left-0 right-0 z-50">
+  <div class="container mx-auto px-5 flex items-center justify-between h-14">
+    <div class="flex items-center gap-6">
+      <%= link_to "Social Stream", root_path, class: "font-bold text-lg text-blue-600" %>
+      <% if current_actor %>
+        <%= link_to "Home", activities_path, class: "text-sm text-gray-700 hover:text-blue-600" %>
+        <%= link_to "Contacts", contacts_path, class: "text-sm text-gray-700 hover:text-blue-600" %>
+        <%= link_to "Groups", groups_path, class: "text-sm text-gray-700 hover:text-blue-600" %>
+      <% end %>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <% if user_signed_in? %>
+        <% if current_actor %>
+          <%= link_to current_actor.name, actor_path(current_actor), class: "text-sm font-medium text-gray-700 hover:text-blue-600" %>
+        <% end %>
+        <%= link_to "Account", account_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
+        <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "text-sm text-gray-500 hover:text-red-600 bg-transparent border-0 cursor-pointer" %>
+      <% else %>
+        <%= link_to "Sign in", new_user_session_path, class: "text-sm text-gray-700 hover:text-blue-600" %>
+        <%= link_to "Sign up", new_user_registration_path, class: "text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700" %>
+      <% end %>
+    </div>
+  </div>
+</nav>
