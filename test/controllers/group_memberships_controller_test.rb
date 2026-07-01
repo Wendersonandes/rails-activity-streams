@@ -88,11 +88,43 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
+  test "admin can see insights" do
+    sign_in @alice
+    get insights_group_memberships_path(@group)
+    assert_response :success
+  end
+
+  test "non-admin cannot see insights" do
+    sign_in @bob
+    get insights_group_memberships_path(@group)
+    assert_response :redirect
+  end
+
+  test "insights shows stats for group activity" do
+    sign_in @alice
+    @group.actor.connect_to(@bob_actor, as: "member")
+    create_post(author: @bob_actor, owner: @group.actor, title: "Test", body: "Post content")
+
+    get insights_group_memberships_path(@group)
+    assert_response :success
+    assert_select "p.text-3xl.font-bold.text-green-700", text: "1"
+  end
+
   private
 
   def create_group_with_admin(admin_actor)
     group = Group.new
     group.build_actor(name: "Test Group Controller")
     GroupCreation.new(admin_actor, group).call
+  end
+
+  def create_post(author:, owner:, title:, body: "")
+    activity = Activity.new(verb: :post, author: author, owner: owner)
+    activity.user_author = author.subject.is_a?(Profile) ? author.subject.user : nil
+    ActivityCreation.new(
+      activity,
+      text: { title: title, body: body },
+      relation_ids: owner.activity_relation_ids
+    ).call
   end
 end

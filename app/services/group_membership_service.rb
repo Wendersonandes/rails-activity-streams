@@ -5,6 +5,7 @@ class GroupMembershipService
   end
 
   def add(role: "member")
+    @group.ties_to(@member).destroy_all
     @group.connect_to(@member, as: role)
   end
 

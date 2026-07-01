@@ -14,7 +14,8 @@ export default class extends Controller {
       return
     }
 
-    fetch(`/actors.json?q=${encodeURIComponent(q)}`)
+    const exclude = this.element.dataset.memberExclude || ""
+    fetch(`/actors.json?q=${encodeURIComponent(q)}&exclude=${exclude}`)
       .then(r => r.json())
       .then(actors => {
         if (actors.length === 0) {

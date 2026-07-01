@@ -47,13 +47,20 @@ class GroupMembershipServiceTest < ActiveSupport::TestCase
     assert_not @group_actor.has_relation_with?(@bob_actor, "Member")
   end
 
+  test "add replaces existing role" do
+    GroupMembershipService.new(@group_actor, @bob_actor).add(role: "member")
+    assert @group_actor.has_relation_with?(@bob_actor, "Member")
+
+    GroupMembershipService.new(@group_actor, @bob_actor).add(role: "moderator")
+    assert @group_actor.has_relation_with?(@bob_actor, "Moderator")
+    assert_not @group_actor.has_relation_with?(@bob_actor, "Member")
+    assert_equal 1, @group_actor.ties_to(@bob_actor).count
+  end
+
   test "remove all roles" do
     GroupMembershipService.new(@group_actor, @bob_actor).add(role: "member")
-    GroupMembershipService.new(@group_actor, @bob_actor).add(role: "moderator")
-    tie_count = @group_actor.ties_to(@bob_actor).count
-    assert_equal 2, tie_count
 
-    assert_difference "Tie.count", -2 do
+    assert_difference "Tie.count", -1 do
       GroupMembershipService.new(@group_actor, @bob_actor).remove
     end
     assert_empty @group_actor.member_roles_for(@bob_actor)

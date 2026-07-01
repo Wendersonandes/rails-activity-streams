@@ -1,6 +1,7 @@
 <%= content_for :title, "#{@group.name} — Members" %>
 
-<div class="max-w-2xl mx-auto" data-controller="member-search">
+<div class="max-w-2xl mx-auto" data-controller="member-search"
+     data-member-exclude="<%= (@admins + @moderators + @members).map(&:id).join(",") %>">
   <div class="bg-white rounded-lg shadow p-6 mb-4 border border-gray-100">
     <div class="flex items-start gap-4">
       <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0">
@@ -24,11 +25,14 @@
     <span class="px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
       Members (<%= @group.actor.sent_contacts.active.count %>)
     </span>
+    <% if @is_admin %>
+      <%= link_to "Insights", insights_group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" %>
+    <% end %>
   </div>
 
-  <% if current_actor && (current_actor.has_relation_with?(@group.actor, "Member") || current_actor.has_relation_with?(@group.actor, "Moderator") || current_actor.has_relation_with?(@group.actor, "Admin")) %>
+  <% if current_actor && (@group.actor.has_relation_with?(current_actor, "Member") || @group.actor.has_relation_with?(current_actor, "Moderator") || @group.actor.has_relation_with?(current_actor, "Admin")) %>
     <div class="mb-4 flex justify-end">
-      <%= button_to "Leave Group", group_membership_path(@group, current_actor, role: current_actor.member_roles_for(@group.actor).first), method: :delete, data: { turbo_confirm: "Leave #{@group.name}?" }, class: "text-sm text-red-600 hover:text-red-800 bg-transparent border border-red-300 px-3 py-1.5 rounded hover:bg-red-50" %>
+      <%= button_to "Leave Group", group_membership_path(@group, current_actor, role: @group.actor.member_roles_for(current_actor).first), method: :delete, data: { turbo_confirm: "Leave #{@group.name}?" }, class: "text-sm text-red-600 hover:text-red-800 bg-transparent border border-red-300 px-3 py-1.5 rounded hover:bg-red-50" %>
     </div>
   <% end %>
 
@@ -80,7 +84,14 @@
               </div>
             </div>
             <% if @is_admin && admin_actor != current_actor %>
-              <%= button_to "Demote", group_membership_path(@group, admin_actor, from_role: "admin", to_role: "member"), method: :patch, params: { from_role: "admin", to_role: "member" }, class: "text-xs text-gray-500 hover:text-red-600" %>
+              <div class="flex items-center gap-2">
+                <%= form_with url: group_membership_path(@group, admin_actor), method: :patch, class: "flex items-center gap-1" do |f| %>
+                  <%= f.hidden_field :from_role, value: "admin" %>
+                  <%= f.select :to_role, [["Admin", "admin"], ["Moderator", "moderator"], ["Member", "member"]], { selected: "admin" }, { class: "text-xs border border-gray-300 rounded px-2 py-1" } %>
+                  <%= f.submit "Save", class: "text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 cursor-pointer" %>
+                <% end %>
+                <%= button_to "Remove", group_membership_path(@group, admin_actor, role: "admin"), method: :delete, data: { turbo_confirm: "Remove #{subject.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
+              </div>
             <% end %>
           </div>
         <% end %>
@@ -104,8 +115,11 @@
             </div>
             <% if @is_admin %>
               <div class="flex items-center gap-2">
-                <%= button_to "Promote", group_membership_path(@group, mod_actor, from_role: "moderator", to_role: "admin"), method: :patch, params: { from_role: "moderator", to_role: "admin" }, class: "text-xs text-blue-600 hover:text-blue-800" %>
-                <%= button_to "Demote", group_membership_path(@group, mod_actor, from_role: "moderator", to_role: "member"), method: :patch, params: { from_role: "moderator", to_role: "member" }, class: "text-xs text-gray-500 hover:text-red-600" %>
+                <%= form_with url: group_membership_path(@group, mod_actor), method: :patch, class: "flex items-center gap-1" do |f| %>
+                  <%= f.hidden_field :from_role, value: "moderator" %>
+                  <%= f.select :to_role, [["Admin", "admin"], ["Moderator", "moderator"], ["Member", "member"]], { selected: "moderator" }, { class: "text-xs border border-gray-300 rounded px-2 py-1" } %>
+                  <%= f.submit "Save", class: "text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 cursor-pointer" %>
+                <% end %>
                 <%= button_to "Remove", group_membership_path(@group, mod_actor, role: "moderator"), method: :delete, data: { turbo_confirm: "Remove #{subject.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
               </div>
             <% end %>
@@ -131,7 +145,11 @@
             </div>
             <% if @is_admin %>
               <div class="flex items-center gap-2">
-                <%= button_to "Promote", group_membership_path(@group, member_actor, from_role: "member", to_role: "moderator"), method: :patch, params: { from_role: "member", to_role: "moderator" }, class: "text-xs text-blue-600 hover:text-blue-800" %>
+                <%= form_with url: group_membership_path(@group, member_actor), method: :patch, class: "flex items-center gap-1" do |f| %>
+                  <%= f.hidden_field :from_role, value: "member" %>
+                  <%= f.select :to_role, [["Admin", "admin"], ["Moderator", "moderator"], ["Member", "member"]], { selected: "member" }, { class: "text-xs border border-gray-300 rounded px-2 py-1" } %>
+                  <%= f.submit "Save", class: "text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 cursor-pointer" %>
+                <% end %>
                 <%= button_to "Remove", group_membership_path(@group, member_actor, role: "member"), method: :delete, data: { turbo_confirm: "Remove #{subject.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
               </div>
             <% end %>

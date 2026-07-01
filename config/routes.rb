@@ -5,7 +5,9 @@ Rails.application.routes.draw do
   resources :actors, only: [ :index, :show ]
   resource :profile, only: [ :show, :edit, :update ], controller: "profiles"
   resources :groups do
-    resources :memberships, only: [ :index, :create, :update, :destroy ], controller: "group_memberships"
+    resources :memberships, only: [ :index, :create, :update, :destroy ], controller: "group_memberships" do
+      get :insights, on: :collection
+    end
   end
 
   # Activity stream — feed

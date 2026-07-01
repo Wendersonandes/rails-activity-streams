@@ -5,9 +5,7 @@ class ActivitiesController < ApplicationController
   def index
     authorize Activity
     @pagy, @activities = pagy(
-      policy_scope(Activity)
-        .home_timeline(current_actor)
-        .includes(:author, :owner, :user_author, :activity_objects, :relations)
+      policy_scope(Activity).home_timeline(current_actor)
     )
   end
 
@@ -54,7 +52,7 @@ class ActivitiesController < ApplicationController
   private
 
   def set_activity
-    @activity = Activity.includes(:author, :owner, :activity_objects, children: :author).find_by!(id: params[:id])
+    @activity = Activity.includes(:author, :user_author, :activity_objects, children: :author).find_by!(id: params[:id])
   end
 
   def activity_params

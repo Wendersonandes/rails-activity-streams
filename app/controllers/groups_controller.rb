@@ -4,7 +4,7 @@ class GroupsController < ApplicationController
 
   def index
     authorize Actor
-    @groups = policy_scope(Actor).where(actorable_type: "Group").includes(:actorable)
+    @groups = policy_scope(Actor).where(actorable_type: "Group").includes(actorable: :actor)
     @pagy, @groups = pagy(@groups)
   end
 
@@ -12,7 +12,7 @@ class GroupsController < ApplicationController
     authorize @group.actor, policy_class: GroupPolicy
     @activities = policy_scope(Activity).where(author: @group.actor)
                                         .roots.recent
-                                        .includes(:author, :owner, :activity_objects)
+                                        .includes(:author, :user_author, :activity_objects, :parent)
     @pagy, @activities = pagy(@activities)
   end
 
