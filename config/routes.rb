@@ -2,9 +2,11 @@ Rails.application.routes.draw do
   devise_for :users
 
   # Core social — perfil e grupos
-  resources :actors, only: [ :show ]
+  resources :actors, only: [ :index, :show ]
   resource :profile, only: [ :show, :edit, :update ], controller: "profiles"
-  resources :groups
+  resources :groups do
+    resources :memberships, only: [ :index, :create, :update, :destroy ], controller: "group_memberships"
+  end
 
   # Activity stream — feed
   resources :activities, only: [ :index, :show, :new, :create, :destroy ] do

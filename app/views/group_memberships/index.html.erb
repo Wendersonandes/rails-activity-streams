@@ -1,0 +1,145 @@
+<%= content_for :title, "#{@group.name} — Members" %>
+
+<div class="max-w-2xl mx-auto" data-controller="member-search">
+  <div class="bg-white rounded-lg shadow p-6 mb-4 border border-gray-100">
+    <div class="flex items-start gap-4">
+      <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0">
+        G
+      </div>
+      <div class="flex-1">
+        <h1 class="text-2xl font-bold text-gray-900"><%= @group.name %></h1>
+        <% if @group.description.present? %>
+          <p class="text-gray-600 mt-1"><%= @group.description %></p>
+        <% end %>
+        <div class="flex gap-4 mt-2 text-sm text-gray-500">
+          <span><%= @group.actor.authored_activities.count %> posts</span>
+          <span><%= @group.actor.sent_contacts.active.count %> members</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex border-b border-gray-200 mb-6">
+    <%= link_to "Posts", group_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" %>
+    <span class="px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
+      Members (<%= @group.actor.sent_contacts.active.count %>)
+    </span>
+  </div>
+
+  <% if current_actor && (current_actor.has_relation_with?(@group.actor, "Member") || current_actor.has_relation_with?(@group.actor, "Moderator") || current_actor.has_relation_with?(@group.actor, "Admin")) %>
+    <div class="mb-4 flex justify-end">
+      <%= button_to "Leave Group", group_membership_path(@group, current_actor, role: current_actor.member_roles_for(@group.actor).first), method: :delete, data: { turbo_confirm: "Leave #{@group.name}?" }, class: "text-sm text-red-600 hover:text-red-800 bg-transparent border border-red-300 px-3 py-1.5 rounded hover:bg-red-50" %>
+    </div>
+  <% end %>
+
+  <% if @is_admin %>
+    <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">Add Member</h3>
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <input type="text"
+                 data-member-search-target="query"
+                 data-action="input->member-search#search"
+                 placeholder="Search by name..."
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 autocomplete="off">
+          <div data-member-search-target="results"
+               class="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 hidden max-h-48 overflow-y-auto">
+          </div>
+        </div>
+        <select data-member-search-target="role"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          <option value="member">Member</option>
+          <option value="moderator">Moderator</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button data-action="click->member-search#add"
+                data-member-search-target="addBtn"
+                data-group-id="<%= @group.id %>"
+                disabled
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+          Add
+        </button>
+      </div>
+      <input type="hidden" data-member-search-target="actorId">
+    </div>
+  <% end %>
+
+  <% if @admins.any? %>
+    <div class="mb-6">
+      <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Admins (<%= @admins.count %>)</h3>
+      <div class="space-y-2">
+        <% @admins.each do |admin_actor| %>
+          <% subject = admin_actor.subject %>
+          <div class="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-bold"><%= subject.name[0].upcase %></div>
+              <div>
+                <p class="text-sm font-medium text-gray-900"><%= link_to subject.name, actor_path(admin_actor), class: "hover:underline" %></p>
+                <p class="text-xs text-gray-500">Admin</p>
+              </div>
+            </div>
+            <% if @is_admin && admin_actor != current_actor %>
+              <%= button_to "Demote", group_membership_path(@group, admin_actor, from_role: "admin", to_role: "member"), method: :patch, params: { from_role: "admin", to_role: "member" }, class: "text-xs text-gray-500 hover:text-red-600" %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @moderators.any? %>
+    <div class="mb-6">
+      <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Moderators (<%= @moderators.count %>)</h3>
+      <div class="space-y-2">
+        <% @moderators.each do |mod_actor| %>
+          <% subject = mod_actor.subject %>
+          <div class="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm font-bold"><%= subject.name[0].upcase %></div>
+              <div>
+                <p class="text-sm font-medium text-gray-900"><%= link_to subject.name, actor_path(mod_actor), class: "hover:underline" %></p>
+                <p class="text-xs text-gray-500">Moderator</p>
+              </div>
+            </div>
+            <% if @is_admin %>
+              <div class="flex items-center gap-2">
+                <%= button_to "Promote", group_membership_path(@group, mod_actor, from_role: "moderator", to_role: "admin"), method: :patch, params: { from_role: "moderator", to_role: "admin" }, class: "text-xs text-blue-600 hover:text-blue-800" %>
+                <%= button_to "Demote", group_membership_path(@group, mod_actor, from_role: "moderator", to_role: "member"), method: :patch, params: { from_role: "moderator", to_role: "member" }, class: "text-xs text-gray-500 hover:text-red-600" %>
+                <%= button_to "Remove", group_membership_path(@group, mod_actor, role: "moderator"), method: :delete, data: { turbo_confirm: "Remove #{subject.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Members (<%= @members.count %>)</h3>
+    <% if @members.any? %>
+      <div class="space-y-2">
+        <% @members.each do |member_actor| %>
+          <% subject = member_actor.subject %>
+          <div class="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-sm font-bold"><%= subject.name[0].upcase %></div>
+              <div>
+                <p class="text-sm font-medium text-gray-900"><%= link_to subject.name, actor_path(member_actor), class: "hover:underline" %></p>
+                <p class="text-xs text-gray-500">Member</p>
+              </div>
+            </div>
+            <% if @is_admin %>
+              <div class="flex items-center gap-2">
+                <%= button_to "Promote", group_membership_path(@group, member_actor, from_role: "member", to_role: "moderator"), method: :patch, params: { from_role: "member", to_role: "moderator" }, class: "text-xs text-blue-600 hover:text-blue-800" %>
+                <%= button_to "Remove", group_membership_path(@group, member_actor, role: "member"), method: :delete, data: { turbo_confirm: "Remove #{subject.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-400 py-4">No members yet.</p>
+    <% end %>
+  </div>
+</div>

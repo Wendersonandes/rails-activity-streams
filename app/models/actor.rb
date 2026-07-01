@@ -160,6 +160,12 @@ class Actor < ApplicationRecord
     contact.ties.find_or_create_by!(relation: relation)
   end
 
+  def disconnect_from(actor, relation_name)
+    relation = relation_custom(relation_name)
+    return unless relation
+    ties_to(actor).where(relation: relation).destroy_all
+  end
+
   def contacts_for(relation_name)
     relation = relation_custom(relation_name)
     return Actor.none unless relation
@@ -168,6 +174,14 @@ class Actor < ApplicationRecord
 
   def connected_with?(other_actor)
     sent_contacts.find_by(receiver: other_actor)&.established?
+  end
+
+  def has_relation_with?(actor, relation_name)
+    ties_to(actor).joins(:relation).where(relations: { name: relation_name.to_s.capitalize }).exists?
+  end
+
+  def member_roles_for(group_actor)
+    ties_to(group_actor).joins(:relation).pluck(:"relations.name").map(&:downcase)
   end
 
   def pending_contacts

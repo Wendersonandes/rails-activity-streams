@@ -9,7 +9,7 @@ class GroupsController < ApplicationController
   end
 
   def show
-    authorize @group.actor
+    authorize @group.actor, policy_class: GroupPolicy
     @activities = policy_scope(Activity).where(author: @group.actor)
                                         .roots.recent
                                         .includes(:author, :owner, :activity_objects)
@@ -19,12 +19,12 @@ class GroupsController < ApplicationController
   def new
     @group = Group.new
     @group.build_actor
-    authorize @group.actor
+    authorize @group.actor, policy_class: GroupPolicy
   end
 
   def create
     @group = Group.new(group_params)
-    authorize @group.actor
+    authorize @group.actor, policy_class: GroupPolicy
 
     @group = GroupCreation.new(current_actor, @group).call
     redirect_to group_path(@group.actor), notice: "Group created."
@@ -34,11 +34,11 @@ class GroupsController < ApplicationController
   end
 
   def edit
-    authorize @group.actor
+    authorize @group.actor, policy_class: GroupPolicy
   end
 
   def update
-    authorize @group.actor
+    authorize @group.actor, policy_class: GroupPolicy
     if @group.update(group_params)
       redirect_to group_path(@group.actor), notice: "Group updated."
     else
@@ -47,7 +47,7 @@ class GroupsController < ApplicationController
   end
 
   def destroy
-    authorize @group.actor
+    authorize @group.actor, policy_class: GroupPolicy
     @group.actor.destroy
     redirect_to groups_path, notice: "Group deleted."
   end

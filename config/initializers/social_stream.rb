@@ -35,6 +35,22 @@ module SocialStream
           [ "represent", nil ]
         ],
         receiver_type: "Profile"
+      },
+      "moderator" => {
+        name: "Moderator",
+        permissions: [
+          [ "create", "activity" ],
+          [ "read",   "activity" ],
+          [ "update", "activity" ]
+        ],
+        receiver_type: "Profile"
+      },
+      "member" => {
+        name: "Member",
+        permissions: [
+          [ "read", "activity" ]
+        ],
+        receiver_type: "Profile"
       }
     }
   }.freeze
