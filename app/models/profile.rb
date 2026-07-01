@@ -7,14 +7,10 @@
 #  birthday     :date
 #  city         :string
 #  country      :string
-#  experience   :text
-#  fax          :string
-#  im           :string
 #  mobile       :string
 #  organization :string
 #  phone        :string
-#  province     :string
-#  skype        :string
+#  state        :string
 #  website      :string
 #  zipcode      :string
 #  created_at   :datetime         not null

@@ -40,10 +40,15 @@ gem "thruster", require: false
 gem "image_processing", "~> 1.2"
 
 # Authentication
+# Authentication
 gem "devise", "~> 4.9"
 
 # Authorization
 gem "pundit", "~> 2.4"
+
+# Location — country/city selects
+gem "country_select", "~> 9.0"
+gem "city-state", "~> 1.1"
 
 # Friendly URLs
 gem "friendly_id", "~> 5.5"

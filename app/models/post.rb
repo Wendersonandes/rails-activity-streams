@@ -1,3 +1,11 @@
+# == Schema Information
+#
+# Table name: posts
+#
+#  id         :bigint           not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
 class Post < ApplicationRecord
   has_one :activity_object, as: :objectable, dependent: :destroy, autosave: true
 

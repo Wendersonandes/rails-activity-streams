@@ -9,6 +9,10 @@ Rails.application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
+  # Allow callback declarations (:only/:except) on parent controllers
+  # that don't apply to Devise subclasses (e.g. verify_policy_scoped :only => :index).
+  config.action_controller.raise_on_missing_callback_actions = false
+
   # Show full error reports.
   config.consider_all_requests_local = true
 

@@ -7,6 +7,15 @@ class ProfilesController < ApplicationController
 
   def edit
     authorize @profile.actor
+    states_hash = CS.states(:BR)
+    @states = states_hash
+
+    if @profile.state.present?
+      code = states_hash.key(@profile.state) || @profile.state
+      @cities = CS.cities(code.to_sym, :BR) || []
+    else
+      @cities = []
+    end
   end
 
   def update
@@ -28,9 +37,9 @@ class ProfilesController < ApplicationController
 
   def profile_params
     params.require(:profile).permit(
-      :birthday, :phone, :mobile, :fax,
-      :address, :city, :zipcode, :province, :country,
-      :website, :skype, :im, :organization, :experience,
+      :birthday, :phone, :mobile,
+      :address, :city, :state, :country, :zipcode,
+      :website, :organization,
       actor_attributes: [ :id, :name, :description, :email ]
     )
   end

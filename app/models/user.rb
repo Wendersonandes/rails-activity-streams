@@ -34,5 +34,20 @@ class User < ApplicationRecord
   has_many :profiles, dependent: :destroy
   belongs_to :current_profile, class_name: "Actor", optional: true
 
+  attr_accessor :profile_name
+
   validates :email, presence: true, uniqueness: true
+  validates :profile_name, presence: true, on: :create
+
+  after_create :setup_initial_profile!
+
+  private
+
+  def setup_initial_profile!
+    actor = ProfileCreation.new(self, name: profile_name).call
+    update_column(:current_profile_id, actor.id)
+  rescue ActiveRecord::RecordInvalid => e
+    errors.add(:base, "Profile creation failed: #{e.message}")
+    raise
+  end
 end

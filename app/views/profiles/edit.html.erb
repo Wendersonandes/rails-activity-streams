@@ -23,13 +23,47 @@
     <% end %>
 
     <div class="border-t border-gray-100 pt-4 mb-4">
+      <h3 class="text-sm font-semibold text-gray-500 mb-3">Localização</h3>
+      <div data-controller="location" class="grid grid-cols-2 gap-3">
+        <div>
+          <%= f.label :country, "País", class: "block text-xs text-gray-500" %>
+          <%= f.country_select :country, { only: ["BR"] }, {
+            data: { location_target: "country", action: "change->location#countryChanged" },
+            class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1"
+          } %>
+        </div>
+        <div>
+          <%= f.label :state, "Estado", class: "block text-xs text-gray-500" %>
+          <%= f.select :state, @states || [], { include_blank: "Selecione" }, {
+            data: { location_target: "state", action: "change->location#stateChanged" },
+            class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1"
+          } %>
+        </div>
+        <div>
+          <%= f.label :city, "Cidade", class: "block text-xs text-gray-500" %>
+          <%= f.select :city, @cities || [], { include_blank: "Selecione" }, {
+            data: { location_target: "city" },
+            class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1"
+          } %>
+        </div>
+        <div>
+          <%= f.label :zipcode, "CEP", class: "block text-xs text-gray-500" %>
+          <%= f.text_field :zipcode, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %>
+        </div>
+        <div class="col-span-2">
+          <%= f.label :address, "Endereço", class: "block text-xs text-gray-500" %>
+          <%= f.text_field :address, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-100 pt-4 mb-4">
       <h3 class="text-sm font-semibold text-gray-500 mb-3">Contact Info</h3>
       <div class="grid grid-cols-2 gap-3">
         <div><%= f.label :phone, class: "block text-xs text-gray-500" %><%= f.text_field :phone, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
         <div><%= f.label :mobile, class: "block text-xs text-gray-500" %><%= f.text_field :mobile, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
         <div class="col-span-2"><%= f.label :website, class: "block text-xs text-gray-500" %><%= f.text_field :website, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
-        <div><%= f.label :city, class: "block text-xs text-gray-500" %><%= f.text_field :city, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
-        <div><%= f.label :country, class: "block text-xs text-gray-500" %><%= f.text_field :country, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
+        <div class="col-span-2"><%= f.label :organization, "Organization", class: "block text-xs text-gray-500" %><%= f.text_field :organization, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-1" %></div>
       </div>
     </div>
 

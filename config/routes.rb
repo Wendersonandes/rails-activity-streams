@@ -24,6 +24,10 @@ Rails.application.routes.draw do
     resources :audiences, only: [ :index ]
   end
 
+  # Locations — dynamic state/city loading
+  get "locations/states", to: "locations#states"
+  get "locations/cities", to: "locations#cities"
+
   # Health + Root
   get "up" => "rails/health#show", as: :rails_health_check
   root to: "activities#index"
