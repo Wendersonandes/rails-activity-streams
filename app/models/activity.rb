@@ -64,7 +64,7 @@ class Activity < ApplicationRecord
     ids = actor.sent_active_contact_ids + [ actor.id ]
     select("DISTINCT activities.*")
       .roots
-      .includes(:author, :activity_objects, :parent)
+      .includes(:author, :user_author, :activity_objects, :parent)
       .where(author_id: ids)
       .shared_with(actor)
       .recent
