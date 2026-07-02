@@ -51,7 +51,7 @@ export default class extends Controller {
 
     const form = document.createElement("form")
     form.method = "POST"
-    form.action = `/groups/${this.addBtnTarget.dataset.groupId}/memberships`
+    form.action = this.addBtnTarget.dataset.submitUrl
 
     const csrfToken = document.querySelector("[name='csrf-token']")?.content
     if (csrfToken) {

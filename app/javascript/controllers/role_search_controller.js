@@ -67,7 +67,7 @@ export default class extends Controller {
 
     const form = document.createElement("form")
     form.method = "POST"
-    form.action = `/admin/roles/${this.selectedActor}`
+    form.action = this.saveBtnTarget.dataset.submitUrl + this.selectedActor
     form.style.display = "none"
 
     const csrfToken = document.querySelector("[name='csrf-token']")?.content
