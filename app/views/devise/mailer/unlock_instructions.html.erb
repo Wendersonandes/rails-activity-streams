@@ -1,7 +1,39 @@
-<p>Hello <%= @resource.email %>!</p>
-
-<p>Your account has been locked due to an excessive number of unsuccessful sign in attempts.</p>
-
-<p>Click the link below to unlock your account:</p>
-
-<p><%= link_to 'Unlock my account', unlock_url(@resource, unlock_token: @token) %></p>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f5f7;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f5f7;">
+    <tr>
+      <td align="center" style="padding: 40px 16px;">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 40px 32px 32px; text-align: center; border-bottom: 1px solid #e5e7eb;">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #2563eb;">Social Stream</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px;">
+              <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #374151;">Hello <%= @resource.email %>!</p>
+              <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #374151;">Your account has been locked due to an excessive number of unsuccessful sign in attempts.</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding: 0 0 24px;">
+                    <a href="<%= unlock_url(@resource, unlock_token: @token) %>" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none; padding: 12px 28px; border-radius: 8px;">Unlock my account</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 24px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0; font-size: 12px; color: #9ca3af;">Social Stream — Connect, share, collaborate.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
