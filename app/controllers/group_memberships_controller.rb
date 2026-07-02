@@ -31,6 +31,17 @@ class GroupMembershipsController < ApplicationController
     else
       @member = current_actor
       authorize @group_actor, :join?, policy_class: GroupPolicy
+
+      if @group_actor.has_relation_with?(@member, "Member") ||
+         @group_actor.has_relation_with?(@member, "Moderator") ||
+         @group_actor.has_relation_with?(@member, "Admin")
+        return redirect_to group_memberships_path(@group), notice: "You are already a member."
+      end
+
+      if @member.contact_to(@group_actor).present?
+        return redirect_to group_memberships_path(@group), notice: "Your request is already pending."
+      end
+
       @member.connect_to(@group_actor, as: "member")
       if @group.public_group?
         @group_actor.connect_to(@member, as: "member")
