@@ -3,10 +3,13 @@
 # Table name: groups
 #
 #  id         :bigint           not null, primary key
+#  privacy    :integer          default(0), not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
 class Group < ApplicationRecord
+  enum :privacy, { public_group: 0, private_group: 1 }
+
   has_one :actor, as: :actorable, dependent: :destroy, autosave: true
   has_one :activity_object, as: :objectable, dependent: :destroy, autosave: true
 

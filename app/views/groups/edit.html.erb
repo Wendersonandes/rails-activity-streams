@@ -4,6 +4,11 @@
   <h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Group</h1>
 
   <%= form_with model: @group, class: "bg-white rounded-lg shadow p-6 border border-gray-100" do |f| %>
+    <div class="mb-4">
+      <%= f.label :privacy, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :privacy, [["Public", "public_group"], ["Private", "private_group"]], {}, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+
     <%= f.fields_for :actor do |af| %>
       <div class="mb-4">
         <%= af.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>

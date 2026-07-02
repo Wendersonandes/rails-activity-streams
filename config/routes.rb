@@ -6,7 +6,11 @@ Rails.application.routes.draw do
   resource :profile, only: [ :show, :edit, :update ], controller: "profiles"
   resources :groups do
     resources :memberships, only: [ :index, :create, :update, :destroy ], controller: "group_memberships" do
-      get :insights, on: :collection
+      collection do
+        get  :insights
+        post :approve_request
+        post :reject_request
+      end
     end
   end
 

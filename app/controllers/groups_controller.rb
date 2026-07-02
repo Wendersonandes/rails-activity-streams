@@ -60,6 +60,7 @@ class GroupsController < ApplicationController
 
   def group_params
     params.require(:group).permit(
+      :privacy,
       actor_attributes: [ :id, :name, :description, :email ]
     )
   end

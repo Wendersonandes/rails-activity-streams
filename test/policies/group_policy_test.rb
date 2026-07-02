@@ -68,6 +68,13 @@ class GroupPolicyTest < ActiveSupport::TestCase
     assert_not GroupPolicy.new(@carol_user, @group_actor).leave?
   end
 
+  test "join? requires authenticated user" do
+    @group.update!(privacy: :private_group)
+    assert GroupPolicy.new(@bob, @group_actor).join?
+    assert GroupPolicy.new(@alice, @group_actor).join?
+    assert_not GroupPolicy.new(nil, @group_actor).join?
+  end
+
   private
 
   def create_group_with_admin(admin_actor)

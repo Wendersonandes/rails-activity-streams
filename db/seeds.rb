@@ -44,9 +44,10 @@ actors = users.transform_values { |u| u.current_profile }
 # ── Groups ──────────────────────────────────────────────────────
 puts "\nCreating groups..."
 
-def create_group(name:, description:, creator:)
+def create_group(name:, description:, creator:, privacy: :public_group)
   group = Group.new
   group.build_actor(name: name, description: description)
+  group.privacy = privacy.to_s
   GroupCreation.new(creator, group).call
 end
 
@@ -62,9 +63,10 @@ puts "  Dev Team (admin: Ana)"
 groups[:design] = create_group(
   name: "Design Circle",
   description: "UI/UX discussions, design critiques, and inspiration.",
-  creator: actors[:bruno]
+  creator: actors[:bruno],
+  privacy: :private_group
 )
-puts "  Design Circle (admin: Bruno)"
+puts "  Design Circle (admin: Bruno, private)"
 
 groups[:mkt] = create_group(
   name: "Marketing Hub",

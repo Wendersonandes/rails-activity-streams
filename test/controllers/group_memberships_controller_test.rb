@@ -21,7 +21,7 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
 
   test "admin can add member" do
     sign_in @alice
-    assert_difference "Tie.count", 1 do
+    assert_difference "Tie.count", 2 do
       post group_memberships_path(@group), params: { actor_id: @bob_actor.id, role: "member" }
     end
     assert_redirected_to group_memberships_path(@group)
@@ -108,6 +108,69 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
     get insights_group_memberships_path(@group)
     assert_response :success
     assert_select "p.text-3xl.font-bold.text-green-700", text: "1"
+  end
+
+  test "self-join public group creates bidirectional ties" do
+    @group.update!(privacy: :public_group)
+    sign_in @bob
+
+    assert_difference "Tie.count", 2 do
+      post group_memberships_path(@group), params: { actor_id: @bob_actor.id }
+    end
+    assert_redirected_to group_memberships_path(@group)
+    assert @group.actor.has_relation_with?(@bob_actor, "Member")
+    assert @bob_actor.has_relation_with?(@group.actor, "Member")
+  end
+
+  test "self-join private group creates pending request" do
+    @group.update!(privacy: :private_group)
+    sign_in @bob
+
+    assert_difference "Tie.count", 1 do
+      post group_memberships_path(@group), params: { actor_id: @bob_actor.id }
+    end
+    assert_redirected_to group_memberships_path(@group)
+    assert_not @group.actor.has_relation_with?(@bob_actor, "Member")
+    assert @bob_actor.has_relation_with?(@group.actor, "Member")
+  end
+
+  test "admin can approve pending request" do
+    @group.update!(privacy: :private_group)
+    sign_in @bob
+    post group_memberships_path(@group), params: { actor_id: @bob_actor.id }
+
+    request_contact = @group.actor.received_contacts.pending.first
+    assert request_contact.present?
+
+    sign_in @alice
+    post approve_request_group_memberships_path(@group), params: { contact_id: request_contact.id, role: "moderator" }
+    assert_redirected_to group_memberships_path(@group)
+    assert @group.actor.has_relation_with?(@bob_actor, "Moderator")
+  end
+
+  test "admin can reject pending request" do
+    @group.update!(privacy: :private_group)
+    sign_in @bob
+    post group_memberships_path(@group), params: { actor_id: @bob_actor.id }
+
+    request_contact = @group.actor.received_contacts.pending.first
+
+    sign_in @alice
+    assert_difference "Contact.count", -1 do
+      post reject_request_group_memberships_path(@group), params: { contact_id: request_contact.id }
+    end
+    assert_redirected_to group_memberships_path(@group)
+  end
+
+  test "non-admin cannot approve request" do
+    @group.update!(privacy: :private_group)
+    sign_in @bob
+    post group_memberships_path(@group), params: { actor_id: @bob_actor.id }
+    request_contact = @group.actor.received_contacts.pending.first
+
+    post approve_request_group_memberships_path(@group), params: { contact_id: request_contact.id, role: "member" }
+    assert_response :redirect
+    assert_not @group.actor.has_relation_with?(@bob_actor, "Member")
   end
 
   private

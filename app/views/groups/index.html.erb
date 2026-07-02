@@ -20,10 +20,14 @@
             <% end %>
           </div>
           <% if current_actor && current_actor != group_actor %>
-            <% if current_actor.connected_with?(group_actor) %>
+            <% if group_actor.has_relation_with?(current_actor, "Member") || group_actor.has_relation_with?(current_actor, "Moderator") || group_actor.has_relation_with?(current_actor, "Admin") %>
               <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">Member</span>
             <% else %>
-              <%= link_to "Join", contacts_path(actor_id: group_actor.slug, as: :friend), data: { turbo_method: :post }, class: "text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700" %>
+              <% if group.public_group? %>
+                <%= button_to "Join", group_memberships_path(group), params: { actor_id: current_actor.id, role: "member" }, method: :post, class: "text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 cursor-pointer" %>
+              <% else %>
+                <%= button_to "Request to Join", group_memberships_path(group), params: { actor_id: current_actor.id }, method: :post, class: "text-sm bg-gray-600 text-white px-3 py-1.5 rounded hover:bg-gray-700 cursor-pointer" %>
+              <% end %>
             <% end %>
           <% end %>
         </div>

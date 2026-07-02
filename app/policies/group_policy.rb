@@ -19,6 +19,10 @@ class GroupPolicy < ApplicationPolicy
     admin?
   end
 
+  def join?
+    user.present?
+  end
+
   def manage_members?
     admin?
   end

@@ -1,6 +1,6 @@
 class GroupMembershipsController < ApplicationController
   skip_before_action :authenticate_user!, only: [ :index ]
-  skip_after_action :verify_policy_scoped, only: [ :index, :insights ]
+  skip_after_action :verify_policy_scoped, only: [ :index, :insights, :approve_request, :reject_request ]
   before_action :set_group
 
   def index
@@ -9,6 +9,11 @@ class GroupMembershipsController < ApplicationController
     @moderators = @group_actor.contacts_for("moderator").includes(actorable: :actor)
     @members = @group_actor.contacts_for("member").includes(actorable: :actor)
     @is_admin = current_actor && @group_actor.has_relation_with?(current_actor, "Admin")
+    @pending_requests = if @is_admin
+      @group_actor.received_contacts.pending.includes(:sender)
+    else
+      Contact.none
+    end
   end
 
   def insights
@@ -17,10 +22,40 @@ class GroupMembershipsController < ApplicationController
   end
 
   def create
+    @member = params[:actor_id].present? ? find_actor(params[:actor_id]) : nil
+
+    if @member && @member != current_actor
+      authorize @group_actor, :add_member?, policy_class: GroupPolicy
+      @group_actor.connect_to(@member, as: params[:role] || "member")
+      if @group.public_group?
+        @member.connect_to(@group_actor, as: "member")
+      end
+      redirect_to group_memberships_path(@group), notice: notification_for_add
+    else
+      @member = current_actor
+      authorize @group_actor, :join?, policy_class: GroupPolicy
+      @member.connect_to(@group_actor, as: "member")
+      if @group.public_group?
+        @group_actor.connect_to(@member, as: "member")
+        redirect_to group_memberships_path(@group), notice: "You joined the group."
+      else
+        redirect_to group_memberships_path(@group), notice: "Request sent. Awaiting approval."
+      end
+    end
+  end
+
+  def approve_request
     authorize @group_actor, :add_member?, policy_class: GroupPolicy
-    @member = find_actor(params[:actor_id])
-    GroupMembershipService.new(@group_actor, @member).add(role: params[:role] || "member")
-    redirect_to group_memberships_path(@group), notice: "Member added."
+    contact = @group_actor.received_contacts.pending.find(params[:contact_id])
+    @group_actor.connect_to(contact.sender, as: params[:role] || "member")
+    redirect_to group_memberships_path(@group), notice: "Request approved."
+  end
+
+  def reject_request
+    authorize @group_actor, :add_member?, policy_class: GroupPolicy
+    contact = @group_actor.received_contacts.pending.find(params[:contact_id])
+    contact.destroy
+    redirect_to group_memberships_path(@group), notice: "Request rejected."
   end
 
   def update
@@ -103,5 +138,9 @@ class GroupMembershipsController < ApplicationController
 
   def after_destroy_notice
     @member == current_actor ? "You left the group." : "Member removed."
+  end
+
+  def notification_for_add
+    @group.public_group? ? "Member added." : "Invite sent."
   end
 end
