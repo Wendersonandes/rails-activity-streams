@@ -1,6 +1,6 @@
 class GroupMembershipsController < ApplicationController
   skip_before_action :authenticate_user!, only: [ :index ]
-  skip_after_action :verify_policy_scoped, only: [ :index, :insights, :approve_request, :reject_request ]
+  skip_after_action :verify_policy_scoped, only: [ :index, :insights, :approve_request, :reject_request, :accept_invite, :decline_invite ]
   before_action :set_group
 
   def index
@@ -27,10 +27,7 @@ class GroupMembershipsController < ApplicationController
     if @member && @member != current_actor
       authorize @group_actor, :add_member?, policy_class: GroupPolicy
       @group_actor.connect_to(@member, as: params[:role] || "member")
-      if @group.public_group?
-        @member.connect_to(@group_actor, as: "member")
-      end
-      redirect_to group_memberships_path(@group), notice: notification_for_add
+      redirect_to group_memberships_path(@group), notice: "Invite sent."
     else
       @member = current_actor
       authorize @group_actor, :join?, policy_class: GroupPolicy
@@ -42,6 +39,19 @@ class GroupMembershipsController < ApplicationController
         redirect_to group_memberships_path(@group), notice: "Request sent. Awaiting approval."
       end
     end
+  end
+
+  def accept_invite
+    authorize @group_actor, :join?, policy_class: GroupPolicy
+    current_actor.connect_to(@group_actor, as: "member")
+    redirect_to group_memberships_path(@group), notice: "Invite accepted."
+  end
+
+  def decline_invite
+    contact = current_actor.received_contacts.pending.find_by(id: params[:contact_id])
+    authorize @group_actor, :join?, policy_class: GroupPolicy
+    contact&.destroy
+    redirect_to group_memberships_path(@group), notice: "Invite declined."
   end
 
   def approve_request
@@ -138,9 +148,5 @@ class GroupMembershipsController < ApplicationController
 
   def after_destroy_notice
     @member == current_actor ? "You left the group." : "Member removed."
-  end
-
-  def notification_for_add
-    @group.public_group? ? "Member added." : "Invite sent."
   end
 end

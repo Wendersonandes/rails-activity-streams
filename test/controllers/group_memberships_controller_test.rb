@@ -21,7 +21,7 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
 
   test "admin can add member" do
     sign_in @alice
-    assert_difference "Tie.count", 2 do
+    assert_difference "Tie.count", 1 do
       post group_memberships_path(@group), params: { actor_id: @bob_actor.id, role: "member" }
     end
     assert_redirected_to group_memberships_path(@group)
@@ -171,6 +171,28 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
     post approve_request_group_memberships_path(@group), params: { contact_id: request_contact.id, role: "member" }
     assert_response :redirect
     assert_not @group.actor.has_relation_with?(@bob_actor, "Member")
+  end
+
+  test "user can accept invite" do
+    sign_in @alice
+    post group_memberships_path(@group), params: { actor_id: @bob_actor.id, role: "member" }
+    invite_contact = @bob_actor.received_contacts.pending.first
+
+    sign_in @bob
+    post accept_invite_group_memberships_path(@group)
+    assert_redirected_to group_memberships_path(@group)
+    assert @bob_actor.has_relation_with?(@group.actor, "Member")
+  end
+
+  test "user can decline invite" do
+    sign_in @alice
+    post group_memberships_path(@group), params: { actor_id: @bob_actor.id, role: "member" }
+    invite_contact = @bob_actor.received_contacts.pending.first
+
+    sign_in @bob
+    post decline_invite_group_memberships_path(@group), params: { contact_id: invite_contact.id }
+    assert_redirected_to group_memberships_path(@group)
+    assert_not @bob_actor.has_relation_with?(@group.actor, "Member")
   end
 
   private

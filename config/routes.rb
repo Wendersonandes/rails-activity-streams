@@ -10,6 +10,8 @@ Rails.application.routes.draw do
         get  :insights
         post :approve_request
         post :reject_request
+        post :accept_invite
+        post :decline_invite
       end
     end
   end
