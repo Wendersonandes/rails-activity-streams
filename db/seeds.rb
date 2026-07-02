@@ -41,6 +41,12 @@ end
 
 actors = users.transform_values { |u| u.current_profile }
 
+# ── Site & Global Roles ────────────────────────────────────────
+puts "\nSetting up global roles..."
+site_actor = Site.instance.actor
+GroupMembershipService.new(site_actor, actors[:ana]).add(role: "admin")
+puts "  Site: #{Site.instance.name}, Admin: Ana"
+
 # ── Groups ──────────────────────────────────────────────────────
 puts "\nCreating groups..."
 

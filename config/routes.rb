@@ -32,6 +32,7 @@ Rails.application.routes.draw do
     resources :permissions, only: [ :index ]
     resources :ties, only: [ :index, :show ]
     resources :audiences, only: [ :index ]
+    resources :roles, only: [ :index, :update ]
   end
 
   # Locations — dynamic state/city loading

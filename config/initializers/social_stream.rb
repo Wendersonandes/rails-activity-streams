@@ -15,6 +15,14 @@ module SocialStream
       [ "destroy", "activity" ],
       [ "follow", nil ],
       [ "represent", nil ]
+    ],
+    "site" => [
+      [ "create", "activity" ],
+      [ "read",   "activity" ],
+      [ "update", "activity" ],
+      [ "destroy", "activity" ],
+      [ "follow", nil ],
+      [ "represent", nil ]
     ]
   }.freeze
 
@@ -51,6 +59,56 @@ module SocialStream
         permissions: [
           [ "read", "activity" ]
         ],
+        receiver_type: "Profile"
+      }
+    },
+    "site" => {
+      "admin" => {
+        name: "Admin",
+        permissions: [
+          [ "create", "activity" ],
+          [ "read",   "activity" ],
+          [ "update",  "activity" ],
+          [ "destroy", "activity" ],
+          [ "represent", nil ]
+        ],
+        receiver_type: "Profile"
+      },
+      "editor" => {
+        name: "Editor",
+        permissions: [
+          [ "create", "activity" ],
+          [ "read",   "activity" ],
+          [ "update", "activity" ]
+        ],
+        receiver_type: "Profile"
+      },
+      "moderator" => {
+        name: "Moderator",
+        permissions: [
+          [ "read",   "activity" ],
+          [ "destroy", "activity" ]
+        ],
+        receiver_type: "Profile"
+      },
+      "member" => {
+        name: "Member",
+        permissions: [
+          [ "read",   "activity" ],
+          [ "create", "activity" ]
+        ],
+        receiver_type: "Profile"
+      },
+      "silenced" => {
+        name: "Silenced",
+        permissions: [
+          [ "read", "activity" ]
+        ],
+        receiver_type: "Profile"
+      },
+      "banned" => {
+        name: "Banned",
+        permissions: [],
         receiver_type: "Profile"
       }
     }

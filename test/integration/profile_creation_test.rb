@@ -6,8 +6,12 @@ class ProfileCreationTest < ActionDispatch::IntegrationTest
   end
 
   test "creates Profile, Actor, and ActivityObject in transaction" do
-    assert_difference [ "Profile.count", "Actor.count", "ActivityObject.count" ], 1 do
-      @actor = ProfileCreation.new(@alice, name: "Alice Profile").call
+    assert_difference "Profile.count", 1 do
+      assert_difference "Actor.count", 2 do
+        assert_difference "ActivityObject.count", 1 do
+          @actor = ProfileCreation.new(@alice, name: "Alice Profile").call
+        end
+      end
     end
 
     assert @actor.profile?

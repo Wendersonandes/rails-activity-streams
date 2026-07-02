@@ -60,7 +60,7 @@ class ActivityTest < ActiveSupport::TestCase
     Activity.create!(verb: :like, author: @author, owner: @owner, parent: parent,
                      relation_ids: [ Relation::Public.instance.id ])
 
-    assert_equal 1, Activity.roots.count
+    assert_equal 3, Activity.roots.count # 1 parent + 2 contact activities from ProfileCreation
   end
 
   test "#reflexive? true when author == owner" do

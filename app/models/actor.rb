@@ -27,7 +27,7 @@
 class Actor < ApplicationRecord
   extend FriendlyId
 
-  delegated_type :actorable, types: %w[Profile Group]
+  delegated_type :actorable, types: %w[Profile Group Site]
 
   belongs_to :activity_object, optional: true
 

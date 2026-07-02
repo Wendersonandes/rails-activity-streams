@@ -46,8 +46,12 @@ class ProfileTest < ActiveSupport::TestCase
   test "ProfileCreation creates Actor and ActivityObject in transaction" do
     alice = users(:alice)
 
-    assert_difference [ "Actor.count", "ActivityObject.count", "Profile.count" ], 1 do
-      @actor = ProfileCreation.new(alice, name: "Alice").call
+    assert_difference "Profile.count", 1 do
+      assert_difference "Actor.count", 2 do
+        assert_difference "ActivityObject.count", 1 do
+          @actor = ProfileCreation.new(alice, name: "Alice").call
+        end
+      end
     end
 
     assert @actor.persisted?

@@ -11,6 +11,8 @@ class ProfileCreation
       profile = Profile.create!(user: @user)
       activity_object = ActivityObject.create!(objectable: profile, title: @name)
       actor = Actor.create!(actorable: profile, name: @name, activity_object: activity_object)
+
+      Site.instance.actor.connect_to(actor, as: "member")
     end
 
     actor
