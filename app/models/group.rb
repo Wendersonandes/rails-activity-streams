@@ -3,7 +3,7 @@
 # Table name: groups
 #
 #  id         :bigint           not null, primary key
-#  privacy    :integer          default(0), not null
+#  privacy    :integer          default("public_group"), not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #

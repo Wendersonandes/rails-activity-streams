@@ -15,6 +15,7 @@ require "test_helper"
 # Indexes
 #
 #  index_contacts_on_inverse_id                 (inverse_id)
+#  index_contacts_on_receiver_id                (receiver_id)
 #  index_contacts_on_sender_id_and_receiver_id  (sender_id,receiver_id) UNIQUE
 #
 # Foreign Keys
