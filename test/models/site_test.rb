@@ -21,4 +21,14 @@ class SiteTest < ActiveSupport::TestCase
     site = Site.instance
     assert_equal site.actor.slug, site.slug
   end
+
+  test "instance builds actor for orphaned site" do
+    orphan = Site.create!(name: "Plataforma")
+    actor_count = Actor.count
+
+    result = Site.instance
+    assert_equal orphan.id, result.id
+    assert result.actor.present?
+    assert_equal actor_count + 1, Actor.count
+  end
 end

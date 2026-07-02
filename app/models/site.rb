@@ -14,11 +14,14 @@ class Site < ApplicationRecord
 
   def self.instance
     site = find_by(name: "Plataforma")
-    return site if site
+    return site if site && site.actor.present?
 
-    site = create!(name: "Plataforma")
-    site.build_actor(name: site.name)
-    site.save!
+    unless site
+      site = create!(name: "Plataforma")
+    end
+
+    site.build_actor(name: site.name) unless site.actor
+    site.save! if site.actor.new_record?
     site
   end
 
