@@ -10,6 +10,8 @@ class ContactsController < ApplicationController
 
     @pending = Contact.pending
                       .where(receiver_id: current_actor.id)
+                      .joins(:sender)
+                      .merge(Actor.where(actorable_type: "Profile"))
                       .includes(:sender)
   end
 

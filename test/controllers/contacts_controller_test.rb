@@ -32,4 +32,14 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to contacts_path
   end
+
+  test "group admin tie does not appear as pending contact" do
+    group = Group.new
+    group.build_actor(name: "Test Group")
+    GroupCreation.new(@alice, group).call
+
+    get contacts_path
+    assert_response :success
+    assert_no_match /Test Group/, response.body
+  end
 end
