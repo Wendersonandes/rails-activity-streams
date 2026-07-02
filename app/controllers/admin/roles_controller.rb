@@ -7,9 +7,9 @@ class Admin::RolesController < ApplicationController
     @admins = @site_actor.contacts_for("admin").to_a
     @editors = @site_actor.contacts_for("editor").to_a
     @moderators = @site_actor.contacts_for("moderator").to_a
-    @members = @site_actor.contacts_for("member").to_a
     @silenced = @site_actor.contacts_for("silenced").to_a
     @banned = @site_actor.contacts_for("banned").to_a
+    @total_members = @site_actor.contacts_for("member").count
   end
 
   def update

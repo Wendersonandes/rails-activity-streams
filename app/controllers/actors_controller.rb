@@ -11,8 +11,10 @@ class ActorsController < ApplicationController
 
     respond_to do |format|
       format.json do
+        site_actor = Site.instance.actor
         render json: @actors.map { |a|
-          { id: a.id, name: a.name, slug: a.slug, type: a.actorable_type }
+          roles = site_actor.member_roles_for(a)
+          { id: a.id, name: a.name, slug: a.slug, type: a.actorable_type, role: roles.first || "none" }
         }
       end
     end
