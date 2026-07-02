@@ -22,4 +22,9 @@ class Admin::RolePolicyTest < ActiveSupport::TestCase
     assert Admin::RolePolicy.new(@alice, @site_actor).update?
     assert_not Admin::RolePolicy.new(@bob, @site_actor).update?
   end
+
+  test "create? is true for site admin" do
+    assert Admin::RolePolicy.new(@alice, @site_actor).create?
+    assert_not Admin::RolePolicy.new(@bob, @site_actor).create?
+  end
 end

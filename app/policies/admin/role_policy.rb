@@ -3,6 +3,10 @@ class Admin::RolePolicy < ApplicationPolicy
     site_admin?
   end
 
+  def create?
+    site_admin?
+  end
+
   def update?
     site_admin?
   end

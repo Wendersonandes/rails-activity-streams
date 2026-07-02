@@ -65,9 +65,9 @@ export default class extends Controller {
   save() {
     if (!this.selectedActor) return
 
+    const hasRole = this.currentRoleTarget.value !== "none"
     const form = document.createElement("form")
     form.method = "POST"
-    form.action = this.saveBtnTarget.dataset.submitUrl + this.selectedActor
     form.style.display = "none"
 
     const csrfToken = document.querySelector("[name='csrf-token']")?.content
@@ -79,19 +79,30 @@ export default class extends Controller {
       form.appendChild(csrfInput)
     }
 
-    ;[
-      ["_method", "patch"],
-      ["from_role", this.currentRoleTarget.value],
-      ["to_role", this.newRoleTarget.value]
-    ].forEach(([name, value]) => {
-      const input = document.createElement("input")
-      input.type = "hidden"
-      input.name = name
-      input.value = value
-      form.appendChild(input)
-    })
+    if (hasRole) {
+      form.action = this.saveBtnTarget.dataset.submitUrl + this.selectedActor
+      ;[
+        ["_method", "patch"],
+        ["from_role", this.currentRoleTarget.value],
+        ["to_role", this.newRoleTarget.value]
+      ].forEach(pair => appendInput(form, pair))
+    } else {
+      form.action = this.saveBtnTarget.dataset.submitUrl.replace(/\/$/, "")
+      ;[
+        ["actor_id", this.selectedActor],
+        ["to_role", this.newRoleTarget.value]
+      ].forEach(pair => appendInput(form, pair))
+    }
 
     document.body.appendChild(form)
     form.submit()
   }
+}
+
+function appendInput(form, [name, value]) {
+  const input = document.createElement("input")
+  input.type = "hidden"
+  input.name = name
+  input.value = value
+  form.appendChild(input)
 }

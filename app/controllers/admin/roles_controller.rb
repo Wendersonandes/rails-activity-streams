@@ -1,6 +1,6 @@
 class Admin::RolesController < ApplicationController
   before_action :set_site_actor
-  skip_after_action :verify_policy_scoped, only: [ :index ]
+  skip_after_action :verify_policy_scoped, only: [ :index, :create ]
 
   def index
     authorize @site_actor, policy_class: Admin::RolePolicy
@@ -10,6 +10,13 @@ class Admin::RolesController < ApplicationController
     @silenced = @site_actor.contacts_for("silenced").to_a
     @banned = @site_actor.contacts_for("banned").to_a
     @total_members = @site_actor.contacts_for("member").count
+  end
+
+  def create
+    authorize @site_actor, policy_class: Admin::RolePolicy
+    member = find_actor(params[:actor_id])
+    GroupMembershipService.new(@site_actor, member).add(role: params[:to_role] || "member")
+    redirect_to admin_roles_path, notice: "Role assigned."
   end
 
   def update
