@@ -64,10 +64,14 @@ class GroupMembershipsController < ApplicationController
   end
 
   def decline_invite
-    contact = current_actor.received_contacts.pending.find_by(id: params[:contact_id])
     authorize @group_actor, :join?, policy_class: GroupPolicy
-    contact&.destroy
-    redirect_to group_memberships_path(@group), notice: "Invite declined."
+    contact = current_actor.received_contacts.pending
+                            .find_by(id: params[:contact_id], sender: @group_actor)
+    if contact&.destroy
+      redirect_to group_memberships_path(@group), notice: "Invite declined."
+    else
+      redirect_to group_memberships_path(@group), alert: "Invite not found."
+    end
   end
 
   def approve_request
