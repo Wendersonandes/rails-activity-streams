@@ -14,6 +14,9 @@ class GroupMembershipsController < ApplicationController
     else
       Contact.none
     end
+    @member_roles = current_actor ? @group_actor.member_roles_for(current_actor) : []
+    @total_members = @group.actor.sent_contacts.active.count
+    @total_posts = @group.actor.authored_activities.count
   end
 
   def insights

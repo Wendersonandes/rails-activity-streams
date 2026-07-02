@@ -13,8 +13,8 @@
           <p class="text-gray-600 mt-1"><%= @group.description %></p>
         <% end %>
         <div class="flex gap-4 mt-2 text-sm text-gray-500">
-          <span><%= @group.actor.authored_activities.count %> posts</span>
-          <span><%= @group.actor.sent_contacts.active.count %> members</span>
+          <span><%= @total_posts %> posts</span>
+          <span><%= @total_members %> members</span>
         </div>
       </div>
     </div>
@@ -23,16 +23,16 @@
   <div class="flex border-b border-gray-200 mb-6">
     <%= link_to "Posts", group_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" %>
     <span class="px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
-      Members (<%= @group.actor.sent_contacts.active.count %>)
+      Members (<%= @total_members %>)
     </span>
     <% if @is_admin %>
       <%= link_to "Insights", insights_group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" %>
     <% end %>
   </div>
 
-  <% if current_actor && @group.actor.member_roles_for(current_actor).any? %>
+  <% if current_actor && @member_roles.any? %>
     <div class="mb-4 flex justify-end">
-      <%= button_to "Leave Group", group_membership_path(@group, current_actor, role: @group.actor.member_roles_for(current_actor).first), method: :delete, data: { turbo_confirm: "Leave #{@group.name}?" }, class: "text-sm text-red-600 hover:text-red-800 bg-transparent border border-red-300 px-3 py-1.5 rounded hover:bg-red-50" %>
+      <%= button_to "Leave Group", group_membership_path(@group, current_actor, role: @member_roles.first), method: :delete, data: { turbo_confirm: "Leave #{@group.name}?" }, class: "text-sm text-red-600 hover:text-red-800 bg-transparent border border-red-300 px-3 py-1.5 rounded hover:bg-red-50" %>
     </div>
   <% end %>
 
@@ -97,7 +97,7 @@
   <% end %>
 
   <% if current_actor %>
-    <% already_member = @group_actor.member_roles_for(current_actor).any? %>
+    <% already_member = @member_roles.any? %>
     <% my_invites = already_member ? Contact.none : current_actor.received_contacts.pending.where(sender: @group_actor) %>
     <% if my_invites.any? %>
       <div class="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-200">
