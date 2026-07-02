@@ -78,23 +78,28 @@ puts "  Marketing Hub (admin: Carla)"
 # ── Memberships — Dev Team ──────────────────────────────────────
 puts "\nEstablishing memberships..."
 
+def add_member(group, user, role: "member")
+  group.actor.connect_to(user, as: role)
+  user.connect_to(group.actor, as: "member")
+end
+
 # Dev Team: Ana(admin), Bruno(mod), Carla(mod), Diego(member), Elisa(member)
-groups[:dev].actor.connect_to(actors[:bruno], as: "moderator")
-groups[:dev].actor.connect_to(actors[:carla], as: "moderator")
-groups[:dev].actor.connect_to(actors[:diego], as: "member")
-groups[:dev].actor.connect_to(actors[:elisa], as: "member")
+add_member(groups[:dev], actors[:bruno], role: "moderator")
+add_member(groups[:dev], actors[:carla], role: "moderator")
+add_member(groups[:dev], actors[:diego])
+add_member(groups[:dev], actors[:elisa])
 puts "  Dev Team: +Bruno(mod) +Carla(mod) +Diego(member) +Elisa(member)"
 
 # Design Circle: Bruno(admin), Ana(member), Carla(member), Elisa(member)
-groups[:design].actor.connect_to(actors[:ana],   as: "member")
-groups[:design].actor.connect_to(actors[:carla], as: "member")
-groups[:design].actor.connect_to(actors[:elisa], as: "member")
+add_member(groups[:design], actors[:ana])
+add_member(groups[:design], actors[:carla])
+add_member(groups[:design], actors[:elisa])
 puts "  Design Circle: +Ana(member) +Carla(member) +Elisa(member)"
 
 # Marketing Hub: Carla(admin), Diego(mod), Ana(member), Bruno(member)
-groups[:mkt].actor.connect_to(actors[:diego], as: "moderator")
-groups[:mkt].actor.connect_to(actors[:ana],   as: "member")
-groups[:mkt].actor.connect_to(actors[:bruno], as: "member")
+add_member(groups[:mkt], actors[:diego], role: "moderator")
+add_member(groups[:mkt], actors[:ana])
+add_member(groups[:mkt], actors[:bruno])
 puts "  Marketing Hub: +Diego(mod) +Ana(member) +Bruno(member)"
 
 # ── Contacts (profile-to-profile follows) ───────────────────────

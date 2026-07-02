@@ -97,7 +97,8 @@
   <% end %>
 
   <% if current_actor %>
-    <% my_invites = current_actor.received_contacts.pending.where(sender: @group_actor) %>
+    <% already_member = @group_actor.has_relation_with?(current_actor, "Member") || @group_actor.has_relation_with?(current_actor, "Moderator") || @group_actor.has_relation_with?(current_actor, "Admin") %>
+    <% my_invites = already_member ? Contact.none : current_actor.received_contacts.pending.where(sender: @group_actor) %>
     <% if my_invites.any? %>
       <div class="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-200">
         <h3 class="text-sm font-semibold text-blue-800 mb-3">Your Invites</h3>
