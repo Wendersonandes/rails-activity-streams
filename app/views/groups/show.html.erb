@@ -1,5 +1,8 @@
 <%= content_for :title, @group.name %>
 
+<% is_member = current_actor && (@group.actor.has_relation_with?(current_actor, "Admin") || @group.actor.has_relation_with?(current_actor, "Moderator") || @group.actor.has_relation_with?(current_actor, "Member")) %>
+<% can_see_content = @group.public_group? || is_member %>
+
 <div class="max-w-2xl mx-auto">
   <div class="bg-white rounded-lg shadow p-6 mb-4 border border-gray-100">
     <div class="flex items-start gap-4">
@@ -25,7 +28,7 @@
             <%= link_to "Edit", edit_group_path(@group), class: "text-sm text-blue-600 hover:underline" %>
             <%= button_to "Delete", group_path(@group), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "text-sm text-red-600 hover:underline bg-transparent border-0 cursor-pointer" %>
           </div>
-        <% elsif current_actor && @group.actor.has_relation_with?(current_actor, "Admin") %>
+        <% elsif is_member && @group.actor.has_relation_with?(current_actor, "Admin") %>
           <div class="mt-3 flex gap-2">
             <%= link_to "Edit", edit_group_path(@group), class: "text-sm text-blue-600 hover:underline" %>
           </div>
@@ -34,27 +37,38 @@
     </div>
   </div>
 
-  <div class="flex border-b border-gray-200 mb-4">
-    <%= link_to "Posts", group_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path == group_path(@group) ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" %>
-    <%= link_to group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path.start_with?(group_memberships_path(@group)) && !request.path.include?("/insights") ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" do %>
-      Members (<%= @group.actor.sent_contacts.active.count %>)
-    <% end %>
-    <% if current_actor && @group.actor.has_relation_with?(current_actor, "Admin") %>
-      <%= link_to "Insights", insights_group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path.include?("/insights") ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" %>
-    <% end %>
-  </div>
+  <% if can_see_content %>
+    <div class="flex border-b border-gray-200 mb-4">
+      <%= link_to "Posts", group_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path == group_path(@group) ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" %>
+      <%= link_to group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path.start_with?(group_memberships_path(@group)) && !request.path.include?("/insights") ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" do %>
+        Members (<%= @group.actor.sent_contacts.active.count %>)
+      <% end %>
+      <% if is_member && @group.actor.has_relation_with?(current_actor, "Admin") %>
+        <%= link_to "Insights", insights_group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path.include?("/insights") ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" %>
+      <% end %>
+    </div>
 
-  <div class="space-y-4">
-    <% if @activities.any? %>
-      <%= render partial: "shared/activity", collection: @activities, as: :activity %>
-    <% else %>
-      <div class="text-center text-gray-500 py-8">
-        <p>No posts yet.</p>
+    <div class="space-y-4">
+      <% if @activities.any? %>
+        <%= render partial: "shared/activity", collection: @activities, as: :activity %>
+      <% else %>
+        <div class="text-center text-gray-500 py-8">
+          <p>No posts yet.</p>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @pagy.pages > 1 %>
+      <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
+    <% end %>
+  <% else %>
+    <div class="text-center py-12">
+      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="text-2xl text-gray-400">🔒</span>
       </div>
-    <% end %>
-  </div>
-
-  <% if @pagy.pages > 1 %>
-    <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Private Group</h2>
+      <p class="text-gray-500 mb-4">Request to join to see content and members.</p>
+      <%= button_to "Request to Join", group_memberships_path(@group), params: { actor_id: current_actor&.id }, method: :post, class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer" %>
+    </div>
   <% end %>
 </div>

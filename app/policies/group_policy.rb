@@ -1,6 +1,6 @@
 class GroupPolicy < ApplicationPolicy
   def index?
-    true
+    record.actorable&.public_group? || member_or_above?
   end
 
   def show?
@@ -64,5 +64,9 @@ class GroupPolicy < ApplicationPolicy
   def member?
     return false unless actor
     record.has_relation_with?(actor, "Member")
+  end
+
+  def member_or_above?
+    admin? || moderator? || member?
   end
 end
