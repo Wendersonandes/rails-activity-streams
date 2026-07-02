@@ -1,6 +1,6 @@
 <%= content_for :title, @group.name %>
 
-<% is_member = current_actor && (@group.actor.has_relation_with?(current_actor, "Admin") || @group.actor.has_relation_with?(current_actor, "Moderator") || @group.actor.has_relation_with?(current_actor, "Member")) %>
+<% is_member = current_actor && @group.actor.member_roles_for(current_actor).any? %>
 <% can_see_content = @group.public_group? || is_member %>
 
 <div class="max-w-2xl mx-auto">

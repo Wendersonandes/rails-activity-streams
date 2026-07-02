@@ -20,7 +20,7 @@
             <% end %>
           </div>
           <% if current_actor && current_actor != group_actor %>
-            <% if group_actor.has_relation_with?(current_actor, "Member") || group_actor.has_relation_with?(current_actor, "Moderator") || group_actor.has_relation_with?(current_actor, "Admin") %>
+            <% if group_actor.member_roles_for(current_actor).any? %>
               <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">Member</span>
             <% else %>
               <% if group.public_group? %>

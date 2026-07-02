@@ -32,9 +32,7 @@ class GroupMembershipsController < ApplicationController
       @member = current_actor
       authorize @group_actor, :join?, policy_class: GroupPolicy
 
-      if @group_actor.has_relation_with?(@member, "Member") ||
-         @group_actor.has_relation_with?(@member, "Moderator") ||
-         @group_actor.has_relation_with?(@member, "Admin")
+      if @group_actor.member_roles_for(@member).any?
         return redirect_to group_memberships_path(@group), notice: "You are already a member."
       end
 
