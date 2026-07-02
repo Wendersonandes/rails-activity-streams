@@ -195,6 +195,13 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
     assert_not @bob_actor.has_relation_with?(@group.actor, "Member")
   end
 
+  test "accept_invite without pending invite redirects with alert" do
+    sign_in @bob
+    post accept_invite_group_memberships_path(@group)
+    assert_redirected_to group_memberships_path(@group)
+    assert_equal "No pending invite found.", flash[:alert]
+  end
+
   test "duplicate self-join shows already a member notice" do
     sign_in @bob
     @group.actor.connect_to(@bob_actor, as: "member")

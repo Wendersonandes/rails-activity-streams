@@ -54,8 +54,13 @@ class GroupMembershipsController < ApplicationController
 
   def accept_invite
     authorize @group_actor, :join?, policy_class: GroupPolicy
-    current_actor.connect_to(@group_actor, as: "member")
-    redirect_to group_memberships_path(@group), notice: "Invite accepted."
+    invite = current_actor.received_contacts.pending.find_by(sender: @group_actor)
+    if invite
+      current_actor.connect_to(@group_actor, as: "member")
+      redirect_to group_memberships_path(@group), notice: "Invite accepted."
+    else
+      redirect_to group_memberships_path(@group), alert: "No pending invite found."
+    end
   end
 
   def decline_invite
