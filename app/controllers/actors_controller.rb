@@ -11,11 +11,24 @@ class ActorsController < ApplicationController
 
     respond_to do |format|
       format.json do
-        site_actor = Site.instance.actor
-        render json: @actors.map { |a|
-          roles = site_actor.member_roles_for(a)
-          { id: a.id, name: a.name, slug: a.slug, type: a.actorable_type, role: roles.first || "none" }
-        }
+        if params[:include_site_roles] == "true"
+          site_actor = Site.instance.actor
+          actor_ids = @actors.map(&:id)
+
+          ties = Tie.joins(:contact, :relation)
+                    .where(contacts: { sender_id: site_actor.id, receiver_id: actor_ids })
+                    .select("contacts.receiver_id", "relations.name as relation_name")
+
+          actor_roles = ties.each_with_object({}) { |tie, hash| hash[tie.receiver_id] = tie.relation_name.downcase }
+
+          render json: @actors.map { |a|
+            { id: a.id, name: a.name, slug: a.slug, type: a.actorable_type, role: actor_roles[a.id] || "none" }
+          }
+        else
+          render json: @actors.map { |a|
+            { id: a.id, name: a.name, slug: a.slug, type: a.actorable_type }
+          }
+        end
       end
     end
   end

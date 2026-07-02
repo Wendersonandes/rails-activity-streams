@@ -15,7 +15,7 @@ export default class extends Controller {
       return
     }
 
-    fetch(`/actors.json?q=${encodeURIComponent(q)}`)
+    fetch(`/actors.json?q=${encodeURIComponent(q)}&include_site_roles=true`)
       .then(r => r.json())
       .then(actors => {
         if (actors.length === 0) {
