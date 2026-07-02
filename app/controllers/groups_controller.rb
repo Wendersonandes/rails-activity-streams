@@ -6,6 +6,7 @@ class GroupsController < ApplicationController
     authorize Actor
     @groups = policy_scope(Actor).where(actorable_type: "Group").includes(actorable: :actor)
     @pagy, @groups = pagy(@groups)
+    @groups = @groups.to_a
   end
 
   def show
