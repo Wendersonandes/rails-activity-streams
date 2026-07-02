@@ -5,9 +5,9 @@ class GroupMembershipsController < ApplicationController
 
   def index
     authorize @group_actor, policy_class: GroupPolicy
-    @admins = @group_actor.contacts_for("admin").includes(actorable: :actor).to_a
-    @moderators = @group_actor.contacts_for("moderator").includes(actorable: :actor).to_a
-    @members = @group_actor.contacts_for("member").includes(actorable: :actor).to_a
+    @admins = @group_actor.contacts_for("admin").to_a
+    @moderators = @group_actor.contacts_for("moderator").to_a
+    @members = @group_actor.contacts_for("member").to_a
     @is_admin = current_actor && @group_actor.has_relation_with?(current_actor, "Admin")
     @pending_requests = if @is_admin
       @group_actor.received_contacts.pending.includes(:sender).to_a

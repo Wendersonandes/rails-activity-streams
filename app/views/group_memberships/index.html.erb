@@ -122,12 +122,11 @@
       <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Admins (<%= @admins.count %>)</h3>
       <div class="space-y-2">
         <% @admins.each do |admin_actor| %>
-          <% subject = admin_actor.subject %>
           <div class="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-bold"><%= subject.name[0].upcase %></div>
+              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-bold"><%= admin_actor.name[0].upcase %></div>
               <div>
-                <p class="text-sm font-medium text-gray-900"><%= link_to subject.name, actor_path(admin_actor), class: "hover:underline" %></p>
+                <p class="text-sm font-medium text-gray-900"><%= link_to admin_actor.name, actor_path(admin_actor), class: "hover:underline" %></p>
                 <p class="text-xs text-gray-500">Admin</p>
               </div>
             </div>
@@ -138,7 +137,7 @@
                   <%= f.select :to_role, [["Admin", "admin"], ["Moderator", "moderator"], ["Member", "member"]], { selected: "admin" }, { class: "text-xs border border-gray-300 rounded px-2 py-1" } %>
                   <%= f.submit "Save", class: "text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 cursor-pointer" %>
                 <% end %>
-                <%= button_to "Remove", group_membership_path(@group, admin_actor, role: "admin"), method: :delete, data: { turbo_confirm: "Remove #{subject.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
+                <%= button_to "Remove", group_membership_path(@group, admin_actor, role: "admin"), method: :delete, data: { turbo_confirm: "Remove #{admin_actor.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
               </div>
             <% end %>
           </div>
@@ -152,12 +151,11 @@
       <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Moderators (<%= @moderators.count %>)</h3>
       <div class="space-y-2">
         <% @moderators.each do |mod_actor| %>
-          <% subject = mod_actor.subject %>
           <div class="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm font-bold"><%= subject.name[0].upcase %></div>
+              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm font-bold"><%= mod_actor.name[0].upcase %></div>
               <div>
-                <p class="text-sm font-medium text-gray-900"><%= link_to subject.name, actor_path(mod_actor), class: "hover:underline" %></p>
+                <p class="text-sm font-medium text-gray-900"><%= link_to mod_actor.name, actor_path(mod_actor), class: "hover:underline" %></p>
                 <p class="text-xs text-gray-500">Moderator</p>
               </div>
             </div>
@@ -168,7 +166,7 @@
                   <%= f.select :to_role, [["Admin", "admin"], ["Moderator", "moderator"], ["Member", "member"]], { selected: "moderator" }, { class: "text-xs border border-gray-300 rounded px-2 py-1" } %>
                   <%= f.submit "Save", class: "text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 cursor-pointer" %>
                 <% end %>
-                <%= button_to "Remove", group_membership_path(@group, mod_actor, role: "moderator"), method: :delete, data: { turbo_confirm: "Remove #{subject.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
+                <%= button_to "Remove", group_membership_path(@group, mod_actor, role: "moderator"), method: :delete, data: { turbo_confirm: "Remove #{mod_actor.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
               </div>
             <% end %>
           </div>
@@ -182,12 +180,11 @@
     <% if @members.any? %>
       <div class="space-y-2">
         <% @members.each do |member_actor| %>
-          <% subject = member_actor.subject %>
           <div class="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-sm font-bold"><%= subject.name[0].upcase %></div>
+              <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-sm font-bold"><%= member_actor.name[0].upcase %></div>
               <div>
-                <p class="text-sm font-medium text-gray-900"><%= link_to subject.name, actor_path(member_actor), class: "hover:underline" %></p>
+                <p class="text-sm font-medium text-gray-900"><%= link_to member_actor.name, actor_path(member_actor), class: "hover:underline" %></p>
                 <p class="text-xs text-gray-500">Member</p>
               </div>
             </div>
@@ -198,7 +195,7 @@
                   <%= f.select :to_role, [["Admin", "admin"], ["Moderator", "moderator"], ["Member", "member"]], { selected: "member" }, { class: "text-xs border border-gray-300 rounded px-2 py-1" } %>
                   <%= f.submit "Save", class: "text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 cursor-pointer" %>
                 <% end %>
-                <%= button_to "Remove", group_membership_path(@group, member_actor, role: "member"), method: :delete, data: { turbo_confirm: "Remove #{subject.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
+                <%= button_to "Remove", group_membership_path(@group, member_actor, role: "member"), method: :delete, data: { turbo_confirm: "Remove #{member_actor.name}?" }, class: "text-xs text-red-500 hover:text-red-700" %>
               </div>
             <% end %>
           </div>
