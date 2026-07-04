@@ -19,8 +19,8 @@
           <p class="text-sm text-gray-500"><%= current_actor.name %></p>
         </div>
         <div class="flex items-center gap-3">
-          <%= link_to "View", actor_path(current_actor), class: "text-sm text-blue-600 hover:underline" %>
-          <%= link_to "Edit", edit_profile_path, class: "text-sm text-blue-600 hover:underline" %>
+          <%= link_to "View", public_path_for(current_actor), class: "text-sm text-blue-600 hover:underline" %>
+          <%= link_to "Edit", edit_my_profile_path, class: "text-sm text-blue-600 hover:underline" %>
         </div>
       </div>
     <% end %>

@@ -14,7 +14,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should redirect edit when not signed in" do
-    get edit_profile_path
+    get edit_my_profile_path
     assert_redirected_to new_user_session_path
   end
 
@@ -23,18 +23,18 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     get activities_path  # should work if signed in
     assert_response :success
 
-    get edit_profile_path
+    get edit_my_profile_path
     assert_response :success
   end
 
   test "should update own profile" do
     sign_in @user
-    patch profile_path, params: {
+    patch my_profile_path, params: {
       profile: {
         phone: "555-0100",
         actor_attributes: { id: @actor.id, name: "Alice Updated", description: "New bio" }
       }
     }
-    assert_redirected_to actor_path(@actor)
+    assert_redirected_to profile_path(@actor)
   end
 end

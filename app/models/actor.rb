@@ -60,6 +60,15 @@ class Actor < ApplicationRecord
   has_many :authored_activities, class_name: "Activity", foreign_key: :author_id, dependent: :destroy
   has_many :owned_activities, class_name: "Activity", foreign_key: :owner_id, dependent: :destroy
 
+  has_one_attached :avatar do |attachable|
+    attachable.variant :thumb, resize_to_fill: [100, 100]
+    attachable.variant :medium, resize_to_fill: [300, 300]
+  end
+
+  has_one_attached :cover_image do |attachable|
+    attachable.variant :thumb, resize_to_fill: [800, 300]
+  end
+
   validates :name, presence: true
   validates :actorable_type, presence: true
 

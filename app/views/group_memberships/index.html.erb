@@ -4,8 +4,12 @@
      data-member-exclude="<%= (@admins + @moderators + @members).map(&:id).join(",") %>">
   <div class="bg-white rounded-lg shadow p-6 mb-4 border border-gray-100">
     <div class="flex items-start gap-4">
-      <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0">
-        G
+      <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0 overflow-hidden">
+        <% if @group.actor.avatar.attached? %>
+          <%= image_tag @group.actor.avatar.variant(:thumb), class: "w-16 h-16 rounded-lg object-cover" %>
+        <% else %>
+          G
+        <% end %>
       </div>
       <div class="flex-1">
         <h1 class="text-2xl font-bold text-gray-900"><%= @group.name %></h1>
@@ -77,9 +81,15 @@
         <% @pending_requests.each do |contact| %>
           <div class="flex items-center justify-between bg-white border border-yellow-100 rounded-lg px-4 py-3">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-sm font-bold"><%= contact.sender.name[0].upcase %></div>
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 overflow-hidden">
+                <% if contact.sender.avatar.attached? %>
+                  <%= image_tag contact.sender.avatar.variant(:thumb), class: "w-10 h-10 rounded-full object-cover" %>
+                <% else %>
+                  <span class="bg-yellow-100 w-full h-full flex items-center justify-center text-yellow-600"><%= contact.sender.name[0].upcase %></span>
+                <% end %>
+              </div>
               <div>
-                <p class="text-sm font-medium text-gray-900"><%= link_to contact.sender.name, actor_path(contact.sender), class: "hover:underline" %></p>
+                <p class="text-sm font-medium text-gray-900"><%= link_to contact.sender.name, public_path_for(contact.sender), class: "hover:underline" %></p>
                 <p class="text-xs text-yellow-600"><%= time_ago_in_words(contact.created_at) %> ago</p>
               </div>
             </div>
@@ -125,9 +135,15 @@
         <% @admins.each do |admin_actor| %>
           <div class="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-bold"><%= admin_actor.name[0].upcase %></div>
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 overflow-hidden">
+                <% if admin_actor.avatar.attached? %>
+                  <%= image_tag admin_actor.avatar.variant(:thumb), class: "w-10 h-10 rounded-full object-cover" %>
+                <% else %>
+                  <span class="bg-blue-100 w-full h-full flex items-center justify-center text-blue-600"><%= admin_actor.name[0].upcase %></span>
+                <% end %>
+              </div>
               <div>
-                <p class="text-sm font-medium text-gray-900"><%= link_to admin_actor.name, actor_path(admin_actor), class: "hover:underline" %></p>
+                <p class="text-sm font-medium text-gray-900"><%= link_to admin_actor.name, public_path_for(admin_actor), class: "hover:underline" %></p>
                 <p class="text-xs text-gray-500">Admin</p>
               </div>
             </div>
@@ -154,9 +170,15 @@
         <% @moderators.each do |mod_actor| %>
           <div class="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm font-bold"><%= mod_actor.name[0].upcase %></div>
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 overflow-hidden">
+                <% if mod_actor.avatar.attached? %>
+                  <%= image_tag mod_actor.avatar.variant(:thumb), class: "w-10 h-10 rounded-full object-cover" %>
+                <% else %>
+                  <span class="bg-green-100 w-full h-full flex items-center justify-center text-green-600"><%= mod_actor.name[0].upcase %></span>
+                <% end %>
+              </div>
               <div>
-                <p class="text-sm font-medium text-gray-900"><%= link_to mod_actor.name, actor_path(mod_actor), class: "hover:underline" %></p>
+                <p class="text-sm font-medium text-gray-900"><%= link_to mod_actor.name, public_path_for(mod_actor), class: "hover:underline" %></p>
                 <p class="text-xs text-gray-500">Moderator</p>
               </div>
             </div>
@@ -183,9 +205,15 @@
         <% @members.each do |member_actor| %>
           <div class="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-sm font-bold"><%= member_actor.name[0].upcase %></div>
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 overflow-hidden">
+                <% if member_actor.avatar.attached? %>
+                  <%= image_tag member_actor.avatar.variant(:thumb), class: "w-10 h-10 rounded-full object-cover" %>
+                <% else %>
+                  <span class="bg-gray-100 w-full h-full flex items-center justify-center text-gray-500"><%= member_actor.name[0].upcase %></span>
+                <% end %>
+              </div>
               <div>
-                <p class="text-sm font-medium text-gray-900"><%= link_to member_actor.name, actor_path(member_actor), class: "hover:underline" %></p>
+                <p class="text-sm font-medium text-gray-900"><%= link_to member_actor.name, public_path_for(member_actor), class: "hover:underline" %></p>
                 <p class="text-xs text-gray-500">Member</p>
               </div>
             </div>

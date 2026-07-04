@@ -1,5 +1,14 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: sites
+#
+#  id         :bigint           not null, primary key
+#  name       :string           not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
 class SiteTest < ActiveSupport::TestCase
   test "instance returns the same record" do
     site = Site.instance

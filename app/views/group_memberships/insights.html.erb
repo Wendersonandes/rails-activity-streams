@@ -3,8 +3,12 @@
 <div class="max-w-2xl mx-auto">
   <div class="bg-white rounded-lg shadow p-6 mb-4 border border-gray-100">
     <div class="flex items-start gap-4">
-      <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0">
-        G
+      <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0 overflow-hidden">
+        <% if @group.actor.avatar.attached? %>
+          <%= image_tag @group.actor.avatar.variant(:thumb), class: "w-16 h-16 rounded-lg object-cover" %>
+        <% else %>
+          G
+        <% end %>
       </div>
       <div class="flex-1">
         <h1 class="text-2xl font-bold text-gray-900"><%= @group.name %></h1>
@@ -67,9 +71,15 @@
           <% actor = item[:actor] %>
           <div class="flex items-center gap-3">
             <span class="text-xs font-bold text-gray-400 w-6">#<%= i + 1 %></span>
-            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xs font-bold"><%= actor.name[0].upcase %></div>
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+              <% if actor.avatar.attached? %>
+                <%= image_tag actor.avatar.variant(:thumb), class: "w-8 h-8 rounded-full object-cover" %>
+              <% else %>
+                <span class="bg-gray-200 w-full h-full flex items-center justify-center text-gray-500"><%= actor.name[0].upcase %></span>
+              <% end %>
+            </div>
             <div class="flex-1">
-              <p class="text-sm font-medium text-gray-900"><%= link_to actor.name, actor_path(actor), class: "hover:underline" %></p>
+              <p class="text-sm font-medium text-gray-900"><%= link_to actor.name, public_path_for(actor), class: "hover:underline" %></p>
             </div>
             <span class="text-sm font-semibold text-gray-700"><%= item[:count] %> posts</span>
           </div>

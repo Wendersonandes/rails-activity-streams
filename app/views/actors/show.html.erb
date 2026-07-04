@@ -1,10 +1,18 @@
 <%= content_for :title, @actor.name %>
 
 <div class="max-w-2xl mx-auto">
-  <div class="bg-white rounded-lg shadow p-6 mb-6 border border-gray-100">
+  <div class="bg-white rounded-lg shadow mb-6 border border-gray-100 overflow-hidden">
+    <% if @actor.cover_image.attached? %>
+      <%= image_tag @actor.cover_image.variant(:thumb), class: "w-full h-40 object-cover" %>
+    <% end %>
+    <div class="p-6">
     <div class="flex items-start gap-4">
-      <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0">
-        <%= @actor.name.first.upcase %>
+      <div class="w-16 h-16 rounded-full flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0 overflow-hidden">
+        <% if @actor.avatar.attached? %>
+          <%= image_tag @actor.avatar.variant(:thumb), class: "w-16 h-16 rounded-full object-cover" %>
+        <% else %>
+          <span class="bg-gray-200 w-full h-full flex items-center justify-center"><%= @actor.name.first.upcase %></span>
+        <% end %>
       </div>
       <div class="flex-1">
         <h1 class="text-2xl font-bold text-gray-900"><%= @actor.name %></h1>
@@ -28,6 +36,7 @@
         </div>
       <% end %>
     </div>
+  </div>
   </div>
 
   <div class="space-y-4">

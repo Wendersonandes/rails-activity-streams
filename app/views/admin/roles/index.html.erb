@@ -73,7 +73,7 @@
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-sm font-bold"><%= actor.name[0].upcase %></div>
               <div>
-                <p class="text-sm font-medium text-gray-900"><%= link_to actor.name, actor_path(actor), class: "hover:underline" %></p>
+                <p class="text-sm font-medium text-gray-900"><%= link_to actor.name, public_path_for(actor), class: "hover:underline" %></p>
                 <p class="text-xs text-gray-500"><%= section[:label].singularize %></p>
               </div>
             </div>

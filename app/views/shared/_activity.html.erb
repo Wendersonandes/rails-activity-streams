@@ -2,7 +2,7 @@
   <div class="flex items-start gap-3">
     <div class="flex-1">
       <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-        <%= link_to activity.author.name, actor_path(activity.author), class: "font-semibold text-gray-900 hover:underline" %>
+        <%= link_to activity.author.name, public_path_for(activity.author), class: "font-semibold text-gray-900 hover:underline" %>
         <span>&middot;</span>
         <span><%= time_ago_in_words(activity.created_at) %> ago</span>
         <% if activity.represented_author? && activity.user_author %>

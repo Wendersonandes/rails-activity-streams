@@ -8,7 +8,7 @@ class ProfilesController < ApplicationController
   before_action :set_profile, only: [ :edit, :update ]
 
   def show
-    redirect_to actor_path(current_actor)
+    redirect_to public_path_for(current_actor)
   end
 
   # Renders the profile form, preloading the state list and (when a state is set) its cities
@@ -30,7 +30,7 @@ class ProfilesController < ApplicationController
   def update
     authorize @profile.actor
     if @profile.update(profile_params)
-      redirect_to actor_path(current_actor), notice: "Profile updated."
+      redirect_to public_path_for(current_actor), notice: "Profile updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -49,7 +49,7 @@ class ProfilesController < ApplicationController
       :birthday, :phone, :mobile,
       :address, :city, :state, :country, :zipcode,
       :website, :organization,
-      actor_attributes: [ :id, :name, :description, :email ]
+      actor_attributes: [ :id, :name, :description, :email, :avatar, :cover_image ]
     )
   end
 end

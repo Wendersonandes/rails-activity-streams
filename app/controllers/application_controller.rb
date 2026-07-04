@@ -37,6 +37,24 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_actor
 
+  # Generates the correct public-facing URL for an {Actor} based on its +actorable_type+.
+  # Profiles are routed at +/profiles/:slug+, Groups at +/groups/:id+, and everything else
+  # falls back to +/actors/:slug+.
+  #
+  # @param actor [Actor] the actor to link to.
+  # @return [String] the URL path.
+  def public_path_for(actor)
+    case actor.actorable_type
+    when "Profile"
+      profile_path(actor)
+    when "Group"
+      group_path(actor.actorable_id)
+    else
+      actor_path(actor)
+    end
+  end
+  helper_method :public_path_for
+
   # Adds +:profile_name+ to the permitted Devise sign-up parameters so the initial {Profile}
   # can be created (see {User#setup_initial_profile!}).
   def configure_permitted_parameters

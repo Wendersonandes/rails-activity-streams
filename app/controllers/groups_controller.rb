@@ -23,6 +23,13 @@ class GroupsController < ApplicationController
                                         .roots.recent
                                         .includes(:author, :user_author, :activity_objects, :parent)
     @pagy, @activities = pagy(@activities)
+
+    @is_member = current_actor && @group.actor.member_roles_for(current_actor).any?
+    if @is_member
+      @admins     = @group.actor.contacts_for("admin").includes(:avatar_attachment).to_a
+      @moderators = @group.actor.contacts_for("moderator").includes(:avatar_attachment).to_a
+      @members    = @group.actor.contacts_for("member").includes(:avatar_attachment).to_a
+    end
   end
 
   def new
@@ -40,7 +47,7 @@ class GroupsController < ApplicationController
     authorize @group.actor, policy_class: GroupPolicy
 
     @group = GroupCreation.new(current_actor, @group).call
-    redirect_to group_path(@group.actor), notice: "Group created."
+    redirect_to group_path(@group), notice: "Group created."
   rescue ActiveRecord::RecordInvalid => e
     @group = e.record
     render :new, status: :unprocessable_entity
@@ -53,7 +60,7 @@ class GroupsController < ApplicationController
   def update
     authorize @group.actor, policy_class: GroupPolicy
     if @group.update(group_params)
-      redirect_to group_path(@group.actor), notice: "Group updated."
+      redirect_to group_path(@group), notice: "Group updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -74,7 +81,7 @@ class GroupsController < ApplicationController
   def group_params
     params.require(:group).permit(
       :privacy,
-      actor_attributes: [ :id, :name, :description, :email ]
+      actor_attributes: [ :id, :name, :description, :email, :avatar, :cover_image ]
     )
   end
 end

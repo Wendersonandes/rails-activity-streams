@@ -1,74 +1,161 @@
 <%= content_for :title, @group.name %>
 
-<% is_member = current_actor && @group.actor.member_roles_for(current_actor).any? %>
-<% can_see_content = @group.public_group? || is_member %>
+<%
+  can_see_content = @group.public_group? || @is_member
+  container_class = @is_member ? "max-w-6xl" : "max-w-2xl"
+%>
 
-<div class="max-w-2xl mx-auto">
-  <div class="bg-white rounded-lg shadow p-6 mb-4 border border-gray-100">
-    <div class="flex items-start gap-4">
-      <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0">
-        G
-      </div>
-      <div class="flex-1">
-        <h1 class="text-2xl font-bold text-gray-900">
-          <%= @group.name %>
-          <span class="text-xs font-normal align-middle <%= @group.public_group? ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %> px-2 py-0.5 rounded-full">
-            <%= @group.public_group? ? "Public" : "Private" %>
-          </span>
-        </h1>
-        <% if @group.description.present? %>
-          <p class="text-gray-600 mt-1"><%= @group.description %></p>
+<div class="<%= container_class %> mx-auto px-5">
+  <div class="flex gap-6">
+    <div class="flex-1 min-w-0">
+      <div class="bg-white rounded-lg shadow mb-4 border border-gray-100 overflow-hidden">
+        <% if @group.actor.cover_image.attached? %>
+          <%= image_tag @group.actor.cover_image.variant(:thumb), class: "w-full h-40 object-cover" %>
         <% end %>
-        <div class="flex gap-4 mt-2 text-sm text-gray-500">
-          <span><%= @group.actor.authored_activities.count %> posts</span>
-          <span><%= @group.actor.sent_contacts.active.count %> members</span>
+        <div class="p-6">
+        <div class="flex items-start gap-4">
+          <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0 overflow-hidden">
+            <% if @group.actor.avatar.attached? %>
+              <%= image_tag @group.actor.avatar.variant(:thumb), class: "w-16 h-16 rounded-lg object-cover" %>
+            <% else %>
+              G
+            <% end %>
+          </div>
+          <div class="flex-1">
+            <h1 class="text-2xl font-bold text-gray-900">
+              <%= @group.name %>
+              <span class="text-xs font-normal align-middle <%= @group.public_group? ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %> px-2 py-0.5 rounded-full">
+                <%= @group.public_group? ? "Public" : "Private" %>
+              </span>
+            </h1>
+            <% if @group.description.present? %>
+              <p class="text-gray-600 mt-1"><%= @group.description %></p>
+            <% end %>
+            <div class="flex gap-4 mt-2 text-sm text-gray-500">
+              <span><%= @group.actor.authored_activities.count %> posts</span>
+              <span><%= @group.actor.sent_contacts.active.count %> members</span>
+            </div>
+            <% if current_actor == @group.actor %>
+              <div class="mt-3 flex gap-2">
+                <%= link_to "Edit", edit_group_path(@group), class: "text-sm text-blue-600 hover:underline" %>
+                <%= button_to "Delete", group_path(@group), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "text-sm text-red-600 hover:underline bg-transparent border-0 cursor-pointer" %>
+              </div>
+            <% elsif @is_member && @group.actor.has_relation_with?(current_actor, "Admin") %>
+              <div class="mt-3 flex gap-2">
+                <%= link_to "Edit", edit_group_path(@group), class: "text-sm text-blue-600 hover:underline" %>
+              </div>
+            <% end %>
+          </div>
         </div>
-        <% if current_actor == @group.actor %>
-          <div class="mt-3 flex gap-2">
-            <%= link_to "Edit", edit_group_path(@group), class: "text-sm text-blue-600 hover:underline" %>
-            <%= button_to "Delete", group_path(@group), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "text-sm text-red-600 hover:underline bg-transparent border-0 cursor-pointer" %>
-          </div>
-        <% elsif is_member && @group.actor.has_relation_with?(current_actor, "Admin") %>
-          <div class="mt-3 flex gap-2">
-            <%= link_to "Edit", edit_group_path(@group), class: "text-sm text-blue-600 hover:underline" %>
-          </div>
-        <% end %>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <% if can_see_content %>
-    <div class="flex border-b border-gray-200 mb-4">
-      <%= link_to "Posts", group_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path == group_path(@group) ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" %>
-      <%= link_to group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path.start_with?(group_memberships_path(@group)) && !request.path.include?("/insights") ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" do %>
-        Members (<%= @group.actor.sent_contacts.active.count %>)
-      <% end %>
-      <% if is_member && @group.actor.has_relation_with?(current_actor, "Admin") %>
-        <%= link_to "Insights", insights_group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path.include?("/insights") ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" %>
-      <% end %>
-    </div>
+      <% if can_see_content %>
+        <div class="flex border-b border-gray-200 mb-4">
+          <%= link_to "Posts", group_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path == group_path(@group) ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" %>
+          <%= link_to group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path.start_with?(group_memberships_path(@group)) && !request.path.include?("/insights") ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" do %>
+            Members (<%= @group.actor.sent_contacts.active.count %>)
+          <% end %>
+          <% if @is_member && @group.actor.has_relation_with?(current_actor, "Admin") %>
+            <%= link_to "Insights", insights_group_memberships_path(@group), class: "px-4 py-2 text-sm font-medium border-b-2 #{request.path.include?("/insights") ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" %>
+          <% end %>
+        </div>
 
-    <div class="space-y-4">
-      <% if @activities.any? %>
-        <%= render partial: "shared/activity", collection: @activities, as: :activity %>
+        <div class="space-y-4">
+          <% if @activities.any? %>
+            <%= render partial: "shared/activity", collection: @activities, as: :activity %>
+          <% else %>
+            <div class="text-center text-gray-500 py-8">
+              <p>No posts yet.</p>
+            </div>
+          <% end %>
+        </div>
+
+        <% if @pagy.pages > 1 %>
+          <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
+        <% end %>
       <% else %>
-        <div class="text-center text-gray-500 py-8">
-          <p>No posts yet.</p>
+        <div class="text-center py-12">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl text-gray-400">🔒</span>
+          </div>
+          <h2 class="text-lg font-semibold text-gray-700 mb-2">Private Group</h2>
+          <p class="text-gray-500 mb-4">Request to join to see content and members.</p>
+          <%= button_to "Request to Join", group_memberships_path(@group), params: { actor_id: current_actor&.id }, method: :post, class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer" %>
         </div>
       <% end %>
     </div>
 
-    <% if @pagy.pages > 1 %>
-      <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
+    <% if @is_member %>
+      <aside class="w-72 flex-shrink-0 hidden lg:block">
+        <div class="bg-white rounded-lg shadow border border-gray-100 p-4 sticky top-20">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">
+            Members
+            <span class="text-gray-400 font-normal">(<%= @admins.size + @moderators.size + @members.size %>)</span>
+          </h3>
+
+          <% if @admins.any? %>
+            <div class="space-y-1">
+              <% @admins.each do |actor| %>
+                <%= link_to public_path_for(actor), class: "flex items-center gap-2 py-1.5 px-2 -mx-2 rounded-lg hover:bg-gray-50" do %>
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+                    <% if actor.avatar.attached? %>
+                      <%= image_tag actor.avatar.variant(:thumb), class: "w-7 h-7 rounded-full object-cover" %>
+                    <% else %>
+                      <span class="bg-blue-100 w-full h-full flex items-center justify-center text-blue-600"><%= actor.name[0].upcase %></span>
+                    <% end %>
+                  </div>
+                  <span class="flex-1 text-sm text-gray-900 truncate"><%= actor.name %></span>
+                  <span class="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium flex-shrink-0">Admin</span>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if @moderators.any? %>
+            <div class="<%= "mt-2" if @admins.any? %> space-y-1">
+              <% @moderators.each do |actor| %>
+                <%= link_to public_path_for(actor), class: "flex items-center gap-2 py-1.5 px-2 -mx-2 rounded-lg hover:bg-gray-50" do %>
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+                    <% if actor.avatar.attached? %>
+                      <%= image_tag actor.avatar.variant(:thumb), class: "w-7 h-7 rounded-full object-cover" %>
+                    <% else %>
+                      <span class="bg-green-100 w-full h-full flex items-center justify-center text-green-600"><%= actor.name[0].upcase %></span>
+                    <% end %>
+                  </div>
+                  <span class="flex-1 text-sm text-gray-900 truncate"><%= actor.name %></span>
+                  <span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium flex-shrink-0">Mod</span>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if @members.any? %>
+            <div class="<%= "mt-2" if @admins.any? || @moderators.any? %> space-y-1">
+              <% @members.first(12).each do |actor| %>
+                <%= link_to public_path_for(actor), class: "flex items-center gap-2 py-1.5 px-2 -mx-2 rounded-lg hover:bg-gray-50" do %>
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+                    <% if actor.avatar.attached? %>
+                      <%= image_tag actor.avatar.variant(:thumb), class: "w-7 h-7 rounded-full object-cover" %>
+                    <% else %>
+                      <span class="bg-gray-100 w-full h-full flex items-center justify-center text-gray-500"><%= actor.name[0].upcase %></span>
+                    <% end %>
+                  </div>
+                  <span class="flex-1 text-sm text-gray-900 truncate"><%= actor.name %></span>
+                <% end %>
+              <% end %>
+              <% if @members.size > 12 %>
+                <p class="text-xs text-gray-400 px-2 py-1">+<%= @members.size - 12 %> more members</p>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%= link_to group_memberships_path(@group), class: "flex items-center justify-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium mt-3 pt-3 border-t border-gray-100" do %>
+            View all members
+            <span class="text-gray-400">&rarr;</span>
+          <% end %>
+        </div>
+      </aside>
     <% end %>
-  <% else %>
-    <div class="text-center py-12">
-      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <span class="text-2xl text-gray-400">🔒</span>
-      </div>
-      <h2 class="text-lg font-semibold text-gray-700 mb-2">Private Group</h2>
-      <p class="text-gray-500 mb-4">Request to join to see content and members.</p>
-      <%= button_to "Request to Join", group_memberships_path(@group), params: { actor_id: current_actor&.id }, method: :post, class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer" %>
-    </div>
-  <% end %>
+  </div>
 </div>

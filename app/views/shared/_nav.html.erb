@@ -12,7 +12,7 @@
     <div class="flex items-center gap-4">
       <% if user_signed_in? %>
         <% if current_actor %>
-          <%= link_to current_actor.name, actor_path(current_actor), class: "text-sm font-medium text-gray-700 hover:text-blue-600" %>
+          <%= link_to current_actor.name, public_path_for(current_actor), class: "text-sm font-medium text-gray-700 hover:text-blue-600" %>
         <% end %>
         <%= link_to "Account", account_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
         <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "text-sm text-gray-500 hover:text-red-600 bg-transparent border-0 cursor-pointer" %>

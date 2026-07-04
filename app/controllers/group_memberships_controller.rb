@@ -17,12 +17,12 @@ class GroupMembershipsController < ApplicationController
   # admins only), and headline counts. Authorized via +GroupPolicy#index?+.
   def index
     authorize @group_actor, policy_class: GroupPolicy
-    @admins = @group_actor.contacts_for("admin").to_a
-    @moderators = @group_actor.contacts_for("moderator").to_a
-    @members = @group_actor.contacts_for("member").to_a
+    @admins = @group_actor.contacts_for("admin").includes(:avatar_attachment).to_a
+    @moderators = @group_actor.contacts_for("moderator").includes(:avatar_attachment).to_a
+    @members = @group_actor.contacts_for("member").includes(:avatar_attachment).to_a
     @is_admin = current_actor && @group_actor.has_relation_with?(current_actor, "Admin")
     @pending_requests = if @is_admin
-      @group_actor.received_contacts.pending.includes(:sender).to_a
+      @group_actor.received_contacts.pending.includes(sender: :avatar_attachment).to_a
     else
       Contact.none
     end
@@ -187,7 +187,7 @@ class GroupMembershipsController < ApplicationController
                    .count
 
     author_ids = raw_top.keys
-    author_map = Actor.where(id: author_ids).index_by(&:id)
+    author_map = Actor.where(id: author_ids).includes(:avatar_attachment).index_by(&:id)
     top_contributors = raw_top.map { |id, count| { actor: author_map[id], count: count } }
 
     {
