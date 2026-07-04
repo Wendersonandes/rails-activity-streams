@@ -1,7 +1,14 @@
+# Public-facing access to {Actor Actors}: a JSON search endpoint (used by autocomplete/mention
+# pickers) and an actor's profile page with its activity feed.
+#
+# @see ActorPolicy
 class ActorsController < ApplicationController
   skip_before_action :authenticate_user!, only: [ :show ]
   skip_after_action :verify_policy_scoped, only: [ :index ]
 
+  # JSON actor search by name (authorized via +ActorPolicy#index?+). When
+  # +params[:include_site_roles]+ is "true", each result is enriched with the actor's role on
+  # the {Site} (resolved from the site actor's {Tie Ties}).
   def index
     authorize Actor
     @actors = Actor.name_search(params[:q])
@@ -33,6 +40,8 @@ class ActorsController < ApplicationController
     end
   end
 
+  # An actor's profile page with its authored root activities, paginated and scoped through
+  # +ActivityPolicy::Scope+. Authorized via +ActorPolicy#show?+.
   def show
     @actor = Actor.find_by!(slug: params[:id])
     authorize @actor

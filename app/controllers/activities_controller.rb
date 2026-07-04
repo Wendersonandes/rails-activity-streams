@@ -1,7 +1,17 @@
+# Handles the activity stream: the home timeline, showing a single {Activity}, and publishing
+# or removing activities. Creation delegates the heavy lifting (building the {Post}/
+# {ActivityObject} and distributing to {Audience audiences}) to {ActivityCreation}.
+#
+# @see ActivityCreation
+# @see ActivityPolicy
 class ActivitiesController < ApplicationController
   skip_before_action :authenticate_user!, only: [ :show ]
   before_action :set_activity, only: [ :show, :destroy ]
 
+  # The signed-in actor's home timeline, paginated and narrowed to what they may see.
+  #
+  # Authorized via +ActivityPolicy#index?+; the listing is scoped through
+  # +ActivityPolicy::Scope+ before {Activity.home_timeline}.
   def index
     authorize Activity
     @pagy, @activities = pagy(
@@ -18,6 +28,14 @@ class ActivitiesController < ApplicationController
     authorize @activity
   end
 
+  # Publishes a new activity. The current actor is set as author and owner, and the current
+  # user as +user_author+. The persistence of the post content and the audience distribution
+  # are delegated to {ActivityCreation}.
+  #
+  # Authorized via +ActivityPolicy#create?+. On validation failure re-renders +new+ with 422.
+  #
+  # @note Responds via Turbo Stream by prepending the rendered activity to the +feed+ element,
+  #   updating the stream in place without a full page reload.
   def create
     @activity = Activity.new(activity_params.except(:text, :relation_ids).merge(
       author: current_actor, user_author: current_user, owner: current_actor
@@ -40,6 +58,9 @@ class ActivitiesController < ApplicationController
     render :new, status: :unprocessable_entity
   end
 
+  # Removes the activity (authorized via +ActivityPolicy#destroy?+).
+  #
+  # @note Responds via Turbo Stream by removing the activity's element from the page.
   def destroy
     authorize @activity
     @activity.destroy

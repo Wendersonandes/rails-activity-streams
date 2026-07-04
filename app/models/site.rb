@@ -7,11 +7,23 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
+
+# The {Site} is the application itself represented as an {Actor}. It is the third concrete
+# type behind +delegated_type :actorable+ ({Profile}, {Group}, {Site}) and acts as the global
+# entity that owns site-wide relations such as {Relation::LocalAdmin}.
+#
+# A single site record is expected; reach it through {.instance}.
+#
+# @see Actor
+# @see Relation::LocalAdmin
 class Site < ApplicationRecord
   has_one :actor, as: :actorable, dependent: :destroy, autosave: true
 
   validates :name, presence: true
 
+  # The singleton site record, creating it (and its backing {Actor}) on first access.
+  #
+  # @return [Site]
   def self.instance
     site = find_by(name: "Plataforma")
     return site if site && site.actor.present?

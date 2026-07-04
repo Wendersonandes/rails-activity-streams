@@ -27,6 +27,17 @@
 #
 #  fk_rails_...  (current_profile_id => actors.id) ON DELETE => nullify
 #
+
+# A {User} is the authentication identity of a person, managed by
+# {https://github.com/heartcombo/devise Devise}. It is deliberately kept separate from the
+# social graph: a user does not participate in the network directly but *through* a {Profile}.
+#
+# A user {#profiles has_many} profiles and points to a {#current_profile} — the {Actor} it is
+# currently acting as. This is the entity recorded as the +user_author+ of an {Activity}: even
+# when acting on behalf of a {Group}, the user_author still identifies the logged-in user.
+#
+# @see Profile The individual actor a user acts as.
+# @see Actor   The social-graph node behind a profile.
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :trackable
@@ -43,6 +54,8 @@ class User < ApplicationRecord
 
   private
 
+  # +after_create+ callback: builds the user's first {Profile} (via {ProfileCreation}) and sets
+  # it as the {#current_profile}. Rolls back registration if the profile cannot be created.
   def setup_initial_profile!
     actor = ProfileCreation.new(self, name: profile_name).call
     update_column(:current_profile_id, actor.id)

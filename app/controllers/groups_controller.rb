@@ -1,7 +1,15 @@
+# CRUD for {Group Groups}. Because a group participates in the graph through its {Actor},
+# authorization operates on +@group.actor+ with an explicit +policy_class: GroupPolicy+, and
+# creation is delegated to {GroupCreation} (which builds the activity object and the founder's
+# admin tie).
+#
+# @see GroupCreation
+# @see GroupPolicy
 class GroupsController < ApplicationController
   skip_before_action :authenticate_user!, only: [ :index, :show ]
   before_action :set_group, only: [ :show, :edit, :update, :destroy ]
 
+  # Lists group actors, paginated. Scoped through +ActorPolicy::Scope+ and filtered to groups.
   def index
     authorize Actor
     @groups = policy_scope(Actor).where(actorable_type: "Group").includes(actorable: :actor)
@@ -23,6 +31,10 @@ class GroupsController < ApplicationController
     authorize @group.actor, policy_class: GroupPolicy
   end
 
+  # Creates a group, delegating persistence and the founder's admin tie to {GroupCreation}.
+  #
+  # Authorized via +GroupPolicy#create?+ (on the built actor). On validation failure re-renders
+  # +new+ with 422.
   def create
     @group = Group.new(group_params)
     authorize @group.actor, policy_class: GroupPolicy

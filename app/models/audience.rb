@@ -18,6 +18,13 @@
 #  fk_rails_...  (activity_id => activities.id) ON DELETE => cascade
 #  fk_rails_...  (relation_id => relations.id) ON DELETE => cascade
 #
+
+# Join model sharing an {Activity} with a {Relation}. Each {Audience} is equivalent to a
+# {Relation}, which defines the {Actor Actors} assigned to it and the {Permission Permissions}
+# granted to that audience. Together, an activity's audiences determine who can reach it.
+#
+# @see Activity
+# @see Relation
 class Audience < ApplicationRecord
   belongs_to :activity
   belongs_to :relation

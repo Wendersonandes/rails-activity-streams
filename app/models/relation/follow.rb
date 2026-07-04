@@ -22,6 +22,11 @@
 #  fk_rails_...  (actor_id => actors.id) ON DELETE => restrict
 #  fk_rails_...  (parent_id => relations.id) ON DELETE => nullify
 #
+
+# System {Relation} representing a one-way follow. It grants the +follow+ permission along
+# with create/read access to activities, so a follower receives the followed actor's updates.
+#
+# @see Relation::Single
 class Relation::Follow < Relation::Single
   PERMISSIONS = [
     [ "create", "activity" ],

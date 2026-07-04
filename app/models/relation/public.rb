@@ -22,15 +22,31 @@
 #  fk_rails_...  (actor_id => actors.id) ON DELETE => restrict
 #  fk_rails_...  (parent_id => relations.id) ON DELETE => nullify
 #
+
+# The default {Relation} for public content. An {Activity} shared with the public relation
+# is readable by everyone, regardless of ties. It grants a single permission: +read activity+.
+#
+# @see Relation::Single The system-relation base.
+# @see Relation#ids_shared_with
 class Relation::Public < Relation::Single
   PERMISSIONS = [
     [ "read", "activity" ]
   ].freeze
 
+  # {Relation::Public} always sorts last among relations.
+  #
+  # @param relation [Relation]
+  # @return [Integer] always 1.
   def <=>(relation)
     1
   end
 
+  # Grants only +read activity+; every other action/object is denied.
+  #
+  # @param user [Object] unused; kept for interface symmetry.
+  # @param action [String]
+  # @param object [String]
+  # @return [Boolean]
   def allow?(user, action, object)
     action == "read" && object == "activity"
   end

@@ -1,3 +1,9 @@
+# Editing of the signed-in user's {Profile} (personal fields and the delegated {Actor}
+# identity). +show+ simply redirects to the actor's public page. Location selects are populated
+# from the +countries+/+cities+ (CS) gem.
+#
+# @see Profile
+# @see ActorPolicy
 class ProfilesController < ApplicationController
   before_action :set_profile, only: [ :edit, :update ]
 
@@ -5,6 +11,8 @@ class ProfilesController < ApplicationController
     redirect_to actor_path(current_actor)
   end
 
+  # Renders the profile form, preloading the state list and (when a state is set) its cities
+  # from the CS gem. Authorized via +ActorPolicy#edit?+ on the profile's actor.
   def edit
     authorize @profile.actor
     states_hash = CS.states(:BR)
@@ -18,6 +26,7 @@ class ProfilesController < ApplicationController
     end
   end
 
+  # Updates the profile and its nested actor attributes (authorized via +ActorPolicy#update?+).
   def update
     authorize @profile.actor
     if @profile.update(profile_params)

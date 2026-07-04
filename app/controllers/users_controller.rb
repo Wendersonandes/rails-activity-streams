@@ -1,3 +1,8 @@
+# Account settings for the signed-in {User} (the authentication identity). Every action
+# operates on +current_user+ and is authorized via {UserPolicy} (a user may only manage itself).
+#
+# @see User
+# @see UserPolicy
 class UsersController < ApplicationController
   before_action :set_user, only: [ :show, :edit, :update ]
 
@@ -9,6 +14,8 @@ class UsersController < ApplicationController
     authorize @user
   end
 
+  # Updates account credentials with the current password (Devise's +update_with_password+),
+  # re-authenticating the session when the password changes. Authorized via +UserPolicy#update?+.
   def update
     authorize @user
     if @user.update_with_password(user_params)

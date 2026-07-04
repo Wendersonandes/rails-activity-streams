@@ -31,6 +31,25 @@
 #  fk_rails_...  (owner_id => actors.id) ON DELETE => restrict
 #  fk_rails_...  (user_author_id => users.id) ON DELETE => restrict
 #
+
+# An {ActivityObject} is any object that receives actions: creating a {Post}, following a
+# {Profile}, joining a {Group}. It is the target that {Activity Activities} and
+# {ActivityAction ActivityActions} point at.
+#
+# == Object subtypes
+# The concrete object is resolved through +delegated_type :objectable+ and can be a {Profile},
+# a {Group} or a {Post}. Use {#object} to reach the delegated record and {#acts_as_actor?} to
+# tell whether the object is itself an actor (profile/group).
+#
+# == Authorship and audience
+# Unlike a bare content row, an activity object carries its own +author+, +owner+ and
+# +user_author+ (see {Activity} for the meaning of these roles) and its own audience through
+# {ActivityObjectAudience}, so visibility can be resolved for the object independently of any
+# single activity.
+#
+# @see Activity        The action performed on this object.
+# @see ActivityAction  Per-actor actions (e.g. follow) received by this object.
+# @see Post            A common concrete object subtype.
 class ActivityObject < ApplicationRecord
   delegated_type :objectable, types: %w[Profile Group Post]
 
@@ -47,19 +66,58 @@ class ActivityObject < ApplicationRecord
 
   validates :objectable_type, presence: true
 
+  # Objects authored by +actor+. Returns all objects when +actor+ is blank.
+  #
+  # @param actor [Actor, Integer, nil] the author (or its id).
+  # @return [ActiveRecord::Relation<ActivityObject>]
   scope :authored_by, ->(actor) { where(author_id: Actor.normalize_id(actor)) if actor.present? }
+
+  # Objects owned by +actor+. Returns all objects when +actor+ is blank.
+  #
+  # @param actor [Actor, Integer, nil] the owner (or its id).
+  # @return [ActiveRecord::Relation<ActivityObject>]
   scope :owned_by, ->(actor) { where(owner_id: Actor.normalize_id(actor)) if actor.present? }
+
+  # Objects +subject+ is allowed to reach, resolved through their {ActivityObjectAudience
+  # audiences}: the relations shared with the subject plus the {Relation::Public public relation}.
+  #
+  # @param subject [Actor, nil] the viewer; +nil+ yields only public objects.
+  # @return [ActiveRecord::Relation<ActivityObject>]
+  # @see Relation.ids_shared_with
   scope :shared_with, ->(subject) {
     joins(:activity_object_audiences)
       .merge(ActivityObjectAudience.where(relation_id: Relation.ids_shared_with(subject)))
   }
+
+  # Publicly visible objects (shared with no particular subject).
+  #
+  # @return [ActiveRecord::Relation<ActivityObject>]
+  # @see .shared_with
   scope :public_only, -> { shared_with(nil) }
+
+  # Public objects ordered by popularity (descending like count).
+  #
+  # @return [ActiveRecord::Relation<ActivityObject>]
   scope :trending, -> { public_only.order(like_count: :desc) }
+
+  # Objects followed by +actor+ (through a {ActivityAction} with +follow: true+). Returns all
+  # objects when +actor+ is blank.
+  #
+  # @param actor [Actor, nil] the follower.
+  # @return [ActiveRecord::Relation<ActivityObject>]
   scope :followed_by, ->(actor) {
     return all unless actor.present?
     joins(:received_actions).merge(ActivityAction.where(actor: actor, follow: true))
   }
 
+  # Coerces its argument into an {ActivityObject}.
+  #
+  # Accepts an {ActivityObject} (returned as-is), an id, an array (mapped element by element),
+  # or any object responding to +#activity_object+.
+  #
+  # @param a [ActivityObject, Integer, Array, #activity_object]
+  # @return [ActivityObject, Array<ActivityObject>]
+  # @raise [RuntimeError] when the value cannot be resolved.
   def self.normalize(a)
     case a
     when ActivityObject then a
@@ -71,6 +129,10 @@ class ActivityObject < ApplicationRecord
     raise "Unable to normalize ActivityObject: #{a.inspect}"
   end
 
+  # Coerces its argument into an activity object id. See {.normalize} for accepted values.
+  #
+  # @param a [ActivityObject, Integer, Array]
+  # @return [Integer, Array<Integer>]
   def self.normalize_id(a)
     case a
     when Integer then a
@@ -79,23 +141,40 @@ class ActivityObject < ApplicationRecord
     end
   end
 
+  # The delegated concrete object ({Profile}, {Group} or {Post}).
+  #
+  # @return [Profile, Group, Post]
   def object
     objectable
   end
 
+  # Was +actor+ the author or owner of this object?
+  #
+  # @param actor [Actor, Integer, nil]
+  # @return [Boolean]
   def authored_or_owned_by?(actor)
     return false if actor.blank?
     author_id == Actor.normalize_id(actor) || owner_id == Actor.normalize_id(actor)
   end
 
+  # Was the author acting on behalf of another entity when this object was created
+  # (author differs from user_author)?
+  #
+  # @return [Boolean]
   def represented_author?
     author_id.present? && user_author_id.present? && author_id != user_author_id
   end
 
+  # Is the delegated object itself an actor (a {Profile} or {Group})?
+  #
+  # @return [Boolean]
   def acts_as_actor?
     objectable_type == "Profile" || objectable_type == "Group"
   end
 
+  # The +post+ {Activity} that created this object.
+  #
+  # @return [Activity, nil]
   def post_activity
     activities.joins(:activity_object_activities)
               .where(activity_object_activities: { activity_object_id: id })
@@ -103,12 +182,19 @@ class ActivityObject < ApplicationRecord
               .first
   end
 
+  # The +like+ {Activity Activities} targeting this object.
+  #
+  # @return [ActiveRecord::Relation<Activity>]
   def likes
     Activity.where(verb: :like)
             .joins(:activity_object_activities)
             .where(activity_object_activities: { activity_object_id: id })
   end
 
+  # Has +actor+ liked this object?
+  #
+  # @param actor [Actor]
+  # @return [Boolean]
   def liked_by?(actor)
     likes.exists?(author: actor)
   end

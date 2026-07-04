@@ -1,3 +1,7 @@
+# Serves location option lists (states and cities) as HTML +<option>+ fragments for dependent
+# selects, backed by the +countries+/+cities+ (CS) gem. Public and outside the authorization
+# pipeline: it skips both +authenticate_user!+ and +verify_authorized+ since it exposes no
+# domain data.
 class LocationsController < ApplicationController
   skip_before_action :authenticate_user!
   skip_after_action :verify_authorized

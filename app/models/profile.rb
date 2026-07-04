@@ -25,6 +25,17 @@
 #
 #  fk_rails_...  (user_id => users.id) ON DELETE => restrict
 #
+
+# A {Profile} is the *individual* actor subtype: the persona a {User} presents in the social
+# network. It is one of the concrete types behind {Actor}'s +delegated_type :actorable+
+# (alongside {Group} and {Site}).
+#
+# The profile holds personal contact fields (address, phone, website, etc.) and delegates the
+# shared identity attributes (name, email, slug, description) to its {#actor}. It is also
+# backed by an {ActivityObject}, so a profile can be followed and acted upon.
+#
+# @see User   The authentication identity that owns this profile.
+# @see Actor  The social-graph node this profile delegates to.
 class Profile < ApplicationRecord
   has_one :actor, as: :actorable, dependent: :destroy, autosave: true
   has_one :activity_object, as: :objectable, dependent: :destroy, autosave: true

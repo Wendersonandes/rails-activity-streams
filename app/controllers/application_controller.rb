@@ -1,3 +1,17 @@
+# Base controller for the whole application. It wires up the authorization backbone shared by
+# every request:
+#
+# * {https://github.com/varvet/pundit Pundit} — enforces that every non-Devise action calls
+#   +authorize+ (+verify_authorized+) and that every +index+ resolves a policy scope
+#   (+verify_policy_scoped+). Controllers that legitimately opt out use +skip_after_action+.
+# * {https://github.com/ddnexus/pagy Pagy} — pagination helpers.
+# * Devise — +authenticate_user!+ guards all actions unless a controller skips it.
+#
+# The distinction between the login identity and the acting graph node lives here: +current_user+
+# is the {User}, while {#current_actor} is the {Actor} it currently acts as
+# ({User#current_profile}) — the value passed to policies and used across the domain.
+#
+# @see ApplicationPolicy The Pundit base that mirrors this +user+ vs +actor+ split.
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include Pagy::Backend
@@ -14,15 +28,22 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # The {Actor} the signed-in {User} is currently acting as. This is the entity handed to
+  # Pundit policies and used throughout the domain layer.
+  #
+  # @return [Actor, nil] the current profile's actor, or +nil+ when signed out.
   def current_actor
     @current_actor ||= current_user&.current_profile
   end
   helper_method :current_actor
 
+  # Adds +:profile_name+ to the permitted Devise sign-up parameters so the initial {Profile}
+  # can be created (see {User#setup_initial_profile!}).
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: [ :profile_name ])
   end
 
+  # Handles {Pundit::NotAuthorizedError}: flashes an alert and redirects back (or to root).
   def user_not_authorized
     flash[:alert] = "You are not authorized to perform this action."
     redirect_to(request.referrer || root_path)

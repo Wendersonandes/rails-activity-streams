@@ -17,6 +17,13 @@
 #  fk_rails_...  (permission_id => permissions.id) ON DELETE => cascade
 #  fk_rails_...  (relation_id => relations.id) ON DELETE => cascade
 #
+
+# Join model between a {Relation} and a {Permission}. Assigning a {Permission} to a
+# {Relation} is what lets that relation grant the permission to the receivers of its
+# {Tie Ties}.
+#
+# @see Relation
+# @see Permission
 class RelationPermission < ApplicationRecord
   belongs_to :relation
   belongs_to :permission
