@@ -1,23 +1,26 @@
 <%= content_for :title, "Permissions" %>
 
-<div class="max-w-4xl mx-auto">
-  <h1 class="text-2xl font-bold text-gray-900 mb-6">Permissions</h1>
+<div class="max-w-4xl mx-auto space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Permissions</h1>
+    <p class="text-xs text-gray-500 mt-0.5">Actions mapped to system objects</p>
+  </div>
 
-  <div class="bg-white rounded-lg shadow border border-gray-100">
-    <table class="w-full">
+  <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
+    <table class="w-full text-left border-collapse">
       <thead>
-        <tr class="border-b border-gray-100">
-          <th class="text-left text-xs font-semibold text-gray-500 uppercase p-3">Action</th>
-          <th class="text-left text-xs font-semibold text-gray-500 uppercase p-3">Object</th>
-          <th class="text-left text-xs font-semibold text-gray-500 uppercase p-3">ID</th>
+        <tr class="bg-gray-50/50 border-b border-gray-150">
+          <th class="text-[10px] font-bold uppercase tracking-wider text-gray-400 p-4 w-1/3">Action</th>
+          <th class="text-[10px] font-bold uppercase tracking-wider text-gray-400 p-4 w-1/3">Object</th>
+          <th class="text-[10px] font-bold uppercase tracking-wider text-gray-400 p-4 w-1/3">ID</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
         <% @permissions.each do |perm| %>
-          <tr>
-            <td class="p-3 text-sm text-gray-900"><%= perm.action %></td>
-            <td class="p-3 text-sm text-gray-500"><%= perm.object || "nil" %></td>
-            <td class="p-3 text-sm text-gray-400"><%= perm.id %></td>
+          <tr class="hover:bg-gray-50/30 transition-colors">
+            <td class="p-4 text-sm font-semibold text-gray-900"><%= perm.action %></td>
+            <td class="p-4 text-sm text-gray-600"><%= perm.object || "nil" %></td>
+            <td class="p-4 text-xs text-gray-400 font-medium"><%= perm.id %></td>
           </tr>
         <% end %>
       </tbody>

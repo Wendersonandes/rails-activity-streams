@@ -1,29 +1,50 @@
 <%= content_for :title, @profile.name %>
 
-<div class="max-w-2xl mx-auto">
-  <div class="bg-white rounded-lg shadow p-6 mb-6 border border-gray-100">
-    <div class="flex items-start gap-4">
-      <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xl font-bold flex-shrink-0">
-        <%= @profile.name.first.upcase %>
+<div class="max-w-2xl mx-auto space-y-6">
+  <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
+    <% if @profile.actor.cover_image.attached? %>
+      <%= image_tag @profile.actor.cover_image.variant(:thumb), class: "w-full h-44 object-cover" %>
+    <% else %>
+      <div class="w-full h-32 bg-gray-50 border-b border-gray-200/60 flex items-center justify-center text-gray-300">
+        <i data-lucide="image" class="w-8 h-8"></i>
       </div>
-      <div class="flex-1">
-        <h1 class="text-2xl font-bold text-gray-900"><%= @profile.name %></h1>
-        <% if @profile.description.present? %>
-          <p class="text-gray-600 mt-1"><%= @profile.description %></p>
-        <% end %>
-        <div class="flex gap-4 mt-2 text-sm text-gray-500">
-          <span><%= @profile.actor.authored_activities.count %> posts</span>
-          <% if @profile.actor.sent_active_contact_ids.any? %>
-            <span><%= @profile.actor.sent_active_contact_ids.size %> connections</span>
+    <% end %>
+    <div class="p-6 -mt-10 sm:-mt-12 relative flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4">
+        <div class="w-20 h-20 rounded-full bg-white p-1 shadow flex-shrink-0 overflow-hidden border border-gray-100">
+          <% if @profile.actor.avatar.attached? %>
+            <%= image_tag @profile.actor.avatar.variant(:thumb), class: "w-full h-full rounded-full object-cover" %>
+          <% else %>
+            <div class="w-full h-full rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold">
+              <%= @profile.name.first.upcase %>
+            </div>
           <% end %>
+        </div>
+        <div class="pt-2">
+          <h1 class="text-2xl font-bold text-gray-900 tracking-tight"><%= @profile.name %></h1>
+          <% if @profile.description.present? %>
+            <p class="text-sm text-gray-600 mt-1 leading-relaxed"><%= @profile.description %></p>
+          <% end %>
+          <div class="flex gap-4 mt-2 text-xs font-medium text-gray-400">
+            <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> <%= @profile.actor.authored_activities.count %> posts</span>
+            <% if @profile.actor.sent_active_contact_ids.any? %>
+              <span class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5"></i> <%= @profile.actor.sent_active_contact_ids.size %> connections</span>
+            <% end %>
+          </div>
         </div>
       </div>
       <% if current_actor && current_actor != @profile.actor %>
-        <div>
+        <div class="flex-shrink-0 self-start sm:self-end">
           <% if current_actor.connected_with?(@profile.actor) %>
-            <%= button_to "Remove Contact", contact_path(current_actor.contact_to(@profile.actor)), method: :delete, class: "text-sm bg-red-100 text-red-700 px-3 py-1.5 rounded hover:bg-red-200 cursor-pointer" %>
+            <%= button_to contact_path(current_actor.contact_to(@profile.actor)), method: :delete, class: "flex items-center gap-1.5 text-xs bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer" do %>
+              <i data-lucide="user-minus" class="w-3.5 h-3.5"></i>
+              <span>Remove Contact</span>
+            <% end %>
           <% else %>
-            <%= link_to "Connect", contacts_path(actor_id: @profile.actor.slug, as: :friend), data: { turbo_method: :post }, class: "text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700" %>
+            <%= link_to contacts_path(actor_id: @profile.actor.slug, as: :friend), data: { turbo_method: :post }, class: "inline-flex items-center gap-1.5 text-xs bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-1.8 rounded-lg font-medium transition-colors cursor-pointer" do %>
+              <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+              <span>Connect</span>
+            <% end %>
           <% end %>
         </div>
       <% end %>
@@ -34,15 +55,17 @@
     <% if @activities.any? %>
       <%= render partial: "shared/activity", collection: @activities, as: :activity %>
     <% else %>
-      <div class="text-center text-gray-500 py-8">
-        <p>No posts yet.</p>
+      <div class="text-center text-gray-500 py-16 bg-white rounded-xl border border-gray-200/80 p-8 shadow-sm">
+        <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
+          <i data-lucide="message-square-off" class="w-6 h-6 text-gray-400"></i>
+        </div>
+        <h3 class="text-base font-semibold text-gray-900">No posts yet</h3>
+        <p class="text-sm text-gray-500 mt-1 max-w-sm mx-auto">This profile has not shared any updates or posts yet.</p>
       </div>
     <% end %>
   </div>
 
   <% if @pagy.pages > 1 %>
-    <div class="mt-6 flex justify-center">
-      <%== pagy_nav(@pagy) %>
-    </div>
+    <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
   <% end %>
 </div>

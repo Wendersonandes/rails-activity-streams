@@ -1,25 +1,28 @@
 <%= content_for :title, "Audiences" %>
 
-<div class="max-w-4xl mx-auto">
-  <h1 class="text-2xl font-bold text-gray-900 mb-6">Audiences</h1>
+<div class="max-w-4xl mx-auto space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Audiences</h1>
+    <p class="text-xs text-gray-500 mt-0.5">Activities linked to specific relations</p>
+  </div>
 
-  <div class="bg-white rounded-lg shadow border border-gray-100">
-    <table class="w-full">
+  <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
+    <table class="w-full text-left border-collapse">
       <thead>
-        <tr class="border-b border-gray-100">
-          <th class="text-left text-xs font-semibold text-gray-500 uppercase p-3">Activity</th>
-          <th class="text-left text-xs font-semibold text-gray-500 uppercase p-3">Relation</th>
-          <th class="text-left text-xs font-semibold text-gray-500 uppercase p-3">Created</th>
+        <tr class="bg-gray-50/50 border-b border-gray-150">
+          <th class="text-[10px] font-bold uppercase tracking-wider text-gray-400 p-4 w-1/3">Activity</th>
+          <th class="text-[10px] font-bold uppercase tracking-wider text-gray-400 p-4 w-1/3">Relation</th>
+          <th class="text-[10px] font-bold uppercase tracking-wider text-gray-400 p-4 w-1/3">Created</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
         <% @audiences.each do |audience| %>
-          <tr>
-            <td class="p-3 text-sm text-gray-900">
-              <%= link_to audience.activity.verb, activity_path(audience.activity), class: "hover:underline" rescue "N/A" %>
+          <tr class="hover:bg-gray-50/30 transition-colors">
+            <td class="p-4 text-sm font-semibold text-gray-900">
+              <%= link_to audience.activity.verb, activity_path(audience.activity), class: "text-blue-600 hover:text-blue-700 transition-colors" rescue "N/A" %>
             </td>
-            <td class="p-3 text-sm text-gray-500"><%= audience.relation.name %></td>
-            <td class="p-3 text-sm text-gray-400"><%= time_ago_in_words(audience.created_at) %></td>
+            <td class="p-4 text-sm text-gray-600"><%= audience.relation.name %></td>
+            <td class="p-4 text-xs text-gray-400 font-medium"><%= time_ago_in_words(audience.created_at) %> ago</td>
           </tr>
         <% end %>
       </tbody>

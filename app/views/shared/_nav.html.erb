@@ -1,24 +1,56 @@
-<nav class="bg-white shadow fixed top-0 left-0 right-0 z-50">
+<nav class="bg-white/90 backdrop-blur-md border-b border-gray-200/80 fixed top-0 left-0 right-0 z-50">
   <div class="container mx-auto px-5 flex items-center justify-between h-14">
-    <div class="flex items-center gap-6">
-      <%= link_to "Social Stream", root_path, class: "font-bold text-lg text-blue-600" %>
+    <div class="flex items-center gap-8">
+      <%= link_to root_path, class: "flex items-center gap-2 font-bold text-base text-gray-900 tracking-tight hover:opacity-90 transition-opacity" do %>
+        <i data-lucide="activity" class="w-5 h-5 text-blue-600"></i>
+        <span>SocialStream</span>
+      <% end %>
+      
       <% if current_actor %>
-        <%= link_to "Home", activities_path, class: "text-sm text-gray-700 hover:text-blue-600" %>
-        <%= link_to "Contacts", contacts_path, class: "text-sm text-gray-700 hover:text-blue-600" %>
-        <%= link_to "Groups", groups_path, class: "text-sm text-gray-700 hover:text-blue-600" %>
+        <div class="flex items-center gap-5">
+          <%= link_to activities_path, class: "flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors" do %>
+            <i data-lucide="home" class="w-4 h-4"></i>
+            <span>Home</span>
+          <% end %>
+          <%= link_to contacts_path, class: "flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors" do %>
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span>Contacts</span>
+          <% end %>
+          <%= link_to groups_path, class: "flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors" do %>
+            <i data-lucide="layers" class="w-4 h-4"></i>
+            <span>Groups</span>
+          <% end %>
+        </div>
       <% end %>
     </div>
 
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-5">
       <% if user_signed_in? %>
         <% if current_actor %>
-          <%= link_to current_actor.name, public_path_for(current_actor), class: "text-sm font-medium text-gray-700 hover:text-blue-600" %>
+          <%= link_to public_path_for(current_actor), class: "flex items-center gap-1.5 text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors" do %>
+            <div class="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-xs font-bold border border-blue-100">
+              <%= current_actor.name.first.upcase %>
+            </div>
+            <span class="max-w-[120px] truncate"><%= current_actor.name %></span>
+          <% end %>
         <% end %>
-        <%= link_to "Account", account_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
-        <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "text-sm text-gray-500 hover:text-red-600 bg-transparent border-0 cursor-pointer" %>
+        <%= link_to account_path, class: "flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors" do %>
+          <i data-lucide="settings" class="w-4 h-4"></i>
+          <span>Account</span>
+        <% end %>
+        <%= button_to destroy_user_session_path, method: :delete, class: "flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 bg-transparent border-0 cursor-pointer transition-colors p-0 font-medium" do %>
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Sign out</span>
+        <% end %>
       <% else %>
-        <%= link_to "Sign in", new_user_session_path, class: "text-sm text-gray-700 hover:text-blue-600" %>
-        <%= link_to "Sign up", new_user_registration_path, class: "text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700" %>
+        <%= link_to new_user_session_path, class: "flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors" do %>
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+          <span>Sign in</span>
+        <% end %>
+        <%= link_to new_user_registration_path, class: "flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-lg font-medium shadow-sm hover:shadow transition-all duration-150" do %>
+          <i data-lucide="user-plus" class="w-4 h-4"></i>
+          <span>Sign up</span>
+        <% end %>
       <% end %>
     </div>
   </div>
