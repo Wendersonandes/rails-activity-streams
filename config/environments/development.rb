@@ -72,6 +72,10 @@ Rails.application.configure do
     Bullet.bullet_logger = true
     Bullet.console = true
     Bullet.rails_logger = true
+    
+    # Safelist conditional associations that may not be accessed in all contexts to prevent false-positive AVOID alerts
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "Activity", association: :user_author
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "Activity", association: :parent
   end
 
   # Raises error for missing translations.

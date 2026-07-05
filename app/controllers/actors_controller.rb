@@ -47,7 +47,7 @@ class ActorsController < ApplicationController
     authorize @actor
     @activities = policy_scope(Activity).where(author: @actor)
                                         .roots.recent
-                                        .includes(:author, :user_author, :activity_objects, :parent)
+                                        .includes({ author: :avatar_attachment }, :user_author, :activity_objects, { parent: :author })
     @pagy, @activities = pagy(@activities)
   end
 end

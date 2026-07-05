@@ -73,7 +73,7 @@ class ActivitiesController < ApplicationController
   private
 
   def set_activity
-    @activity = Activity.includes(:author, :user_author, :activity_objects, children: :author).find_by!(id: params[:id])
+    @activity = Activity.includes({ author: :avatar_attachment }, :user_author, :activity_objects, children: { author: :avatar_attachment }).find_by!(id: params[:id])
   end
 
   def activity_params

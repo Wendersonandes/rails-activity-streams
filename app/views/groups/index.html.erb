@@ -25,22 +25,22 @@
               <%= image_tag group_actor.avatar.variant(:thumb), class: "w-12 h-12 rounded-lg object-cover border border-gray-100 flex-shrink-0" %>
             <% else %>
               <div class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center font-bold text-lg flex-shrink-0">
-                <%= group.name.first.upcase %>
+                <%= group_actor.name.first.upcase %>
               </div>
             <% end %>
 
             <div class="min-w-0 space-y-0.5">
               <div class="flex items-center gap-2">
                 <h3 class="font-semibold text-gray-900 text-base truncate leading-snug">
-                  <%= link_to group.name, group_path(group), class: "hover:text-blue-600 transition-colors" %>
+                  <%= link_to group_actor.name, group_path(group), class: "hover:text-blue-600 transition-colors" %>
                 </h3>
                 <span class="text-[10px] font-medium px-2 py-0.5 rounded-full inline-flex items-center gap-1 <%= group.public_group? ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-yellow-50 text-yellow-700 border border-yellow-100' %>">
                   <i data-lucide="<%= group.public_group? ? 'globe' : 'lock' %>" class="w-2.5 h-2.5"></i>
                   <span><%= group.public_group? ? "Public" : "Private" %></span>
                 </span>
               </div>
-              <% if group.description.present? %>
-                <p class="text-sm text-gray-500 truncate max-w-md"><%= group.description %></p>
+              <% if group_actor.description.present? %>
+                <p class="text-sm text-gray-500 truncate max-w-md"><%= group_actor.description %></p>
               <% end %>
               <p class="text-xs text-gray-400 font-medium flex items-center gap-1">
                 <i data-lucide="users" class="w-3.5 h-3.5"></i>
