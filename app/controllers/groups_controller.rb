@@ -12,7 +12,7 @@ class GroupsController < ApplicationController
   # Lists group actors, paginated. Scoped through +ActorPolicy::Scope+ and filtered to groups.
   def index
     authorize Actor
-    @groups = policy_scope(Actor).where(actorable_type: "Group").includes(actorable: :actor)
+    @groups = policy_scope(Actor).where(actorable_type: "Group").includes(:actorable, :avatar_attachment)
     @pagy, @groups = pagy(@groups)
     @groups = @groups.to_a
   end
