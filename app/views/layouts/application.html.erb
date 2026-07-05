@@ -34,6 +34,13 @@
       }
       document.addEventListener("turbo:load", initLucide);
       document.addEventListener("turbo:render", initLucide);
+      document.addEventListener("turbo:before-stream-render", (event) => {
+        const originalRender = event.detail.render;
+        event.detail.render = function(streamElement) {
+          originalRender(streamElement);
+          initLucide();
+        };
+      });
     </script>
   </head>
 

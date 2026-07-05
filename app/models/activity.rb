@@ -67,6 +67,9 @@ class Activity < ApplicationRecord
   validates :verb, presence: true
   validates :author, :owner, presence: true
 
+  after_create :increment_like_count, if: :verb_like?
+  after_destroy :decrement_like_count, if: :verb_like?
+
   # Activities authored by +actor+. Returns all activities when +actor+ is blank.
   #
   # @param actor [Actor, Integer, nil] the author (or its id).
@@ -257,5 +260,23 @@ class Activity < ApplicationRecord
       end
 
     I18n.t("activity.audience.#{visibility}.#{details}", audience: audience)
+  end
+
+  private
+
+  def targeted_activity_object
+    if root?
+      direct_object
+    else
+      parent&.direct_object
+    end
+  end
+
+  def increment_like_count
+    targeted_activity_object&.increment!(:like_count)
+  end
+
+  def decrement_like_count
+    targeted_activity_object&.decrement!(:like_count)
   end
 end

@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   # Activity stream — feed
   resources :activities, only: [ :index, :show, :new, :create, :destroy ] do
     resources :activity_actions, only: [ :create, :destroy ]
+    resources :likes, only: [ :create, :destroy ]
   end
 
   # Contacts — gerenciamento de conexoes
