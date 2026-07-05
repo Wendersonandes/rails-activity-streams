@@ -6,7 +6,7 @@
   <!-- Group Header Card -->
   <div class="bg-white rounded-xl border border-gray-200/80 p-5 shadow-sm">
     <div class="flex items-start gap-4">
-      <div class="w-12 h-12 bg-white rounded-lg p-1 shadow-sm flex-shrink-0 border border-gray-150 overflow-hidden">
+      <div class="w-12 h-12 bg-white rounded-lg p-1 shadow-sm flex-shrink-0 border border-gray-200 overflow-hidden">
         <% if @group.actor.avatar.attached? %>
           <%= image_tag @group.actor.avatar.variant(:thumb), class: "w-full h-full rounded-lg object-cover" %>
         <% else %>
@@ -34,7 +34,7 @@
       <i data-lucide="message-square" class="w-4 h-4"></i>
       <span>Posts</span>
     <% end %>
-    <span class="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-md bg-white text-blue-600 shadow-sm border border-gray-150">
+    <span class="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-md bg-white text-blue-600 shadow-sm border border-gray-200">
       <i data-lucide="users" class="w-4 h-4"></i>
       <span>Members (<%= @total_members %>)</span>
     </span>
@@ -49,7 +49,7 @@
   <!-- Leave Group Button -->
   <% if current_actor && @member_roles.any? %>
     <div class="flex justify-end">
-      <%= button_to group_membership_path(@group, current_actor, role: @member_roles.first), method: :delete, data: { turbo_confirm: "Are you sure you want to leave #{@group.name}?" }, class: "inline-flex items-center gap-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-150 px-3.5 py-1.8 rounded-lg font-medium transition-colors cursor-pointer" do %>
+      <%= button_to group_membership_path(@group, current_actor, role: @member_roles.first), method: :delete, data: { turbo_confirm: "Are you sure you want to leave #{@group.name}?" }, class: "inline-flex items-center gap-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-200 px-3.5 py-1.8 rounded-lg font-medium transition-colors cursor-pointer" do %>
         <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
         <span>Leave Group</span>
       <% end %>
@@ -185,7 +185,7 @@
                   <%= f.select :to_role, [["Admin", "admin"], ["Moderator", "moderator"], ["Member", "member"]], { selected: "admin" }, { class: "text-xs border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none" } %>
                   <%= f.submit "Save", class: "text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.2 rounded-md font-medium cursor-pointer border-0 shadow-sm transition-colors" %>
                 <% end %>
-                <%= button_to group_membership_path(@group, admin_actor, role: "admin"), method: :delete, data: { turbo_confirm: "Are you sure you want to remove #{admin_actor.name} from the group?" }, class: "text-xs text-red-650 hover:text-red-750 font-medium bg-transparent border-0 cursor-pointer transition-colors" do %>
+                <%= button_to group_membership_path(@group, admin_actor, role: "admin"), method: :delete, data: { turbo_confirm: "Are you sure you want to remove #{admin_actor.name} from the group?" }, class: "text-xs text-red-600 hover:text-red-800 font-medium bg-transparent border-0 cursor-pointer transition-colors" do %>
                   <i data-lucide="user-minus" class="w-4 h-4"></i>
                 <% end %>
               </div>
@@ -223,7 +223,7 @@
                   <%= f.select :to_role, [["Admin", "admin"], ["Moderator", "moderator"], ["Member", "member"]], { selected: "moderator" }, { class: "text-xs border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none" } %>
                   <%= f.submit "Save", class: "text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.2 rounded-md font-medium cursor-pointer border-0 shadow-sm transition-colors" %>
                 <% end %>
-                <%= button_to group_membership_path(@group, mod_actor, role: "moderator"), method: :delete, data: { turbo_confirm: "Are you sure you want to remove #{mod_actor.name} from the group?" }, class: "text-xs text-red-650 hover:text-red-750 font-medium bg-transparent border-0 cursor-pointer transition-colors" do %>
+                <%= button_to group_membership_path(@group, mod_actor, role: "moderator"), method: :delete, data: { turbo_confirm: "Are you sure you want to remove #{mod_actor.name} from the group?" }, class: "text-xs text-red-600 hover:text-red-800 font-medium bg-transparent border-0 cursor-pointer transition-colors" do %>
                   <i data-lucide="user-minus" class="w-4 h-4"></i>
                 <% end %>
               </div>
@@ -261,7 +261,7 @@
                   <%= f.select :to_role, [["Admin", "admin"], ["Moderator", "moderator"], ["Member", "member"]], { selected: "member" }, { class: "text-xs border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none" } %>
                   <%= f.submit "Save", class: "text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.2 rounded-md font-medium cursor-pointer border-0 shadow-sm transition-colors" %>
                 <% end %>
-                <%= button_to group_membership_path(@group, member_actor, role: "member"), method: :delete, data: { turbo_confirm: "Are you sure you want to remove #{member_actor.name} from the group?" }, class: "text-xs text-red-650 hover:text-red-750 font-medium bg-transparent border-0 cursor-pointer transition-colors" do %>
+                <%= button_to group_membership_path(@group, member_actor, role: "member"), method: :delete, data: { turbo_confirm: "Are you sure you want to remove #{member_actor.name} from the group?" }, class: "text-xs text-red-600 hover:text-red-800 font-medium bg-transparent border-0 cursor-pointer transition-colors" do %>
                   <i data-lucide="user-minus" class="w-4 h-4"></i>
                 <% end %>
               </div>

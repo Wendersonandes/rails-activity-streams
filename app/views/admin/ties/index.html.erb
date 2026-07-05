@@ -9,7 +9,7 @@
   <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
     <table class="w-full text-left border-collapse">
       <thead>
-        <tr class="bg-gray-50/50 border-b border-gray-150">
+        <tr class="bg-gray-50/50 border-b border-gray-200">
           <th class="text-[10px] font-bold uppercase tracking-wider text-gray-400 p-4">ID</th>
           <th class="text-[10px] font-bold uppercase tracking-wider text-gray-400 p-4">Sender</th>
           <th class="text-[10px] font-bold uppercase tracking-wider text-gray-400 p-4">Receiver</th>
@@ -23,7 +23,7 @@
             <td class="p-4 text-xs text-gray-400 font-medium"><%= tie.id %></td>
             <td class="p-4 text-sm font-semibold text-gray-950"><%= tie.sender.name %></td>
             <td class="p-4 text-sm font-semibold text-gray-950"><%= tie.receiver.name %></td>
-            <td class="p-4 text-sm text-gray-650 font-medium"><%= tie.relation.name %></td>
+            <td class="p-4 text-sm text-gray-600 font-medium"><%= tie.relation.name %></td>
             <td class="p-4 text-xs text-gray-400 font-medium"><%= time_ago_in_words(tie.created_at) %> ago</td>
           </tr>
         <% end %>

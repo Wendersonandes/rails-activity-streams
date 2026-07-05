@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="h-full">
+<html lang="<%= I18n.locale %>" class="h-full">
   <head>
     <title><%= content_for(:title) || "Social Stream" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -27,11 +27,13 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-      document.addEventListener("turbo:load", function() {
+      function initLucide() {
         if (typeof lucide !== 'undefined') {
           lucide.createIcons();
         }
-      });
+      }
+      document.addEventListener("turbo:load", initLucide);
+      document.addEventListener("turbo:render", initLucide);
     </script>
   </head>
 
