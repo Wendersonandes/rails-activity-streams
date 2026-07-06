@@ -23,6 +23,14 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to contacts_path
   end
 
+  test "should create contact via turbo stream redirecting to referer" do
+    assert_difference("Contact.count", 1) do
+      post contacts_path, params: { actor_id: @bob.slug, as: :friend }, headers: { "HTTP_REFERER" => "/custom_referer" }, as: :turbo_stream
+    end
+    assert_response :see_other
+    assert_redirected_to "/custom_referer"
+  end
+
   test "should destroy contact" do
     @alice.connect_to(@bob, as: :friend)
     contact = Contact.last
@@ -31,6 +39,17 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
       delete contact_path(contact)
     end
     assert_redirected_to contacts_path
+  end
+
+  test "should destroy contact via turbo stream redirecting to referer" do
+    @alice.connect_to(@bob, as: :friend)
+    contact = Contact.last
+
+    assert_difference("Contact.count", -1) do
+      delete contact_path(contact), headers: { "HTTP_REFERER" => "/custom_referer" }, as: :turbo_stream
+    end
+    assert_response :see_other
+    assert_redirected_to "/custom_referer"
   end
 
   test "group admin tie does not appear as pending contact" do

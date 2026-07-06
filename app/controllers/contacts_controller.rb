@@ -32,8 +32,8 @@ class ContactsController < ApplicationController
 
     current_actor.connect_to(other, as: params[:as] || :friend)
     respond_to do |format|
-      format.turbo_stream
-      format.html { redirect_to contacts_path, notice: "Contact added as #{params[:as] || :friend}." }
+      format.turbo_stream { redirect_to request.referer || contacts_path, status: :see_other }
+      format.html { redirect_to request.referer || contacts_path, notice: "Contact added as #{params[:as] || :friend}." }
     end
   end
 
@@ -45,8 +45,8 @@ class ContactsController < ApplicationController
     authorize @contact
     @contact.destroy
     respond_to do |format|
-      format.turbo_stream
-      format.html { redirect_to contacts_path, notice: "Contact removed." }
+      format.turbo_stream { redirect_to request.referer || contacts_path, status: :see_other }
+      format.html { redirect_to request.referer || contacts_path, notice: "Contact removed." }
     end
   end
 end
