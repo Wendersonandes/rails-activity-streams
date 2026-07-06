@@ -51,25 +51,7 @@
         </div>
 
         <% if current_actor %>
-          <div class="divide-y divide-gray-100">
-            <% current_actor.suggestions(3).each do |contact| %>
-              <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-xs font-bold border border-blue-100">
-                    <%= contact.receiver.name.first.upcase %>
-                  </div>
-                  <div class="flex flex-col min-w-0">
-                    <span class="text-sm font-medium text-gray-900 truncate"><%= contact.receiver.name %></span>
-                    <span class="text-xs text-gray-400 truncate">Suggested contact</span>
-                  </div>
-                </div>
-                <%= button_to contacts_path(actor_id: contact.receiver.slug, as: :friend), data: { turbo_method: :post }, class: "flex items-center gap-1 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100/80 font-medium px-2.5 py-1 rounded-md border border-blue-100 transition-colors cursor-pointer" do %>
-                  <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                  <span>Connect</span>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
+          <%= render "shared/sidebar_suggestions" %>
         <% end %>
       </div>
     </div>

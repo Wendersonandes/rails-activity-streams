@@ -33,21 +33,7 @@
           </div>
         </div>
       </div>
-      <% if current_actor && current_actor != @profile.actor %>
-        <div class="flex-shrink-0 self-start sm:self-end">
-          <% if current_actor.connected_with?(@profile.actor) %>
-            <%= button_to contact_path(current_actor.contact_to(@profile.actor)), method: :delete, class: "flex items-center gap-1.5 text-xs bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer" do %>
-              <i data-lucide="user-minus" class="w-3.5 h-3.5"></i>
-              <span>Remove Contact</span>
-            <% end %>
-          <% else %>
-            <%= link_to contacts_path(actor_id: @profile.actor.slug, as: :friend), data: { turbo_method: :post }, class: "inline-flex items-center gap-1.5 text-xs bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-1.8 rounded-lg font-medium transition-colors cursor-pointer" do %>
-              <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-              <span>Connect</span>
-            <% end %>
-          <% end %>
-        </div>
-      <% end %>
+      <%= render "shared/connection_button", actor: @profile.actor %>
     </div>
   </div>
 

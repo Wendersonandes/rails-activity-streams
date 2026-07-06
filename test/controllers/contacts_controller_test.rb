@@ -23,12 +23,21 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to contacts_path
   end
 
-  test "should create contact via turbo stream redirecting to referer" do
+  test "should create contact via turbo stream rendering in-place templates" do
     assert_difference("Contact.count", 1) do
       post contacts_path, params: { actor_id: @bob.slug, as: :friend }, headers: { "HTTP_REFERER" => "/custom_referer" }, as: :turbo_stream
     end
+    assert_response :success
+    assert_match /turbo-stream action="replace" target="connection_actor_#{@bob.id}"/, response.body
+    assert_match /turbo-stream action="replace" target="sidebar_suggestions"/, response.body
+  end
+
+  test "should create contact via turbo stream redirecting when referer is contacts path" do
+    assert_difference("Contact.count", 1) do
+      post contacts_path, params: { actor_id: @bob.slug, as: :friend }, headers: { "HTTP_REFERER" => "/contacts" }, as: :turbo_stream
+    end
     assert_response :see_other
-    assert_redirected_to "/custom_referer"
+    assert_redirected_to "/contacts"
   end
 
   test "should destroy contact" do
@@ -41,15 +50,27 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to contacts_path
   end
 
-  test "should destroy contact via turbo stream redirecting to referer" do
+  test "should destroy contact via turbo stream rendering in-place templates" do
+    @alice.connect_to(@bob, as: :friend)
+    contact = Contact.last
+
+    delete contact_path(contact), headers: { "HTTP_REFERER" => "/custom_referer" }, as: :turbo_stream
+
+    assert_response :success
+    assert_not Contact.exists?(contact.id)
+    assert_match /turbo-stream action="replace" target="connection_actor_#{@bob.id}"/, response.body
+    assert_match /turbo-stream action="replace" target="sidebar_suggestions"/, response.body
+  end
+
+  test "should destroy contact via turbo stream redirecting when referer is contacts path" do
     @alice.connect_to(@bob, as: :friend)
     contact = Contact.last
 
     assert_difference("Contact.count", -1) do
-      delete contact_path(contact), headers: { "HTTP_REFERER" => "/custom_referer" }, as: :turbo_stream
+      delete contact_path(contact), headers: { "HTTP_REFERER" => "/contacts" }, as: :turbo_stream
     end
     assert_response :see_other
-    assert_redirected_to "/custom_referer"
+    assert_redirected_to "/contacts"
   end
 
   test "group admin tie does not appear as pending contact" do

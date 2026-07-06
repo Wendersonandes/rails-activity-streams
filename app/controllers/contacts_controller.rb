@@ -27,12 +27,16 @@ class ContactsController < ApplicationController
   #
   # @note Responds via Turbo Stream to update the contact UI without a page reload.
   def create
-    other = Actor.find_by!(slug: params[:actor_id])
-    authorize Contact.new(sender: current_actor, receiver: other)
+    @other = Actor.find_by!(slug: params[:actor_id])
+    authorize Contact.new(sender: current_actor, receiver: @other)
 
-    current_actor.connect_to(other, as: params[:as] || :friend)
+    current_actor.connect_to(@other, as: params[:as] || :friend)
     respond_to do |format|
-      format.turbo_stream { redirect_to request.referer || contacts_path, status: :see_other }
+      format.turbo_stream do
+        if request.referer&.include?(contacts_path)
+          redirect_to contacts_path, status: :see_other
+        end
+      end
       format.html { redirect_to request.referer || contacts_path, notice: "Contact added as #{params[:as] || :friend}." }
     end
   end
@@ -43,9 +47,14 @@ class ContactsController < ApplicationController
   def destroy
     @contact = Contact.find_by!(id: params[:id])
     authorize @contact
+    @other = @contact.receiver == current_actor ? @contact.sender : @contact.receiver
     @contact.destroy
     respond_to do |format|
-      format.turbo_stream { redirect_to request.referer || contacts_path, status: :see_other }
+      format.turbo_stream do
+        if request.referer&.include?(contacts_path)
+          redirect_to contacts_path, status: :see_other
+        end
+      end
       format.html { redirect_to request.referer || contacts_path, notice: "Contact removed." }
     end
   end
