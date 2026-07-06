@@ -1,9 +1,14 @@
 <%= content_for :title, "Feed" %>
 
-<div class="max-w-5xl mx-auto">
+<div class="max-w-6xl mx-auto">
   <div class="grid grid-cols-12 gap-6">
+    <!-- Left Column -->
+    <div class="hidden lg:block lg:col-span-3">
+      <%= render "shared/left_sidebar" %>
+    </div>
+
     <!-- Feed Column -->
-    <div class="col-span-12 lg:col-span-8 space-y-5">
+    <div class="col-span-12 lg:col-span-6 space-y-5">
       <% if current_actor %>
         <div class="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm transition-all duration-200 hover:border-gray-300">
           <div class="flex items-center gap-3">
@@ -40,7 +45,7 @@
     </div>
 
     <!-- Sidebar Column -->
-    <div class="hidden lg:block lg:col-span-4">
+    <div class="hidden lg:block lg:col-span-3">
       <div class="bg-white rounded-xl border border-gray-200/80 p-5 shadow-sm sticky top-20 space-y-4">
         <div>
           <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-1.5">

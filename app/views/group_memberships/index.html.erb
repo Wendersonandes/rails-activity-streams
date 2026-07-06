@@ -1,32 +1,21 @@
 <%= content_for :title, "#{@group.name} — Members" %>
 
-<div class="max-w-2xl mx-auto space-y-6" data-controller="member-search"
+<%
+  is_member = @member_roles.any?
+%>
+
+<div class="max-w-6xl mx-auto" data-controller="member-search"
      data-member-exclude="<%= (@admins + @moderators + @members).map(&:id).join(",") %>">
-  
-  <!-- Group Header Card -->
-  <div class="bg-white rounded-xl border border-gray-200/80 p-5 shadow-sm">
-    <div class="flex items-start gap-4">
-      <div class="w-12 h-12 bg-white rounded-lg p-1 shadow-sm flex-shrink-0 border border-gray-200 overflow-hidden">
-        <% if @group.actor.avatar.attached? %>
-          <%= image_tag @group.actor.avatar.variant(:thumb), class: "w-full h-full rounded-lg object-cover" %>
-        <% else %>
-          <div class="w-full h-full rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg border border-emerald-100">
-            <%= @group.name.first.upcase %>
-          </div>
-        <% end %>
-      </div>
-      <div class="flex-1 min-w-0">
-        <h1 class="text-xl font-bold text-gray-900 tracking-tight truncate"><%= @group.name %></h1>
-        <% if @group.description.present? %>
-          <p class="text-xs text-gray-500 mt-0.5 truncate"><%= @group.description %></p>
-        <% end %>
-        <div class="flex gap-4 mt-2 text-xs text-gray-400 font-medium">
-          <span><%= @total_posts %> posts</span>
-          <span><%= @total_members %> members</span>
-        </div>
-      </div>
+  <div class="grid grid-cols-12 gap-6">
+    <!-- Left Column -->
+    <div class="hidden lg:block lg:col-span-3">
+      <%= render "shared/left_sidebar" %>
     </div>
-  </div>
+
+    <!-- Center Column -->
+    <div class="col-span-12 <%= is_member ? 'lg:col-span-6' : 'lg:col-span-9' %> space-y-6">
+  
+      <%= render "groups/header", group: @group, is_member: is_member %>
 
   <!-- Tab Navigation -->
   <%= render "groups/navigation" %>
@@ -249,6 +238,84 @@
       <div class="text-center py-8 bg-white border border-gray-200/60 rounded-xl">
         <p class="text-sm text-gray-400 font-medium">No other members in this group yet.</p>
       </div>
+    <% end %>
+  </div>
+</div>
+
+    <!-- Right Column -->
+    <% if is_member %>
+      <aside class="col-span-12 lg:col-span-3">
+        <div class="bg-white rounded-xl border border-gray-200/80 p-5 shadow-sm sticky top-20 space-y-4">
+          <h3 class="text-sm font-semibold text-gray-900 flex items-center justify-between pb-2 border-b border-gray-100">
+            <span>Members</span>
+            <span class="text-gray-400 font-normal text-xs">(<%= @admins.size + @moderators.size + @members.size %>)</span>
+          </h3>
+
+          <% if @admins.any? %>
+            <div class="space-y-1.5">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400 block px-2">Admins</span>
+              <% @admins.each do |actor| %>
+                <%= link_to public_path_for(actor), class: "flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-gray-50 transition-colors" do %>
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+                    <% if actor.avatar.attached? %>
+                      <%= image_tag actor.avatar.variant(:thumb), class: "w-7 h-7 rounded-full object-cover" %>
+                    <% else %>
+                      <span class="bg-blue-50 w-full h-full flex items-center justify-center text-blue-600 border border-blue-100"><%= actor.name[0].upcase %></span>
+                    <% end %>
+                  </div>
+                  <span class="flex-1 text-sm text-gray-900 truncate font-medium"><%= actor.name %></span>
+                  <span class="text-[10px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-semibold border border-blue-100/50 flex-shrink-0">Admin</span>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if @moderators.any? %>
+            <div class="space-y-1.5">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400 block px-2">Moderators</span>
+              <% @moderators.each do |actor| %>
+                <%= link_to public_path_for(actor), class: "flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-gray-50 transition-colors" do %>
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+                    <% if actor.avatar.attached? %>
+                      <%= image_tag actor.avatar.variant(:thumb), class: "w-7 h-7 rounded-full object-cover" %>
+                    <% else %>
+                      <span class="bg-emerald-55 w-full h-full flex items-center justify-center text-emerald-650 border border-emerald-100"><%= actor.name[0].upcase %></span>
+                    <% end %>
+                  </div>
+                  <span class="flex-1 text-sm text-gray-900 truncate font-medium"><%= actor.name %></span>
+                  <span class="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-semibold border border-emerald-100/50 flex-shrink-0">Mod</span>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if @members.any? %>
+            <div class="space-y-1.5">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400 block px-2">Members</span>
+              <% @members.first(12).each do |actor| %>
+                <%= link_to public_path_for(actor), class: "flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-gray-50 transition-colors" do %>
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+                    <% if actor.avatar.attached? %>
+                      <%= image_tag actor.avatar.variant(:thumb), class: "w-7 h-7 rounded-full object-cover" %>
+                    <% else %>
+                      <span class="bg-gray-50 w-full h-full flex items-center justify-center text-gray-500 border border-gray-200"><%= actor.name[0].upcase %></span>
+                    <% end %>
+                  </div>
+                  <span class="flex-1 text-sm text-gray-900 truncate"><%= actor.name %></span>
+                <% end %>
+              <% end %>
+              <% if @members.size > 12 %>
+                <p class="text-[10px] text-gray-400 px-2 pt-1 font-medium">+<%= @members.size - 12 %> more members</p>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%= link_to group_memberships_path(@group), class: "flex items-center justify-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-semibold mt-3 pt-3 border-t border-gray-100 transition-colors" do %>
+            <span>View all members</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          <% end %>
+        </div>
+      </aside>
     <% end %>
   </div>
 </div>
