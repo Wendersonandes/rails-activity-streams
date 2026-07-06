@@ -167,7 +167,11 @@ class Actor < ApplicationRecord
   #
   # @return [ActiveRecord::Relation<Relation::Custom>]
   def relation_customs
-    relations.where(type: "Relation::Custom")
+    if relations.loaded?
+      relations.select { |r| r.type == "Relation::Custom" }
+    else
+      relations.where(type: "Relation::Custom")
+    end
   end
 
   # Finds a {Relation::Custom} owned by this actor by its (case-insensitive) name.
@@ -175,7 +179,11 @@ class Actor < ApplicationRecord
   # @param name [String, Symbol] the relation name (e.g. "friend").
   # @return [Relation::Custom, nil]
   def relation_custom(name)
-    relation_customs.where("LOWER(name) = ?", name.to_s.downcase).first
+    if relations.loaded?
+      relation_customs.detect { |r| r.name.to_s.downcase == name.to_s.downcase }
+    else
+      relation_customs.where("LOWER(name) = ?", name.to_s.downcase).first
+    end
   end
 
   # Ids of the {Relation Relations} this actor owns.
@@ -278,8 +286,12 @@ class Actor < ApplicationRecord
   # @raise [ArgumentError] when no custom relation matches +as+.
   def connect_to(other_actor, as:)
     contact = sent_contacts.find_or_create_by!(receiver: other_actor)
+    contact.sender = self
+    contact.receiver = other_actor
     relation = relation_custom(as) || raise(ArgumentError, "Unknown relation: #{as}")
-    contact.ties.find_or_create_by!(relation: relation)
+    
+    tie = contact.ties.find_by(relation: relation) || contact.ties.build(relation: relation)
+    tie.save!
   end
 
   # Removes the {Tie Ties} of a given relation from this actor to +actor+.
@@ -383,7 +395,7 @@ class Actor < ApplicationRecord
                        .where.not(id: sent_active_contact_ids + [ id ])
                        .order(Arel.sql("RANDOM()"))
                        .limit(size)
-    candidates.map { |a| contact_to!(a) }
+    candidates.map { |a| Contact.new(sender: self, receiver: a) }
   end
 
   # Uses the friendly {#slug} as the URL parameter.

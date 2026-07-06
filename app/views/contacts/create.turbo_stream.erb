@@ -3,7 +3,10 @@
   <%= render "shared/connection_button", actor: @other %>
 <% end %>
 
-<%# Update sidebar suggestions %>
-<%= turbo_stream.replace "sidebar_suggestions" do %>
-  <%= render "shared/sidebar_suggestions" %>
+<%# Remove suggestion from sidebar when connecting from the feed %>
+<%= turbo_stream.remove dom_id(@other, :suggestion) %>
+
+<%# Dispatch contact:changed event %>
+<%= turbo_stream.append "body" do %>
+  <div data-controller="event-dispatcher" data-event-dispatcher-name-value="contact:changed"></div>
 <% end %>

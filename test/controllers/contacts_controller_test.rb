@@ -29,7 +29,8 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :success
     assert_match /turbo-stream action="replace" target="connection_actor_#{@bob.id}"/, response.body
-    assert_match /turbo-stream action="replace" target="sidebar_suggestions"/, response.body
+    assert_match /turbo-stream action="append" target="body"/, response.body
+    assert_match /data-controller="event-dispatcher"/, response.body
   end
 
   test "should create contact via turbo stream redirecting when referer is contacts path" do
@@ -54,12 +55,16 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
     @alice.connect_to(@bob, as: :friend)
     contact = Contact.last
 
-    delete contact_path(contact), headers: { "HTTP_REFERER" => "/custom_referer" }, as: :turbo_stream
+    assert_difference("Contact.count", -1) do
+      delete contact_path(contact), headers: { "HTTP_REFERER" => "/custom_referer" }, as: :turbo_stream
+    end
 
     assert_response :success
     assert_not Contact.exists?(contact.id)
+    assert_nil @alice.sent_contacts.find_by(receiver: @bob)
     assert_match /turbo-stream action="replace" target="connection_actor_#{@bob.id}"/, response.body
-    assert_match /turbo-stream action="replace" target="sidebar_suggestions"/, response.body
+    assert_match /turbo-stream action="append" target="body"/, response.body
+    assert_match /data-controller="event-dispatcher"/, response.body
   end
 
   test "should destroy contact via turbo stream redirecting when referer is contacts path" do

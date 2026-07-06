@@ -1,7 +1,7 @@
 <div class="divide-y divide-gray-100" id="sidebar_suggestions">
   <% if current_actor %>
     <% current_actor.suggestions(3).each do |contact| %>
-      <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+      <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0" id="<%= dom_id(contact.receiver, :suggestion) %>">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-xs font-bold border border-blue-100">
             <%= contact.receiver.name.first.upcase %>

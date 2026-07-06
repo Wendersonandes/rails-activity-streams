@@ -6,7 +6,7 @@
         <span>Remove Contact</span>
       <% end %>
     <% else %>
-      <%= button_to contacts_path(actor_id: actor.slug, as: :friend), method: :post, class: "inline-flex items-center gap-1.5 text-xs bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-1.8 rounded-lg font-medium transition-colors cursor-pointer border-0" do %>
+      <%= button_to contacts_path(actor_id: actor.slug, as: :friend), method: :post, class: "flex items-center gap-1.5 text-xs bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-1.8 rounded-lg font-medium transition-colors cursor-pointer border-0" do %>
         <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
         <span>Connect</span>
       <% end %>

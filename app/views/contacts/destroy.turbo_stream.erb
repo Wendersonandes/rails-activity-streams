@@ -3,7 +3,7 @@
   <%= render "shared/connection_button", actor: @other %>
 <% end %>
 
-<%# Update sidebar suggestions %>
-<%= turbo_stream.replace "sidebar_suggestions" do %>
-  <%= render "shared/sidebar_suggestions" %>
+<%# Dispatch contact:changed event %>
+<%= turbo_stream.append "body" do %>
+  <div data-controller="event-dispatcher" data-event-dispatcher-name-value="contact:changed"></div>
 <% end %>

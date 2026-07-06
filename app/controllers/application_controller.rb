@@ -33,7 +33,16 @@ class ApplicationController < ActionController::Base
   #
   # @return [Actor, nil] the current profile's actor, or +nil+ when signed out.
   def current_actor
-    @current_actor ||= current_user&.current_profile
+    @current_actor ||= begin
+      actor = current_user&.current_profile
+      if actor
+        ActiveRecord::Associations::Preloader.new(records: [actor], associations: :actorable).call
+        if actor.actorable.is_a?(Profile)
+          actor.actorable.user = current_user
+        end
+      end
+      actor
+    end
   end
   helper_method :current_actor
 

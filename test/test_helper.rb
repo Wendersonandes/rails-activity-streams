@@ -13,7 +13,9 @@ module ActiveSupport
     include Devise::Test::IntegrationHelpers
 
     def create_profile_for(user, name: nil)
-      ProfileCreation.new(user, name: name || user.email.split("@").first).call
+      actor = ProfileCreation.new(user, name: name || user.email.split("@").first).call
+      user.update!(current_profile: actor)
+      actor
     end
 
     def sign_in_user(user)

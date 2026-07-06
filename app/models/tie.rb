@@ -96,14 +96,18 @@ class Tie < ApplicationRecord
   # when the contact is already replied, otherwise +follow+.
   def create_contact_activity
     return unless relation.class.create_activity?
+
+    sender_actor = contact.sender
+    receiver_actor = contact.receiver
+
     return if contact.reload.ties_count != 1
 
     Activity.create!(
       verb: contact.replied? ? :make_friend : :follow,
-      author: contact.sender,
-      user_author: contact.sender.subject.is_a?(Profile) ? contact.sender.subject.user : nil,
-      owner: contact.receiver,
-      relation_ids: contact.receiver.activity_relation_ids
+      author: sender_actor,
+      user_author: sender_actor.subject.is_a?(Profile) ? sender_actor.subject.user : nil,
+      owner: receiver_actor,
+      audiences: receiver_actor.activity_relation_ids.map { |rid| Audience.new(relation_id: rid) }
     )
   end
 

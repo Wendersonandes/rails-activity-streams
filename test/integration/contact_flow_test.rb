@@ -23,6 +23,32 @@ class ContactFlowTest < ActionDispatch::IntegrationTest
     assert @alice_actor.allow?(@bob_actor, :read, :activity)
   end
 
+  test "connect via suggestions parameters" do
+    # Sign in user
+    sign_in @alice
+
+    # Simulate POST from suggestions bar
+    post contacts_path(actor_id: @bob_actor.slug, as: "friend"), as: :turbo_stream
+    assert_response :success
+
+    # Verify connection was established
+    assert @alice_actor.reload.connected_with?(@bob_actor)
+    
+    # Check that bob is in Alice's friend relation
+    friend_rel = @alice_actor.relation_custom("friend")
+    tie = @alice_actor.sent_ties.find_by(relation: friend_rel)
+    assert tie
+    assert_equal @bob_actor, tie.contact.receiver
+
+    # Verify created contact Activity and its audiences
+    activity = Activity.last
+    assert_equal "follow", activity.verb
+    assert_equal @alice_actor, activity.author
+    assert_equal @bob_actor, activity.owner
+    assert_equal @bob_actor.activity_relation_ids.sort, activity.audiences.map(&:relation_id).sort
+  end
+
+
   test "contacts_for filters by relation" do
     @alice_actor.connect_to(@bob_actor, as: "friend")
 

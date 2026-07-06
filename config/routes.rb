@@ -25,6 +25,7 @@ Rails.application.routes.draw do
 
   # Contacts — gerenciamento de conexoes
   resources :contacts, only: [ :index, :create, :destroy ]
+  resources :suggestions, only: [ :index ]
 
   # Account — configuracoes do usuario (singular route -> UsersController)
   resource :account, controller: "users", only: [ :show, :edit, :update ]

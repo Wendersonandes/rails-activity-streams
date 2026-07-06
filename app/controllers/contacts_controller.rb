@@ -30,6 +30,9 @@ class ContactsController < ApplicationController
     @other = Actor.find_by!(slug: params[:actor_id])
     authorize Contact.new(sender: current_actor, receiver: @other)
 
+    # Preload relations on current_actor for connect_to
+    ActiveRecord::Associations::Preloader.new(records: [current_actor], associations: :relations).call
+
     current_actor.connect_to(@other, as: params[:as] || :friend)
     respond_to do |format|
       format.turbo_stream do
@@ -47,7 +50,7 @@ class ContactsController < ApplicationController
   def destroy
     @contact = Contact.find_by!(id: params[:id])
     authorize @contact
-    @other = @contact.receiver == current_actor ? @contact.sender : @contact.receiver
+    @other = @contact.receiver_id == current_actor.id ? @contact.sender : @contact.receiver
     @contact.destroy
     respond_to do |format|
       format.turbo_stream do

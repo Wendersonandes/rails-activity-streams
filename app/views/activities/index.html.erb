@@ -51,7 +51,14 @@
         </div>
 
         <% if current_actor %>
-          <%= render "shared/sidebar_suggestions" %>
+          <%= turbo_frame_tag "sidebar_suggestions",
+                              data: {
+                                controller: "turbo-frame-reload",
+                                action: "contact:changed@window->turbo-frame-reload#reload",
+                                turbo_frame_reload_url_value: suggestions_path
+                              } do %>
+            <%= render "shared/sidebar_suggestions" %>
+          <% end %>
         <% end %>
       </div>
     </div>
