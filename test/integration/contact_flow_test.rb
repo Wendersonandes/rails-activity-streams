@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ContactFlowTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
   setup do
     seed_permissions_and_relations
     @alice = users(:alice)
@@ -24,6 +26,8 @@ class ContactFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "connect via suggestions parameters" do
+    clear_enqueued_jobs
+
     # Sign in user
     sign_in @alice
 
@@ -40,8 +44,12 @@ class ContactFlowTest < ActionDispatch::IntegrationTest
     assert tie
     assert_equal @bob_actor, tie.contact.receiver
 
+    # Perform background jobs
+    perform_enqueued_jobs
+
     # Verify created contact Activity and its audiences
     activity = Activity.last
+    assert_not_nil activity
     assert_equal "follow", activity.verb
     assert_equal @alice_actor, activity.author
     assert_equal @bob_actor, activity.owner

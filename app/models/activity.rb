@@ -59,7 +59,7 @@ class Activity < ApplicationRecord
   belongs_to :parent, class_name: "Activity", optional: true
   has_many :children, class_name: "Activity", foreign_key: :parent_id, dependent: :destroy
 
-  has_many :audiences, dependent: :destroy
+  has_many :audiences, dependent: :destroy, autosave: true
   has_many :relations, through: :audiences
   has_many :activity_object_activities, dependent: :destroy
   has_many :activity_objects, through: :activity_object_activities

@@ -57,10 +57,11 @@ class ActivityTest < ActiveSupport::TestCase
   test ".roots returns activities without parent" do
     parent = Activity.create!(verb: :post, author: @author, owner: @owner,
                               relation_ids: [ Relation::Public.instance.id ])
-    Activity.create!(verb: :like, author: @author, owner: @owner, parent: parent,
-                     relation_ids: [ Relation::Public.instance.id ])
+    child = Activity.create!(verb: :like, author: @author, owner: @owner, parent: parent,
+                             relation_ids: [ Relation::Public.instance.id ])
 
-    assert_equal 3, Activity.roots.count # 1 parent + 2 contact activities from ProfileCreation
+    assert_includes Activity.roots, parent
+    assert_not_includes Activity.roots, child
   end
 
   test "#reflexive? true when author == owner" do

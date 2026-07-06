@@ -44,19 +44,27 @@ class TieTest < ActiveSupport::TestCase
     assert tie.valid?
   end
 
-  test "creates follow activity on first tie" do
-    assert_difference "Activity.where(verb: :follow).count", 1 do
+  include ActiveJob::TestHelper
+
+  test "creates follow activity on first tie via background job" do
+    clear_enqueued_jobs
+    assert_enqueued_with(job: CreateContactActivityJob) do
       Tie.create!(contact: @contact, relation: Relation::Public.instance)
+    end
+
+    assert_difference "Activity.where(verb: :follow).count", 1 do
+      perform_enqueued_jobs
     end
   end
 
   test "#positive? returns true for positive relations" do
-    tie = Tie.create!(contact: @contact, relation: Relation::Public.instance)
+    Tie.create!(contact: @contact, relation: Relation::Public.instance)
+    tie = Tie.last
     assert tie.positive?
   end
 
   test "does not create activity for Reject relation" do
-    assert_no_difference "Activity.count" do
+    assert_no_enqueued_jobs do
       Tie.create!(contact: @contact, relation: Relation::Reject.instance)
     end
   end

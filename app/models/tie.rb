@@ -30,7 +30,7 @@
 #
 # == Side effects
 # The first {Tie} of a {Contact} triggers a contact {Activity} (a +follow+, or +make_friend+
-# when the contact was already replied) — see {#create_contact_activity}.
+# when the contact was already replied) — see {CreateContactActivityJob} and {#enqueue_contact_activity_job}.
 #
 # @see Contact  The ordered pair of actors backing this tie.
 # @see Relation The type of link and the permissions it grants.
@@ -78,7 +78,7 @@ class Tie < ApplicationRecord
   validates :contact, :relation, presence: true
   validate :relation_must_belong_to_sender
 
-  after_create :create_contact_activity
+  after_commit :enqueue_contact_activity_job, on: :create
 
   # Is this tie's {#relation} a positive one?
   #
@@ -89,26 +89,15 @@ class Tie < ApplicationRecord
 
   private
 
-  # +after_create+ callback: publishes the contact {Activity} for the first tie of a contact.
+  # +after_commit+ callback: enqueues a background job to publish the contact {Activity}
+  # for the first tie of a contact.
   #
   # Skipped when the relation type opts out via +Relation.create_activity?+ (e.g.
-  # {Relation::Reject}) or when this is not the contact's first tie. The verb is +make_friend+
-  # when the contact is already replied, otherwise +follow+.
-  def create_contact_activity
+  # {Relation::Reject}).
+  def enqueue_contact_activity_job
     return unless relation.class.create_activity?
 
-    sender_actor = contact.sender
-    receiver_actor = contact.receiver
-
-    return if contact.reload.ties_count != 1
-
-    Activity.create!(
-      verb: contact.replied? ? :make_friend : :follow,
-      author: sender_actor,
-      user_author: sender_actor.subject.is_a?(Profile) ? sender_actor.subject.user : nil,
-      owner: receiver_actor,
-      audiences: receiver_actor.activity_relation_ids.map { |rid| Audience.new(relation_id: rid) }
-    )
+    CreateContactActivityJob.perform_later(id)
   end
 
   # +validate+ callback: a relation must belong to the contact's sender (unless it is a
