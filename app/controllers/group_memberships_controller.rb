@@ -58,13 +58,20 @@ class GroupMembershipsController < ApplicationController
         return redirect_to group_memberships_path(@group), notice: "You are already a member."
       end
 
-      if @member.contact_to(@group_actor).present?
+      existing = @member.contact_to(@group_actor)
+      if existing&.established?
         return redirect_to group_memberships_path(@group), notice: "Your request is already pending."
       end
 
-      @member.connect_to(@group_actor, as: "member")
+      ActiveRecord::Base.transaction do
+        existing&.destroy
+        @member.connect_to(@group_actor, as: "member")
+        if @group.public_group?
+          @group_actor.connect_to(@member, as: "member")
+        end
+      end
+
       if @group.public_group?
-        @group_actor.connect_to(@member, as: "member")
         redirect_to group_memberships_path(@group), notice: "You joined the group."
       else
         redirect_to group_memberships_path(@group), notice: "Request sent. Awaiting approval."

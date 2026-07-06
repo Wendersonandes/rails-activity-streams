@@ -285,11 +285,12 @@ class Actor < ApplicationRecord
   # @return [Tie] the resulting tie.
   # @raise [ArgumentError] when no custom relation matches +as+.
   def connect_to(other_actor, as:)
+    relation = relation_custom(as) || raise(ArgumentError, "Unknown relation: #{as}")
+
     contact = sent_contacts.find_or_create_by!(receiver: other_actor)
     contact.sender = self
     contact.receiver = other_actor
-    relation = relation_custom(as) || raise(ArgumentError, "Unknown relation: #{as}")
-    
+
     tie = contact.ties.find_by(relation: relation) || contact.ties.build(relation: relation)
     tie.save!
   end
