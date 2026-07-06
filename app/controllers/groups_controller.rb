@@ -21,7 +21,7 @@ class GroupsController < ApplicationController
     authorize @group.actor, policy_class: GroupPolicy
     @activities = policy_scope(Activity).where(author: @group.actor)
                                         .roots.recent
-                                        .includes({ author: :avatar_attachment }, :user_author, :activity_objects, { parent: :author })
+                                        .includes(:owner, { author: :avatar_attachment }, :user_author, :activity_objects, { parent: :author })
     @pagy, @activities = pagy(@activities)
 
     @is_member = current_actor && @group.actor.member_roles_for(current_actor).any?

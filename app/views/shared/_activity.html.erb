@@ -39,6 +39,10 @@
         </div>
       <% end %>
 
+      <% if activity.activity_objects.empty? && (desc = activity_description(activity)) %>
+        <p class="text-sm leading-relaxed text-gray-600"><%= desc %></p>
+      <% end %>
+
       <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 text-sm text-gray-500">
         <%= render "shared/activity_actions", activity: activity %>
         <% if activity.parent.present? %>

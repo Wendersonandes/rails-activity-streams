@@ -20,7 +20,17 @@ class CreateContactActivityJob < ApplicationJob
 
     sender_actor = contact.sender
     receiver_actor = contact.receiver
-    verb = contact.replied? ? :make_friend : :follow
+
+    is_group_connection = sender_actor.actorable_type == "Group" ||
+                          receiver_actor.actorable_type == "Group"
+
+    verb = if is_group_connection
+      :join
+    elsif contact.replied?
+      :make_friend
+    else
+      :follow
+    end
 
     Activity.transaction do
       activity = Activity.create!(

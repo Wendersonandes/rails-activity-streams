@@ -29,3 +29,30 @@
 
 en:
   hello: "Hello world"
+  activity:
+    description:
+      follow: "%{author} started following %{owner}"
+      make_friend: "%{author} and %{owner} are now friends"
+      join: "%{author} connected with %{owner}"
+      like: "%{author} liked this"
+      update: "%{author} updated their profile"
+    audience:
+      public:
+        full: "Visible to everyone"
+      visible:
+        full: "Visible to %{audience}"
+      hidden:
+        full: "Visible to %{audience}"
+  relation:
+    public:
+      name: "Public"
+    follow:
+      name: "Follow"
+    custom:
+      name: "Custom"
+    reject:
+      name: "Reject"
+    owner:
+      name: "Owner"
+    local_admin:
+      name: "Admin"
