@@ -1,71 +1,58 @@
 <%= content_for :title, "Feed" %>
 
-<div class="max-w-6xl mx-auto">
-  <div class="grid grid-cols-12 gap-6">
-    <!-- Left Column -->
-    <div class="hidden lg:block lg:col-span-3">
-      <%= render "shared/left_sidebar" %>
-    </div>
-
-    <!-- Feed Column -->
-    <div class="col-span-12 lg:col-span-6 space-y-5">
-      <% if current_actor %>
-        <div class="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm transition-all duration-200 hover:border-gray-300">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold border border-blue-100">
-              <%= current_actor.name.first.upcase %>
-            </div>
-            <%= link_to new_activity_path, class: "flex-1 flex items-center justify-between bg-gray-50 hover:bg-gray-100/80 border border-gray-200/80 rounded-lg px-4 py-2.5 text-sm text-gray-500 transition-colors" do %>
-              <span>Share something with the community...</span>
-              <i data-lucide="pen-line" class="w-4 h-4 text-gray-400"></i>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-
-      <div id="feed" class="space-y-4">
-        <% if @activities.any? %>
-          <%= render partial: "shared/activity", collection: @activities, as: :activity %>
-        <% else %>
-          <div class="text-center text-gray-500 py-16 bg-white rounded-xl border border-gray-200/80 p-8 shadow-sm">
-            <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
-              <i data-lucide="message-square" class="w-6 h-6 text-gray-400"></i>
-            </div>
-            <h3 class="text-base font-semibold text-gray-900">No activities yet</h3>
-            <p class="text-sm text-gray-500 mt-1 max-w-sm mx-auto">Connect with others or join groups to see recent posts and updates here.</p>
-          </div>
-        <% end %>
+<% if current_actor %>
+  <div class="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm transition-all duration-200 hover:border-gray-300">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold border border-blue-100">
+        <%= current_actor.name.first.upcase %>
       </div>
-
-      <% if @pagy.pages > 1 %>
-        <div class="mt-8 flex justify-center">
-          <%== pagy_nav(@pagy) %>
-        </div>
+      <%= link_to new_activity_path, class: "flex-1 flex items-center justify-between bg-gray-50 hover:bg-gray-100/80 border border-gray-200/80 rounded-lg px-4 py-2.5 text-sm text-gray-500 transition-colors" do %>
+        <span>Share something with the community...</span>
+        <i data-lucide="pen-line" class="w-4 h-4 text-gray-400"></i>
       <% end %>
-    </div>
-
-    <!-- Sidebar Column -->
-    <div class="hidden lg:block lg:col-span-3">
-      <div class="bg-white rounded-xl border border-gray-200/80 p-5 shadow-sm sticky top-20 space-y-4">
-        <div>
-          <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
-            <i data-lucide="sparkles" class="w-4 h-4 text-blue-600"></i>
-            <span>Suggestions</span>
-          </h3>
-          <p class="text-xs text-gray-500 mt-0.5">People you might want to connect with</p>
-        </div>
-
-        <% if current_actor %>
-          <%= turbo_frame_tag "sidebar_suggestions",
-                              data: {
-                                controller: "turbo-frame-reload",
-                                action: "contact:changed@window->turbo-frame-reload#reload",
-                                turbo_frame_reload_url_value: suggestions_path
-                              } do %>
-            <%= render "shared/sidebar_suggestions" %>
-          <% end %>
-        <% end %>
-      </div>
     </div>
   </div>
+<% end %>
+
+<div id="feed" class="space-y-4">
+  <% if @activities.any? %>
+    <%= render partial: "shared/activity", collection: @activities, as: :activity %>
+  <% else %>
+    <div class="text-center text-gray-500 py-16 bg-white rounded-xl border border-gray-200/80 p-8 shadow-sm">
+      <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
+        <i data-lucide="message-square" class="w-6 h-6 text-gray-400"></i>
+      </div>
+      <h3 class="text-base font-semibold text-gray-900">No activities yet</h3>
+      <p class="text-sm text-gray-500 mt-1 max-w-sm mx-auto">Connect with others or join groups to see recent posts and updates here.</p>
+    </div>
+  <% end %>
 </div>
+
+<% if @pagy.pages > 1 %>
+  <div class="mt-8 flex justify-center">
+    <%== pagy_nav(@pagy) %>
+  </div>
+<% end %>
+
+<% content_for :right_sidebar do %>
+  <div class="bg-white rounded-xl border border-gray-200/80 p-5 shadow-sm sticky top-20 space-y-4">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
+        <i data-lucide="sparkles" class="w-4 h-4 text-blue-600"></i>
+        <span>Suggestions</span>
+      </h3>
+      <p class="text-xs text-gray-500 mt-0.5">People you might want to connect with</p>
+    </div>
+
+    <% if current_actor %>
+      <%= turbo_frame_tag "sidebar_suggestions",
+                          data: {
+                            controller: "turbo-frame-reload",
+                            action: "contact:changed@window->turbo-frame-reload#reload",
+                            turbo_frame_reload_url_value: suggestions_path
+                          } do %>
+        <%= render "shared/sidebar_suggestions" %>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

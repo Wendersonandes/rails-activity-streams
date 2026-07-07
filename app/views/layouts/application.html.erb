@@ -49,7 +49,31 @@
     <main class="min-h-screen pt-20 pb-12">
       <div class="container mx-auto px-5">
         <%= render "shared/flash" %>
-        <%= yield %>
+        
+        <% if current_actor && !devise_controller? && !content_for?(:no_sidebar) %>
+          <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-12 gap-6">
+              <!-- Left Column -->
+              <div class="hidden lg:block lg:col-span-3">
+                <%= content_for?(:left_sidebar) ? yield(:left_sidebar) : render("shared/left_sidebar") %>
+              </div>
+
+              <!-- Center Column -->
+              <div class="col-span-12 <%= content_for?(:right_sidebar) ? 'lg:col-span-6' : 'lg:col-span-9' %> space-y-6">
+                <%= yield %>
+              </div>
+
+              <!-- Right Column -->
+              <% if content_for?(:right_sidebar) %>
+                <div class="hidden lg:block lg:col-span-3">
+                  <%= yield :right_sidebar %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <%= yield %>
+        <% end %>
       </div>
     </main>
   </body>
