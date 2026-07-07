@@ -35,7 +35,7 @@ class ActivityPolicy < ApplicationPolicy
   end
 
   def destroy?
-    author_or_owner?
+    actor && record.author_id == actor.id
   end
 
   class Scope < Scope

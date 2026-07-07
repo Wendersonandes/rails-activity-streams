@@ -6,7 +6,8 @@
 # @see ActivityPolicy
 class ActivitiesController < ApplicationController
   skip_before_action :authenticate_user!, only: [ :show ]
-  before_action :set_activity, only: [ :show, :destroy ]
+  before_action :set_activity, only: [ :destroy ]
+  before_action :set_activity_with_includes, only: [ :show ]
 
   # The signed-in actor's home timeline, paginated and narrowed to what they may see.
   #
@@ -86,16 +87,20 @@ class ActivitiesController < ApplicationController
   # @note Responds via Turbo Stream by removing the activity's element from the page.
   def destroy
     authorize @activity
-    @activity.destroy
+    DestroyActivityJob.perform_later(@activity.id)
     respond_to do |format|
       format.turbo_stream { render turbo_stream: turbo_stream.remove(@activity) }
-      format.html { redirect_to activities_path, notice: "Activity deleted." }
+      format.html { redirect_to activities_path, notice: "Activity deletion enqueued." }
     end
   end
 
   private
 
   def set_activity
+    @activity = Activity.find_by!(id: params[:id])
+  end
+
+  def set_activity_with_includes
     @activity = Activity.includes({ author: :avatar_attachment }, :user_author, :activity_objects, children: { author: :avatar_attachment }).find_by!(id: params[:id])
   end
 

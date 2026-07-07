@@ -51,7 +51,9 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     activity.audiences.create!(relation: Relation::Public.instance)
 
     assert_difference("Activity.count", -1) do
-      delete activity_path(activity)
+      perform_enqueued_jobs do
+        delete activity_path(activity)
+      end
     end
     assert_redirected_to activities_path
   end
@@ -63,9 +65,49 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     activity.audiences.create!(relation: Relation::Public.instance)
 
     assert_no_difference("Activity.count") do
-      delete activity_path(activity)
+      perform_enqueued_jobs do
+        delete activity_path(activity)
+      end
     end
     assert_redirected_to root_path
+  end
+
+  test "should not destroy activity as group owner if not the author" do
+    # Create group with current user (Alice) as admin
+    group = Group.new(privacy: :public_group)
+    group.build_actor(name: "Alice Owner Group")
+    GroupCreation.new(@actor, group).call
+    group_actor = group.actor
+
+    # Sign in as Bob (who is a member and author)
+    sign_out @user
+    bob = users(:bob)
+    bob_actor = create_profile_for(bob, name: "Bob Member")
+    bob.update!(current_profile: bob_actor)
+    sign_in bob
+
+    # Bob creates a post in Alice's group
+    activity = Activity.create!(
+      verb: :post,
+      author: bob_actor,
+      owner: group_actor,
+      user_author: bob
+    )
+    activity.audiences.create!(relation: Relation::Public.instance)
+
+    # Sign in back as Alice
+    sign_out bob
+    @user.update!(current_profile: @actor)
+    sign_in @user
+
+    # Alice (group owner) tries to delete Bob's post in her group
+    assert_no_difference("Activity.count") do
+      perform_enqueued_jobs do
+        delete activity_path(activity)
+      end
+    end
+    assert_redirected_to root_path
+    assert_equal "You are not authorized to perform this action.", flash[:alert]
   end
 
   test "member should create post in group" do
