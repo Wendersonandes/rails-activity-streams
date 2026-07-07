@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ActivitiesControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
   setup do
     seed_permissions_and_relations
     @user = users(:alice)
@@ -119,13 +121,15 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     GroupCreation.new(@actor, group).call
     group_actor = group.actor
 
-    post activities_path, params: {
-      activity: {
-        verb: :post,
-        owner_id: group_actor.id,
-        text: { title: "Private post", body: "Visible only to members" }
+    perform_enqueued_jobs do
+      post activities_path, params: {
+        activity: {
+          verb: :post,
+          owner_id: group_actor.id,
+          text: { title: "Private post", body: "Visible only to members" }
+        }
       }
-    }
+    end
     assert_redirected_to activity_path(Activity.last)
     assert_equal "Post created.", flash[:notice]
     assert_equal group_actor.id, Activity.last.owner_id
@@ -159,5 +163,35 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     }
     assert_redirected_to root_path
     assert_equal "You are not authorized to perform this action.", flash[:alert]
+  end
+
+  test "should create post activity via turbo stream" do
+    assert_difference("Activity.count", 1) do
+      post activities_path, params: {
+        activity: {
+          verb: :post,
+          text: { title: "Turbo Title", body: "Turbo Body" }
+        }
+      }, as: :turbo_stream
+    end
+    assert_response :success
+    assert_match /turbo-stream action="prepend" target="feed"/, response.body
+    assert_match /turbo-stream action="replace" target="activity_form_container"/, response.body
+    assert_match /Turbo Title/, response.body
+    assert_match /Turbo Body/, response.body
+  end
+
+  test "should return error via turbo stream on invalid post" do
+    assert_no_difference("Activity.count") do
+      post activities_path, params: {
+        activity: {
+          verb: :post,
+          text: { title: "", body: "" }
+        }
+      }, as: :turbo_stream
+    end
+    assert_response :unprocessable_entity
+    assert_match /turbo-stream action="replace" target="activity_form_container"/, response.body
+    assert_match /Validation failed: Text can&#39;t be blank/, response.body
   end
 end

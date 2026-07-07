@@ -8,24 +8,5 @@
     <h1 class="text-2xl font-bold text-gray-900 tracking-tight">New Post</h1>
   </div>
 
-  <%= form_with model: @activity, class: "bg-white rounded-xl border border-gray-200/80 p-6 shadow-sm space-y-5" do |f| %>
-    <%= f.hidden_field :verb %>
-
-    <div class="space-y-1">
-      <%= f.label :title, class: "block text-sm font-medium text-gray-700" %>
-      <%= f.text_field :title, name: "activity[text][title]", value: params.dig(:activity, :text, :title), placeholder: "Title of your post (optional)",
-            class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow" %>
-    </div>
-
-    <div class="space-y-1">
-      <%= f.label :body, class: "block text-sm font-medium text-gray-700" %>
-      <%= f.text_area :body, name: "activity[text][body]", value: params.dig(:activity, :text, :body), rows: 5, placeholder: "What would you like to share?",
-            class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow" %>
-    </div>
-
-    <div class="flex items-center justify-between pt-2">
-      <%= link_to "Cancel", activities_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors" %>
-      <%= f.submit "Publish post", class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm cursor-pointer" %>
-    </div>
-  <% end %>
+  <%= render "activities/form", activity: @activity, show_cancel: true %>
 </div>

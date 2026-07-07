@@ -76,6 +76,8 @@ Rails.application.configure do
     # Safelist conditional associations that may not be accessed in all contexts to prevent false-positive AVOID alerts
     Bullet.add_safelist type: :unused_eager_loading, class_name: "Activity", association: :user_author
     Bullet.add_safelist type: :unused_eager_loading, class_name: "Activity", association: :parent
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "Activity", association: :likes
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "ActivityObject", association: :received_actions
   end
 
   # Raises error for missing translations.

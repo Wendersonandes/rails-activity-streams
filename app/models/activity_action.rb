@@ -59,6 +59,9 @@ class ActivityAction < ApplicationRecord
 
   validates :actor, :activity_object, presence: true
 
+  after_save :update_follower_count
+  after_destroy :update_follower_count
+
   # Marks this action as following its {#activity_object}.
   #
   # @return [Boolean]
@@ -71,5 +74,12 @@ class ActivityAction < ApplicationRecord
   # @return [Boolean]
   def unfollow!
     update!(follow: false)
+  end
+
+  private
+
+  def update_follower_count
+    count = activity_object.received_actions.where(follow: true).count
+    activity_object.update_columns(follower_count: count)
   end
 end

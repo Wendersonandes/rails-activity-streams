@@ -1,16 +1,8 @@
 <%= content_for :title, "Feed" %>
 
 <% if current_actor %>
-  <div class="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm transition-all duration-200 hover:border-gray-300">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold border border-blue-100">
-        <%= current_actor.name.first.upcase %>
-      </div>
-      <%= link_to new_activity_path, class: "flex-1 flex items-center justify-between bg-gray-50 hover:bg-gray-100/80 border border-gray-200/80 rounded-lg px-4 py-2.5 text-sm text-gray-500 transition-colors" do %>
-        <span>Share something with the community...</span>
-        <i data-lucide="pen-line" class="w-4 h-4 text-gray-400"></i>
-      <% end %>
-    </div>
+  <div class="mb-6">
+    <%= render "activities/form", activity: @activity %>
   </div>
 <% end %>
 

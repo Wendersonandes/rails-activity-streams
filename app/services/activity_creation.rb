@@ -38,11 +38,7 @@ class ActivityCreation
 
       @activity.save!
 
-      if @relation_ids.present?
-        @relation_ids.each { |rid| @activity.audiences.create!(relation_id: rid) }
-      else
-        @activity.audiences.create!(relation: Relation::Public.instance)
-      end
+      CreateActivityAudiencesJob.perform_later(@activity.id, @relation_ids)
 
       @activity
     end

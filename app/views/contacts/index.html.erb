@@ -15,7 +15,7 @@
             <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 flex items-center justify-center font-bold text-xs border border-yellow-200">
               <%= contact.sender.name.first.upcase %>
             </div>
-            <span class="text-sm font-medium text-gray-800"><%= contact.sender.name %></span>
+            <span class="text-sm font-medium text-gray-800"><%= link_to contact.sender.name, public_path_for(contact.sender), class: "hover:text-blue-600 transition-colors" %></span>
           </div>
           <div class="flex gap-2">
             <%= button_to contacts_path(actor_id: contact.sender.slug, as: :friend), params: { actor_id: contact.sender.slug }, class: "inline-flex items-center gap-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3 py-1.5 rounded-lg transition-colors shadow-sm cursor-pointer border-0" do %>

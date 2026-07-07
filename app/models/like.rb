@@ -17,7 +17,11 @@ class Like
     def find(subject, object)
       activity = case object
                  when Activity
-                   object.likes.find_by(author: subject)
+                   if object.likes.loaded?
+                     object.likes.detect { |l| l.author_id == Actor.normalize_id(subject) }
+                   else
+                     object.likes.find_by(author: subject)
+                   end
                  else
                    ActivityObject.normalize(object).likes.find_by(author: subject)
                  end

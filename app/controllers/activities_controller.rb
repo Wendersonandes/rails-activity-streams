@@ -17,6 +17,9 @@ class ActivitiesController < ApplicationController
     @pagy, @activities = pagy(
       policy_scope(Activity).home_timeline(current_actor)
     )
+    if current_actor
+      @activity = Activity.new(verb: :post, author: current_actor, owner: current_actor)
+    end
   end
 
   def show
@@ -58,13 +61,24 @@ class ActivitiesController < ApplicationController
     ).call
 
     respond_to do |format|
-      format.turbo_stream { render turbo_stream: turbo_stream.prepend("feed", partial: "shared/activity", locals: { activity: @activity }) }
+      format.turbo_stream do
+        @new_activity = Activity.new(verb: :post, author: current_actor, owner: @activity.owner)
+        render turbo_stream: [
+          turbo_stream.prepend("feed", partial: "shared/activity", locals: { activity: @activity }),
+          turbo_stream.replace("activity_form_container", partial: "activities/form", locals: { activity: @new_activity, clear_inputs: true })
+        ]
+      end
       format.html { redirect_to @activity, notice: "Post created." }
     end
   rescue ActiveRecord::RecordInvalid => e
     @activity = e.record.is_a?(Activity) ? e.record : @activity
     @activity.errors.add(:base, e.message) unless e.record.is_a?(Activity)
-    render :new, status: :unprocessable_entity
+    respond_to do |format|
+      format.html { render :new, status: :unprocessable_entity }
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace("activity_form_container", partial: "activities/form", locals: { activity: @activity }), status: :unprocessable_entity
+      end
+    end
   end
 
   # Removes the activity (authorized via +ActivityPolicy#destroy?+).

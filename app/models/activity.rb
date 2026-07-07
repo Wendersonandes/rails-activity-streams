@@ -60,6 +60,7 @@ class Activity < ApplicationRecord
   belongs_to :user_author, class_name: "User", optional: true
   belongs_to :parent, class_name: "Activity", optional: true
   has_many :children, class_name: "Activity", foreign_key: :parent_id, dependent: :destroy
+  has_many :likes, -> { where(verb: :like) }, class_name: "Activity", foreign_key: :parent_id, dependent: :destroy
 
   has_many :audiences, dependent: :destroy, autosave: true
   has_many :relations, through: :audiences
@@ -113,7 +114,7 @@ class Activity < ApplicationRecord
   scope :timeline, ->(actor) {
     select("DISTINCT activities.*")
       .roots
-      .includes(:owner, { author: :avatar_attachment }, :user_author, :activity_objects, { parent: :author })
+      .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: :received_actions }, { parent: :author }, :likes)
       .shared_with(actor)
       .recent
   }
@@ -129,7 +130,7 @@ class Activity < ApplicationRecord
     ids = actor.sent_active_contact_ids + [ actor.id ]
     select("DISTINCT activities.*")
       .roots
-      .includes(:owner, { author: :avatar_attachment }, :user_author, :activity_objects, { parent: :author })
+      .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: :received_actions }, { parent: :author }, :likes)
       .where(author_id: ids)
       .shared_with(actor)
       .recent
@@ -204,12 +205,7 @@ class Activity < ApplicationRecord
             .where(activity_object_activities: { object_type: "Comment" })
   end
 
-  # The child activities that are likes of this one.
-  #
-  # @return [ActiveRecord::Relation<Activity>]
-  def likes
-    children.where(verb: :like)
-  end
+
 
   # Has +actor+ liked this activity?
   #

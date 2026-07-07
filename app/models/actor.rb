@@ -190,14 +190,14 @@ class Actor < ApplicationRecord
   #
   # @return [Array<Integer>]
   def relation_ids
-    relations.pluck(:id)
+    @relation_ids ||= relations.pluck(:id)
   end
 
   # Ids of the {Relation Relations} through which this actor is a receiver of {Tie Ties}.
   #
   # @return [Array<Integer>]
   def received_relation_ids
-    received_relations.pluck(:id)
+    @received_relation_ids ||= received_relations.pluck(:id)
   end
 
   # The relations offered when adding a new contact: the system relations available for
@@ -220,7 +220,7 @@ class Actor < ApplicationRecord
   #
   # @return [Array<Integer>]
   def activity_relation_ids
-    activity_relations.pluck(:id)
+    @activity_relation_ids ||= activity_relations.pluck(:id)
   end
 
   # The {Contact} sent by this actor to +receiver+, if it exists.
