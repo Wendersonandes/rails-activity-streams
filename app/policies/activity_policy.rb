@@ -14,11 +14,24 @@ class ActivityPolicy < ApplicationPolicy
   end
 
   def create?
-    user.present?
+    return false unless user.present? && actor.present?
+    if record.parent_id.present?
+      return false unless ActivityPolicy.new(user, record.parent).show?
+    end
+    return false if record.owner.nil?
+
+    if record.relation_ids_to_authorize.present?
+      allowed_ids = [ Relation::Public.instance.id ] + actor.relation_ids
+      allowed_ids += record.owner.relation_ids if record.owner && record.owner != actor
+      return false unless (record.relation_ids_to_authorize.map(&:to_i) - allowed_ids).empty?
+    end
+
+    return true if record.owner_id == actor.id
+    record.owner.allow?(actor, :create, :activity)
   end
 
   def update?
-    author_or_owner?
+    actor && record.author_id == actor.id
   end
 
   def destroy?

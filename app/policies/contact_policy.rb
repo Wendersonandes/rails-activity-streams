@@ -13,7 +13,7 @@ class ContactPolicy < ApplicationPolicy
   end
 
   def destroy?
-    actor && record.sender_id == actor.id
+    actor && (record.sender_id == actor.id || record.receiver_id == actor.id)
   end
 
   class Scope < Scope

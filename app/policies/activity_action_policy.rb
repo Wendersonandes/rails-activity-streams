@@ -5,7 +5,10 @@
 # @see ActivityAction
 class ActivityActionPolicy < ApplicationPolicy
   def create?
-    user.present?
+    return false unless user.present? && actor.present?
+    return false if record.activity_object.nil?
+
+    record.activity_object.visible_to?(actor)
   end
 
   def destroy?

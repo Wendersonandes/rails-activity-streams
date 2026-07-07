@@ -19,7 +19,7 @@ class GroupsController < ApplicationController
 
   def show
     authorize @group.actor, policy_class: GroupPolicy
-    @activities = policy_scope(Activity).where(author: @group.actor)
+    @activities = policy_scope(Activity).owned_by(@group.actor)
                                         .roots.recent
                                         .includes(:owner, { author: :avatar_attachment }, :user_author, :activity_objects, { parent: :author })
     @pagy, @activities = pagy(@activities)

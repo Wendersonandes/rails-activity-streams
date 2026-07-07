@@ -4,7 +4,18 @@
 # @see Like
 class LikePolicy < ApplicationPolicy
   def create?
-    user.present?
+    return false unless user.present? && actor.present?
+    return false if record.object.nil?
+
+    if record.object.is_a?(Activity)
+      record.object.visible_to?(actor)
+    elsif record.object.is_a?(ActivityObject)
+      record.object.visible_to?(actor)
+    elsif record.object.respond_to?(:activity_object) && record.object.activity_object
+      record.object.activity_object.visible_to?(actor)
+    else
+      true
+    end
   end
 
   def destroy?

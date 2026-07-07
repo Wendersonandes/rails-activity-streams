@@ -24,7 +24,8 @@ class ActivitiesController < ApplicationController
   end
 
   def new
-    @activity = Activity.new(verb: :post, author: current_actor, owner: current_actor)
+    owner = params[:owner_id].present? ? Actor.find(params[:owner_id]) : current_actor
+    @activity = Activity.new(verb: :post, author: current_actor, owner: owner)
     authorize @activity
   end
 
@@ -38,14 +39,22 @@ class ActivitiesController < ApplicationController
   #   updating the stream in place without a full page reload.
   def create
     @activity = Activity.new(activity_params.except(:text, :relation_ids).merge(
-      author: current_actor, user_author: current_user, owner: current_actor
+      author: current_actor, user_author: current_user
     ))
+    @activity.owner = current_actor unless @activity.owner_id.present?
+
+    relation_ids = activity_params[:relation_ids]
+    if relation_ids.blank? && @activity.owner != current_actor
+      relation_ids = @activity.owner.activity_relation_ids
+    end
+    @activity.relation_ids_to_authorize = relation_ids
+
     authorize @activity
 
     @activity = ActivityCreation.new(
       @activity,
       text: activity_params[:text],
-      relation_ids: activity_params[:relation_ids]
+      relation_ids: relation_ids
     ).call
 
     respond_to do |format|

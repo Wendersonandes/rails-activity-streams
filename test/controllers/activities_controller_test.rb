@@ -65,4 +65,99 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to root_path
   end
+
+  test "member should create post in group" do
+    # Create group with current user as admin/member
+    group = Group.new(privacy: :public_group)
+    group.build_actor(name: "Post Test Group")
+    GroupCreation.new(@actor, group).call
+    group_actor = group.actor
+
+    post activities_path, params: {
+      activity: {
+        verb: :post,
+        owner_id: group_actor.id,
+        text: { title: "Group post", body: "Posted in the group" }
+      }
+    }
+    assert_redirected_to activity_path(Activity.last)
+    assert_equal "Post created.", flash[:notice]
+    assert_equal group_actor.id, Activity.last.owner_id
+    assert_not Activity.last.public?
+  end
+
+  test "non-member should not create post in group" do
+    # Create group owned by Alice
+    alice_actor = create_profile_for(users(:alice), name: "Alice Group Owner")
+    group = Group.new(privacy: :public_group)
+    group.build_actor(name: "Exclusive Group")
+    GroupCreation.new(alice_actor, group).call
+    group_actor = group.actor
+
+    # Sign in as Bob (not a member)
+    sign_out @user
+    bob = users(:bob)
+    bob_actor = create_profile_for(bob, name: "Bob NonMember")
+    bob.update!(current_profile: bob_actor)
+    sign_in bob
+
+    post activities_path, params: {
+      activity: {
+        verb: :post,
+        owner_id: group_actor.id,
+        text: { title: "Attempted post", body: "Should not work" }
+      }
+    }
+    assert_redirected_to root_path
+    assert_equal "You are not authorized to perform this action.", flash[:alert]
+  end
+
+  test "member creates post in private group with restricted audience" do
+    # Create private group with current user as admin/member
+    group = Group.new(privacy: :private_group)
+    group.build_actor(name: "Private Post Group")
+    GroupCreation.new(@actor, group).call
+    group_actor = group.actor
+
+    post activities_path, params: {
+      activity: {
+        verb: :post,
+        owner_id: group_actor.id,
+        text: { title: "Private post", body: "Visible only to members" }
+      }
+    }
+    assert_redirected_to activity_path(Activity.last)
+    assert_equal "Post created.", flash[:notice]
+    assert_equal group_actor.id, Activity.last.owner_id
+    assert_not Activity.last.public?
+    # Audience should be the group's activity relations, not public
+    audience_relation_ids = Activity.last.audiences.map(&:relation_id).sort
+    assert_equal group_actor.activity_relation_ids.sort, audience_relation_ids
+  end
+
+  test "non-member blocked from posting in private group" do
+    # Create private group owned by Alice
+    alice_actor = create_profile_for(users(:alice), name: "Alice Private Owner")
+    group = Group.new(privacy: :private_group)
+    group.build_actor(name: "Private Exclusive")
+    GroupCreation.new(alice_actor, group).call
+    group_actor = group.actor
+
+    # Sign in as Bob (not a member)
+    sign_out @user
+    bob = users(:bob)
+    bob_actor = create_profile_for(bob, name: "Bob Private NonMember")
+    bob.update!(current_profile: bob_actor)
+    sign_in bob
+
+    post activities_path, params: {
+      activity: {
+        verb: :post,
+        owner_id: group_actor.id,
+        text: { title: "Attempted private post", body: "Should not work" }
+      }
+    }
+    assert_redirected_to root_path
+    assert_equal "You are not authorized to perform this action.", flash[:alert]
+  end
 end

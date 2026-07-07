@@ -57,7 +57,8 @@ module SocialStream
       "member" => {
         name: "Member",
         permissions: [
-          [ "read", "activity" ]
+          [ "read", "activity" ],
+          [ "create", "activity" ]
         ],
         receiver_type: "Profile"
       }

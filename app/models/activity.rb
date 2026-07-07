@@ -53,6 +53,8 @@
 class Activity < ApplicationRecord
   enum :verb, { follow: 0, like: 1, make_friend: 2, post: 3, update: 4, join: 5 }, prefix: :verb
 
+  attr_accessor :relation_ids_to_authorize
+
   belongs_to :author, class_name: "Actor"
   belongs_to :owner, class_name: "Actor"
   belongs_to :user_author, class_name: "User", optional: true

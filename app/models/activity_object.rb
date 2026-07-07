@@ -198,4 +198,18 @@ class ActivityObject < ApplicationRecord
   def liked_by?(actor)
     likes.exists?(author: actor)
   end
+
+  # Can +subject+ view this activity object?
+  # @param subject [Actor, nil]
+  # @return [Boolean]
+  def visible_to?(subject)
+    return true if acts_as_actor?
+
+    if post_activity.present?
+      post_activity.visible_to?(subject)
+    else
+      return true if authored_or_owned_by?(subject)
+      relations.where(type: "Relation::Public").exists? || (subject.present? && relations.exists?(id: Relation.ids_shared_with(subject)))
+    end
+  end
 end
