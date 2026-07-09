@@ -1,0 +1,70 @@
+<div id="activity_drawer"
+     data-controller="drawer"
+     data-action="keydown@window->drawer#keydown"
+     class="relative z-50"
+     aria-labelledby="slide-over-title"
+     role="dialog"
+     aria-modal="true">
+  
+  <!-- Backdrop overlay (fades in) -->
+  <div data-drawer-target="overlay"
+       data-action="click->drawer#close"
+       class="fixed inset-0 bg-gray-500/75 transition-opacity ease-in-out duration-300 opacity-0"></div>
+
+  <div class="fixed inset-0 overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+        <!-- Panel (slides in) -->
+        <div data-drawer-target="panel"
+             class="pointer-events-auto w-screen max-w-lg transform transition ease-in-out duration-300 translate-x-full">
+          <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+            
+            <!-- Header -->
+            <div class="px-6 py-5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+              <h2 class="text-base font-semibold leading-6 text-gray-900" id="slide-over-title">
+                Discussão
+              </h2>
+              <div class="ml-3 flex h-7 items-center">
+                <button type="button"
+                        data-action="click->drawer#close"
+                        class="relative rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                  <span class="sr-only">Close panel</span>
+                  <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="relative flex-1 px-6 py-6 space-y-6">
+              <!-- The Main Post -->
+              <div class="pb-6 border-b border-gray-200">
+                <%= render "shared/activity", activity: activity %>
+              </div>
+
+              <!-- Comments Section -->
+              <div class="space-y-4">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5 px-1">
+                  <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                  <span>Comments (<%= activity.direct_object&.comment_count || 0 %>)</span>
+                </h3>
+                
+                <%= render "comments/tree", commentable_activity: activity, comments: comments %>
+              </div>
+
+              <!-- Add comment Form -->
+              <% if current_actor %>
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                  <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 px-1">Add a comment</h3>
+                  <div id="<%= dom_id(activity, :reply_form) %>">
+                    <%= render "comments/form", parent_activity: activity, comment: Comment.new %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

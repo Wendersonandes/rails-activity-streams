@@ -1,0 +1,9 @@
+<%# locals: (comment_activity:, all_comments:) %>
+<li class="comments_subtree list-none" id="<%= dom_id(comment_activity, :subtree) %>">
+  <%= render "comments/comment", comment_activity: comment_activity %>
+  
+  <ol class="comments mt-3 space-y-3" id="<%= dom_id(comment_activity, :replies) %>">
+    <% child_comments = all_comments.select { |c| c.parent_id == comment_activity.id } %>
+    <%= render partial: "comments/comment_node", collection: child_comments, as: :comment_activity, locals: { all_comments: all_comments } if child_comments.any? %>
+  </ol>
+</li>

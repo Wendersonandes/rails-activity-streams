@@ -26,6 +26,7 @@ class ActivitiesController < ApplicationController
 
   def show
     authorize @activity
+    @comments = Activity.comment_thread_tree(@activity)
   end
 
   def new
@@ -102,7 +103,7 @@ class ActivitiesController < ApplicationController
   end
 
   def set_activity_with_includes
-    @activity = Activity.includes({ author: :avatar_attachment }, :user_author, :activity_objects, children: { author: :avatar_attachment }).find_by!(id: params[:id])
+    @activity = Activity.includes({ author: :avatar_attachment }, :user_author, :activity_objects, { parent: :author }).find_by!(id: params[:id])
   end
 
   def activity_params

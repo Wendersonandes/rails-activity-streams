@@ -21,7 +21,20 @@ Rails.application.routes.draw do
   resources :activities, only: [ :index, :show, :new, :create, :destroy ] do
     resources :activity_actions, only: [ :create, :destroy ]
     resources :likes, only: [ :create, :destroy ]
+    resources :comments, only: [ :create ]
   end
+
+  resources :comments, only: [ :edit, :update, :destroy ] do
+    member do
+      get  :reply
+      post :upvote
+      post :downvote
+      post :flag
+      post :unflag
+    end
+  end
+
+  get "/c/:short_id", to: "comments#show", as: :comment_permalink
 
   # Contacts — gerenciamento de conexoes
   resources :contacts, only: [ :index, :create, :destroy ]

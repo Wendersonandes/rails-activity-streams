@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+/* Threaded comments CSS styles */
+.comment_folder_button {
+  display: none;
+}
+
+.comment_folder_button:checked ~ .comment_content {
+  display: none;
+}
+
+.comment_folder_button:checked ~ .comment_folder::before {
+  content: "[+]";
+}
+
+.comment_folder::before {
+  content: "[-]";
+  cursor: pointer;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+li.comments_subtree:has(> article.comment > .comment_folder_button:checked) > ol.comments {
+  display: none;
+}
+
+ol.comments {
+  margin-left: 1.25rem;
+  padding-left: 0.25rem;
+  list-style: none;
+  border-left: 1px dashed rgb(229 231 235);
+}

@@ -1,0 +1,15 @@
+<%# locals: (commentable_activity:, comments:) %>
+<% comments_hydrated = CommentVoteHydrator.new(comments, current_actor) %>
+
+<div id="comments_tree"
+     data-controller="comments-tree"
+     data-comments-tree-commentable-type="Activity"
+     data-comments-tree-commentable-id="<%= commentable_activity.id %>"
+     class="space-y-4">
+  
+  <% root_comments = comments_hydrated.select { |c| c.parent_id == commentable_activity.id } %>
+  
+  <ol id="<%= dom_id(commentable_activity, :replies) %>" class="space-y-4 list-none pl-0">
+    <%= render partial: "comments/comment_node", collection: root_comments, as: :comment_activity, locals: { all_comments: comments_hydrated } %>
+  </ol>
+</div>

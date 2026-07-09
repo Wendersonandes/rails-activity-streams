@@ -1,0 +1,5 @@
+<%= turbo_stream.remove "activity_drawer" %>
+
+<%= turbo_stream.append "body" do %>
+  <%= render "activities/drawer", activity: @activity, comments: @comments %>
+<% end %>

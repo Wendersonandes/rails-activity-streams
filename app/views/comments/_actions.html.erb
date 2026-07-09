@@ -1,0 +1,75 @@
+<%# locals: (comment_activity:) %>
+<% comment = comment_activity.direct_object.objectable %>
+<% vote_val = comment_activity.current_user_vote %>
+
+<!-- Upvote button -->
+<% if current_actor %>
+  <% if vote_val == 1 %>
+    <%= button_to upvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-red-500 hover:text-red-600 bg-transparent border-0 cursor-pointer p-0 font-medium" do %>
+      <i data-lucide="arrow-up" class="w-4 h-4 fill-current"></i>
+      <span><%= comment.score %></span>
+    <% end %>
+  <% else %>
+    <%= button_to upvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-gray-400 hover:text-red-500 bg-transparent border-0 cursor-pointer p-0 font-medium" do %>
+      <i data-lucide="arrow-up" class="w-4 h-4"></i>
+      <span><%= comment.score %></span>
+    <% end %>
+  <% end %>
+<% else %>
+  <div class="flex items-center gap-1 text-gray-300 font-medium">
+    <i data-lucide="arrow-up" class="w-4 h-4"></i>
+    <span><%= comment.score %></span>
+  </div>
+<% end %>
+
+<!-- Downvote button -->
+<% if current_actor %>
+  <% if vote_val == -1 %>
+    <%= button_to downvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-blue-500 hover:text-blue-600 bg-transparent border-0 cursor-pointer p-0" do %>
+      <i data-lucide="arrow-down" class="w-4 h-4 fill-current"></i>
+    <% end %>
+  <% else %>
+    <%= button_to downvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-gray-400 hover:text-blue-500 bg-transparent border-0 cursor-pointer p-0" do %>
+      <i data-lucide="arrow-down" class="w-4 h-4"></i>
+    <% end %>
+  <% end %>
+<% end %>
+
+<!-- Reply button -->
+<% if current_actor %>
+  <%= link_to reply_comment_path(comment.short_id), data: { turbo_frame: dom_id(comment_activity, :reply_form), turbo_stream: true }, class: "flex items-center gap-1 text-gray-400 hover:text-blue-600" do %>
+    <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+    <span>Reply</span>
+  <% end %>
+<% end %>
+
+<!-- Edit button (Author only, and within 30 minutes) -->
+<% if comment.editable_by?(current_actor) %>
+  <%= link_to edit_comment_path(comment.short_id), data: { turbo_frame: dom_id(comment, :text), turbo_stream: true }, class: "flex items-center gap-1 text-gray-400 hover:text-blue-600" do %>
+    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+    <span>Edit</span>
+  <% end %>
+<% end %>
+
+<!-- Delete button (Author or Owner) -->
+<% if comment.destroyable_by?(current_actor) %>
+  <%= button_to comment_path(comment.short_id), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this comment?" }, class: "flex items-center gap-1 text-gray-400 hover:text-red-500 bg-transparent border-0 cursor-pointer p-0" do %>
+    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+    <span>Delete</span>
+  <% end %>
+<% end %>
+
+<!-- Flag button (other users only) -->
+<% if current_actor && comment_activity.author_id != current_actor.id %>
+  <% if comment_activity.current_user_flagged %>
+    <%= button_to unflag_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-orange-500 hover:text-orange-600 bg-transparent border-0 cursor-pointer p-0 font-medium" do %>
+      <i data-lucide="flag" class="w-3.5 h-3.5 fill-current"></i>
+      <span>Flagged</span>
+    <% end %>
+  <% else %>
+    <%= button_to flag_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-gray-400 hover:text-orange-500 bg-transparent border-0 cursor-pointer p-0" do %>
+      <i data-lucide="flag" class="w-3.5 h-3.5"></i>
+      <span>Flag</span>
+    <% end %>
+  <% end %>
+<% end %>

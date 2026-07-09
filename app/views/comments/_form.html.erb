@@ -1,0 +1,33 @@
+<%# locals: (parent_activity:, comment:) %>
+<% is_persisted = comment.persisted? %>
+<% url = is_persisted ? comment_path(comment.short_id) : activity_comments_path(parent_activity) %>
+<% method = is_persisted ? :patch : :post %>
+
+<div class="comment_form_container bg-gray-50 border border-gray-200 rounded-lg p-3 mt-3">
+  <%= form_with(model: comment, url: url, method: method, class: "space-y-3", data: { controller: "comment-form", action: "turbo:submit-end->comment-form#reset" }) do |f| %>
+    <% if comment.errors.any? %>
+      <div class="text-xs text-red-500 font-medium">
+        <%= comment.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.text_area :text,
+                     rows: 2,
+                     placeholder: is_persisted ? "Edit your comment..." : "Write a reply or comment...",
+                     class: "w-full p-2.5 text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 focus:outline-none",
+                     data: { comment_form_target: "textarea" } %>
+    </div>
+    <div class="flex items-center gap-2">
+      <%= f.submit is_persisted ? "Update" : "Comment",
+                   class: "px-3.5 py-1.5 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 cursor-pointer shadow-sm transition-colors duration-150" %>
+      
+      <% if is_persisted || parent_activity.parent_id.present? %>
+        <%= button_tag "Cancel",
+                       type: "button",
+                       class: "px-3.5 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer shadow-sm transition-colors duration-150",
+                       data: { action: "comment-form#cancel" } %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

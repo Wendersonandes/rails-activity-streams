@@ -51,9 +51,9 @@
 # @see Audience       The join with relations that defines visibility.
 # @see Relation       The audience/permission rules.
 class Activity < ApplicationRecord
-  enum :verb, { follow: 0, like: 1, make_friend: 2, post: 3, update: 4, join: 5 }, prefix: :verb
+  enum :verb, { follow: 0, like: 1, make_friend: 2, post: 3, update: 4, join: 5, dislike: 6, flag: 7 }, prefix: :verb
 
-  attr_accessor :relation_ids_to_authorize
+  attr_accessor :relation_ids_to_authorize, :current_user_vote, :current_user_flagged
 
   belongs_to :author, class_name: "Actor"
   belongs_to :owner, class_name: "Actor"
@@ -135,6 +135,47 @@ class Activity < ApplicationRecord
       .shared_with(actor)
       .recent
   }
+
+  # Returns the recursive tree of comment activities for the given root activity (e.g. a Post),
+  # ordered by Wilson confidence and creation date, preserving the tree depth hierarchy.
+  #
+  # @param root_activity [Activity]
+  # @return [Array<Activity>]
+  def self.comment_thread_tree(root_activity)
+    activities = find_by_sql([<<~SQL, root_activity_id: root_activity.id])
+      WITH RECURSIVE thread AS (
+        SELECT a.*, (1.0 - c.confidence) AS sort_confidence, 0 AS sort_depth
+        FROM activities a
+        INNER JOIN activity_object_activities aoa ON aoa.activity_id = a.id AND aoa.object_type = 'Comment'
+        INNER JOIN activity_objects ao ON ao.id = aoa.activity_object_id
+        INNER JOIN comments c ON c.id = ao.objectable_id AND ao.objectable_type = 'Comment'
+        WHERE a.parent_id = :root_activity_id
+        
+        UNION ALL
+        
+        SELECT a.*, (1.0 - c.confidence) AS sort_confidence, thread.sort_depth + 1
+        FROM activities a
+        INNER JOIN activity_object_activities aoa ON aoa.activity_id = a.id AND aoa.object_type = 'Comment'
+        INNER JOIN activity_objects ao ON ao.id = aoa.activity_object_id
+        INNER JOIN comments c ON c.id = ao.objectable_id AND ao.objectable_type = 'Comment'
+        INNER JOIN thread ON a.parent_id = thread.id
+      )
+      SEARCH DEPTH FIRST BY sort_confidence, created_at SET sort_order
+      SELECT * FROM thread
+      ORDER BY sort_order
+    SQL
+
+    ActiveRecord::Associations::Preloader.new(
+      records: activities,
+      associations: [
+        { author: :avatar_attachment },
+        :user_author,
+        { activity_objects: :objectable }
+      ]
+    ).call
+
+    activities
+  end
 
   # Is this a root activity (no parent), i.e. not a comment or like of another activity?
   #

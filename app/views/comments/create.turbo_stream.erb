@@ -1,0 +1,15 @@
+<%= turbo_stream.append dom_id(@parent_activity, :replies) do %>
+  <%= render "comments/comment_node", comment_activity: @comment_activity, all_comments: [] %>
+<% end %>
+
+<% if @parent_activity.parent_id.nil? %>
+  <%= turbo_stream.replace dom_id(@parent_activity, :reply_form) do %>
+    <div id="<%= dom_id(@parent_activity, :reply_form) %>">
+      <%= render "comments/form", parent_activity: @parent_activity, comment: Comment.new %>
+    </div>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace dom_id(@parent_activity, :reply_form) do %>
+    <%= turbo_frame_tag dom_id(@parent_activity, :reply_form) %>
+  <% end %>
+<% end %>

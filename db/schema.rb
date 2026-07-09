@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_09_130724) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_09_142542) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -132,6 +132,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_09_130724) do
     t.datetime "updated_at", null: false
     t.index ["activity_id", "relation_id"], name: "index_audiences_on_activity_id_and_relation_id", unique: true
     t.index ["relation_id"], name: "index_audiences_on_relation_id"
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.string "body_html"
+    t.decimal "confidence", precision: 20, scale: 19, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.boolean "deleted", default: false, null: false
+    t.integer "depth", default: 0, null: false
+    t.datetime "last_edited_at"
+    t.boolean "moderated", default: false, null: false
+    t.text "moderated_reason"
+    t.integer "reply_count", default: 0, null: false
+    t.integer "score", default: 1, null: false
+    t.string "short_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["short_id"], name: "index_comments_on_short_id", unique: true
   end
 
   create_table "contacts", force: :cascade do |t|

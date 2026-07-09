@@ -1,0 +1,3 @@
+<%= turbo_stream.update dom_id(@comment_activity, :actions) do %>
+  <%= render "comments/actions", comment_activity: @comment_activity %>
+<% end %>

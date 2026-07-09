@@ -1,0 +1,73 @@
+<%# locals: (comment_activity:) %>
+<% comment = comment_activity.direct_object.objectable %>
+
+<article id="<%= dom_id(comment_activity) %>"
+         class="comment relative group flex items-start gap-3 p-4 bg-white rounded-lg border border-gray-200 shadow-sm hover:border-gray-300 transition-all duration-200"
+         data-controller="comment">
+
+  <!-- Hidden checkbox for CSS collapse -->
+  <input type="checkbox"
+         id="collapse_chk_<%= comment.short_id %>"
+         class="comment_folder_button"
+         data-comment-target="collapseCheckbox"
+         data-action="change->comment#persistCollapse">
+
+  <!-- Folder collapse trigger [-] / [+] -->
+  <label for="collapse_chk_<%= comment.short_id %>"
+         class="comment_folder absolute top-4 right-4 text-xs font-semibold text-gray-400 hover:text-gray-600 cursor-pointer select-none">
+  </label>
+
+  <div class="comment_content flex-1 min-w-0">
+    <div class="flex items-start gap-3">
+      <!-- Avatar -->
+      <%
+        is_group = comment_activity.author.actorable_type == "Group"
+        avatar_rounded = is_group ? "rounded-lg" : "rounded-full"
+        avatar_bg = is_group ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"
+      %>
+      <% if comment_activity.author.avatar&.attached? %>
+        <%= image_tag comment_activity.author.avatar.variant(:thumb), class: "w-8 h-8 #{avatar_rounded} object-cover border border-gray-100 flex-shrink-0" %>
+      <% else %>
+        <div class="w-8 h-8 <%= avatar_rounded %> <%= avatar_bg %> flex items-center justify-center text-xs font-bold border flex-shrink-0">
+          <%= comment_activity.author.name.first.upcase %>
+        </div>
+      <% end %>
+
+      <div class="flex-1 min-w-0">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center gap-x-2 text-xs text-gray-400">
+          <%= link_to comment_activity.author.name, public_path_for(comment_activity.author), class: "font-semibold text-gray-900 hover:text-blue-600 hover:underline" %>
+          <span>&middot;</span>
+          <span><%= time_ago_in_words(comment.created_at) %> ago</span>
+          <% if comment.last_edited_at.present? %>
+            <span>&middot;</span>
+            <span class="italic text-gray-350" title="Edited at <%= l(comment.last_edited_at, format: :short) %>">edited</span>
+          <% end %>
+        </div>
+
+        <!-- Body -->
+        <div class="mt-2 text-sm text-gray-700 leading-relaxed">
+          <% if comment.deleted? %>
+            <span class="text-gray-400 italic font-medium">[deleted by author]</span>
+          <% else %>
+            <%= turbo_frame_tag dom_id(comment, :text) do %>
+              <div>
+                <%= simple_format(comment.text) %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+
+        <!-- Actions -->
+        <% unless comment.deleted? %>
+          <div class="mt-3 flex items-center gap-4 text-xs font-medium text-gray-400" id="<%= dom_id(comment_activity, :actions) %>">
+            <%= render "comments/actions", comment_activity: comment_activity %>
+          </div>
+        <% end %>
+
+        <!-- Nested reply frame -->
+        <%= turbo_frame_tag dom_id(comment_activity, :reply_form), class: "block mt-3" %>
+      </div>
+    </div>
+  </div>
+</article>
