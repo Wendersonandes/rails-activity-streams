@@ -51,13 +51,11 @@ class CommentVoteService
         )
         vote_activity.save!
         
-        # Copy audiences from the comment activity to maintain correct visibility permissions
-        @comment_activity.audiences.each do |audience|
-          vote_activity.audiences.create!(relation_id: audience.relation_id)
-        end
+        # Copy audiences from the comment activity to maintain correct visibility permissions (asynchronously)
+        CreateActivityAudiencesJob.perform_later(vote_activity.id, @comment_activity.relation_ids)
       end
 
-      # 3. Recalculate score and confidence on the Comment record
+      # 3. Recalculate score and confidence on the Comment record (synchronously for immediate UI update)
       comment = @comment_activity.direct_object.objectable
       comment.update_score!(@comment_activity)
     end

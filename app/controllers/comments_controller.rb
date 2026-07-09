@@ -2,7 +2,7 @@
 # upvoting/downvoting, and flagging.
 class CommentsController < ApplicationController
   skip_before_action :authenticate_user!, only: [ :show ]
-  before_action :set_comment, only: [ :edit, :update, :destroy, :reply, :upvote, :downvote, :flag, :unflag ]
+  before_action :set_comment, only: [ :edit, :update, :destroy, :reply, :flag_form, :upvote, :downvote, :flag, :unflag ]
 
   # GET /c/:short_id
   # Redirects to the root post's show page with the comment's anchor.
@@ -153,23 +153,48 @@ class CommentsController < ApplicationController
     end
   end
 
+  # GET /comments/:id/flag_form
+  def flag_form
+    authorize @comment
+    render partial: "comments/flag_form", locals: { comment: @comment }
+  end
+
   # POST /comments/:id/flag
   def flag
     authorize @comment
     Activity.transaction do
-      flag_activity = Activity.find_or_initialize_by(
+      flag_activity = Activity.find_by(
         parent_id: @comment.activity.id,
         author_id: current_actor.id,
         verb: :flag
       )
-      if flag_activity.new_record?
-        flag_activity.user_author = current_user
-        flag_activity.owner = @comment.activity.author
+
+      unless flag_activity
+        flag = Flag.new(
+          reason: params[:reason],
+          note: params[:note]
+        )
+        flag.build_activity_object(
+          author: current_actor,
+          user_author: current_user,
+          owner: @comment.activity.author
+        )
+        flag.save!
+
+        flag_activity = Activity.create!(
+          parent_id: @comment.activity.id,
+          author_id: current_actor.id,
+          verb: :flag,
+          user_author: current_user,
+          owner: @comment.activity.author
+        )
+
+        flag_activity.activity_object_activities.create!(
+          activity_object: flag.activity_object,
+          object_type: "Flag"
+        )
         
-        @comment.activity.audiences.each do |audience|
-          flag_activity.audiences.create!(relation_id: audience.relation_id)
-        end
-        flag_activity.save!
+        CreateActivityAudiencesJob.perform_later(flag_activity.id, @comment.activity.relation_ids)
       end
     end
 
@@ -191,7 +216,13 @@ class CommentsController < ApplicationController
         author_id: current_actor.id,
         verb: :flag
       )
-      flag_activity&.destroy!
+      if flag_activity
+        flag_ao = flag_activity.activity_objects.find_by(objectable_type: "Flag")
+        flag = flag_ao&.objectable
+        
+        flag_activity.destroy!
+        flag&.destroy!
+      end
     end
 
     @comment_activity = @comment.activity

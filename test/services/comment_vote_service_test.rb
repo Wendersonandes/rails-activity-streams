@@ -1,6 +1,8 @@
 require "test_helper"
 
 class CommentVoteServiceTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     seed_permissions_and_relations
     @user = users(:alice)
@@ -27,54 +29,64 @@ class CommentVoteServiceTest < ActiveSupport::TestCase
     @activity.save!
     @activity.audiences.create!(relation: Relation::Public.instance)
 
-    @comment_activity = CommentCreation.new(
-      author: @actor,
-      user_author: @user,
-      parent_activity: @activity,
-      text: "Votable comment!"
-    ).call
+    perform_enqueued_jobs do
+      @comment_activity = CommentCreation.new(
+        author: @actor,
+        user_author: @user,
+        parent_activity: @activity,
+        text: "Votable comment!"
+      ).call
+    end
     @comment = @comment_activity.direct_object.objectable
   end
 
   test "casts a downvote" do
     assert_equal 1, @comment.score
 
-    CommentVoteService.new(
-      actor: @bob_actor,
-      user: @bob,
-      comment_activity: @comment_activity,
-      value: -1
-    ).call
+    perform_enqueued_jobs do
+      CommentVoteService.new(
+        actor: @bob_actor,
+        user: @bob,
+        comment_activity: @comment_activity,
+        value: -1
+      ).call
+    end
 
     assert_equal 0, @comment.reload.score
   end
 
   test "toggles vote (cancels identical vote)" do
-    CommentVoteService.new(
-      actor: @actor,
-      user: @user,
-      comment_activity: @comment_activity,
-      value: 1
-    ).call
+    perform_enqueued_jobs do
+      CommentVoteService.new(
+        actor: @actor,
+        user: @user,
+        comment_activity: @comment_activity,
+        value: 1
+      ).call
+    end
 
     assert_equal 0, @comment.reload.score
   end
 
   test "switches vote from upvote to downvote" do
-    CommentVoteService.new(
-      actor: @bob_actor,
-      user: @bob,
-      comment_activity: @comment_activity,
-      value: 1
-    ).call
+    perform_enqueued_jobs do
+      CommentVoteService.new(
+        actor: @bob_actor,
+        user: @bob,
+        comment_activity: @comment_activity,
+        value: 1
+      ).call
+    end
     assert_equal 2, @comment.reload.score
 
-    CommentVoteService.new(
-      actor: @bob_actor,
-      user: @bob,
-      comment_activity: @comment_activity,
-      value: -1
-    ).call
+    perform_enqueued_jobs do
+      CommentVoteService.new(
+        actor: @bob_actor,
+        user: @bob,
+        comment_activity: @comment_activity,
+        value: -1
+      ).call
+    end
     assert_equal 0, @comment.reload.score
   end
 end

@@ -38,6 +38,18 @@ class ActivityPolicy < ApplicationPolicy
     actor && record.author_id == actor.id
   end
 
+  def flag?
+    user.present? && actor.present? && record.author_id != actor.id
+  end
+
+  def flag_form?
+    flag?
+  end
+
+  def unflag?
+    user.present? && actor.present? && record.author_id != actor.id
+  end
+
   class Scope < Scope
     # @return [ActiveRecord::Relation<Activity>] activities shared with the acting actor.
     def resolve

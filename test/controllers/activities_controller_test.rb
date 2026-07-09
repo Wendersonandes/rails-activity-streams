@@ -257,4 +257,52 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     # Since page size is 2, page 2 is not the last page, so there should be a next page frame
     assert_select "turbo-frame#activities_page_3", count: 1
   end
+
+  test "GET flag_form renders post flag form" do
+    activity = Activity.create!(verb: :post, author: @actor, owner: @actor, user_author: @user)
+    activity.audiences.create!(relation: Relation::Public.instance)
+
+    bob = users(:bob)
+    bob_actor = create_profile_for(bob)
+    sign_in bob
+
+    get flag_form_activity_path(activity), as: :turbo_stream
+    assert_response :success
+    assert_match "Reason", response.body
+  end
+
+  test "POST flag creates Flag object for post" do
+    activity = Activity.create!(verb: :post, author: @actor, owner: @actor, user_author: @user)
+    activity.audiences.create!(relation: Relation::Public.instance)
+
+    bob = users(:bob)
+    bob_actor = create_profile_for(bob)
+    sign_in bob
+
+    assert_difference -> { Flag.count } => 1 do
+      post flag_activity_path(activity), params: { reason: "spam", note: "Spam post" }, as: :turbo_stream
+    end
+    assert_response :success
+
+    flag = Flag.last
+    assert_equal "spam", flag.reason
+    assert_equal "Spam post", flag.note
+  end
+
+  test "POST unflag destroys Flag object for post" do
+    activity = Activity.create!(verb: :post, author: @actor, owner: @actor, user_author: @user)
+    activity.audiences.create!(relation: Relation::Public.instance)
+
+    bob = users(:bob)
+    bob_actor = create_profile_for(bob)
+    sign_in bob
+
+    post flag_activity_path(activity), params: { reason: "offtopic" }, as: :turbo_stream
+    assert_equal 1, Flag.count
+
+    assert_difference -> { Flag.count } => -1 do
+      post unflag_activity_path(activity), as: :turbo_stream
+    end
+    assert_response :success
+  end
 end

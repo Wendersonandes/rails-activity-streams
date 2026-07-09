@@ -197,6 +197,126 @@ create_post(
 
 puts "  11 posts created"
 
+# ── Comments ────────────────────────────────────────────────────
+puts "\nCreating comments..."
+
+def create_comment(author:, parent_activity:, text:)
+  user_author = author.subject.is_a?(Profile) ? author.subject.user : nil
+  CommentCreation.new(
+    author: author,
+    user_author: user_author,
+    parent_activity: parent_activity,
+    text: text
+  ).call
+end
+
+# Find posts by their titles
+posts = Activity.where(verb: :post).to_a
+welcome_post      = posts.find { |p| p.direct_object&.title&.include?("Boas-vindas") }
+turbo_post        = posts.find { |p| p.direct_object&.title&.include?("Turbo 8") }
+ci_pr_post        = posts.find { |p| p.direct_object&.title&.include?("PR aberto") }
+campaign_post     = posts.find { |p| p.direct_object&.title&.include?("Resultados") }
+animada_post      = posts.find { |p| p.direct_object&.title&.include?("Animada") }
+
+initial_activity_count = Activity.count
+
+# ── Dev Team: Boas-vindas! ──
+c1 = create_comment(
+  author: actors[:bruno],
+  parent_activity: welcome_post,
+  text: "Bem-vinda, Ana! Ótimo termos esse espaço. Vai facilitar muito a comunicação do time."
+)
+
+c2 = create_comment(
+  author: actors[:carla],
+  parent_activity: welcome_post,
+  text: "Isso mesmo! Finalmente um lugar organizado pra gente discutir código sem poluir o chat."
+)
+
+# Reply to Bruno's comment (depth 1 → 2)
+c3 = create_comment(
+  author: actors[:ana],
+  parent_activity: c1,
+  text: "Obrigada, Bruno! A ideia é manter tudo aqui mesmo — decisões, PRs, discussões técnicas."
+)
+
+c4 = create_comment(
+  author: actors[:diego],
+  parent_activity: c1,
+  text: "Apoiado! Já vou migrar as discussões técnicas do WhatsApp pra cá."
+)
+
+# Reply to Diego's reply (depth 2 → 3)
+create_comment(
+  author: actors[:bruno],
+  parent_activity: c4,
+  text: "Boa, Diego! WhatsApp é um buraco negro de informação. Aquilo some em 2 dias."
+)
+
+# ── Dev Team: Turbo 8 ──
+create_comment(
+  author: actors[:ana],
+  parent_activity: turbo_post,
+  text: "Testei sim! O morphing realmente deu um salto. O cache de página inteira ficou muito mais esperto."
+)
+
+c5 = create_comment(
+  author: actors[:elisa],
+  parent_activity: turbo_post,
+  text: "Ainda não testei, mas li o changelog. A parte de stream updates paralelos me chamou atenção."
+)
+
+# Reply to Elisa's comment
+create_comment(
+  author: actors[:bruno],
+  parent_activity: c5,
+  text: "Sim! Dá pra fazer broadcast de Turbo Stream de múltiplas origens agora. Vou preparar uma demo."
+)
+
+# ── Dev Team: PR aberto ──
+c6 = create_comment(
+  author: actors[:diego],
+  parent_activity: ci_pr_post,
+  text: "Bacana, Carla! Dei uma olhada no PR. A separação dos stages ficou muito mais clara."
+)
+
+# Reply to Diego
+create_comment(
+  author: actors[:carla],
+  parent_activity: c6,
+  text: "Valeu! Ainda quero adicionar cache dos estágios que não mudaram. Mas já está funcional."
+)
+
+# ── Marketing Hub: Resultados ──
+c7 = create_comment(
+  author: actors[:diego],
+  parent_activity: campaign_post,
+  text: "12% orgânico é um número excelente! Qual canal teve melhor performance?"
+)
+
+# Reply to Diego
+create_comment(
+  author: actors[:carla],
+  parent_activity: c7,
+  text: "LinkedIn surpreendeu — 8% dos 12% vieram de orgânico lá. Vamos dobrar a frequência de posts."
+)
+
+# ── Personal: Animada! ──
+create_comment(
+  author: actors[:bruno],
+  parent_activity: animada_post,
+  text: "Que bom te ver engajada, Ana! A plataforma fica muito melhor com todo mundo participando."
+)
+
+create_comment(
+  author: actors[:carla],
+  parent_activity: animada_post,
+  text: "Verdade! E os grupos estão bem ativos. Design Circle já tem discussões muito boas."
+)
+
+comment_count = Activity.count - initial_activity_count
+puts "  #{comment_count} comment activities created"
+
 # ── Summary ─────────────────────────────────────────────────────
 puts "\n#{'='*60}"
 puts "Seed complete!"

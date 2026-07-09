@@ -31,6 +31,10 @@ class CommentPolicy < ApplicationPolicy
     user.present? && actor.present?
   end
 
+  def flag_form?
+    flag?
+  end
+
   def unflag?
     user.present? && actor.present?
   end

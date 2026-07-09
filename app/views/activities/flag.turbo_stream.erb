@@ -1,0 +1,5 @@
+<%= turbo_stream.replace dom_id(@activity, :actions) do %>
+  <%= render "shared/activity_actions", activity: @activity %>
+<% end %>
+
+<%= turbo_stream.update "modal", "" %>

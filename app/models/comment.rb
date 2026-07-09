@@ -5,6 +5,28 @@
 # == Threading & Scoring
 # Threading is managed in the +activities+ table via +parent_id+.
 # Scores (upvotes/downvotes) are calculated from child activities with verb :like or :dislike.
+# == Schema Information
+#
+# Table name: comments
+#
+#  id               :bigint           not null, primary key
+#  body_html        :string
+#  confidence       :decimal(20, 19)  default(0.0), not null
+#  deleted          :boolean          default(FALSE), not null
+#  depth            :integer          default(0), not null
+#  last_edited_at   :datetime
+#  moderated        :boolean          default(FALSE), not null
+#  moderated_reason :text
+#  reply_count      :integer          default(0), not null
+#  score            :integer          default(1), not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  short_id         :string           not null
+#
+# Indexes
+#
+#  index_comments_on_short_id  (short_id) UNIQUE
+#
 class Comment < ApplicationRecord
   has_one :activity_object, as: :objectable, dependent: :destroy, autosave: true
 
@@ -25,7 +47,7 @@ class Comment < ApplicationRecord
 
   # Find the post_activity that created this comment
   def activity
-    activity_object&.activities&.find_by(verb: :post)
+    @activity ||= activity_object&.activities&.find_by(verb: :post)
   end
 
   # Check if a user/actor can edit this comment (within 30 minutes, if not deleted/moderated)

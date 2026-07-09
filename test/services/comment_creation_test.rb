@@ -1,6 +1,8 @@
 require "test_helper"
 
 class CommentCreationTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     seed_permissions_and_relations
     @user = users(:alice)
@@ -27,12 +29,14 @@ class CommentCreationTest < ActiveSupport::TestCase
 
   test "creates comment activity and comment object" do
     assert_difference -> { Comment.count } => 1 do
-      CommentCreation.new(
-        author: @actor,
-        user_author: @user,
-        parent_activity: @activity,
-        text: "Nice post!"
-      ).call
+      perform_enqueued_jobs do
+        CommentCreation.new(
+          author: @actor,
+          user_author: @user,
+          parent_activity: @activity,
+          text: "Nice post!"
+        ).call
+      end
     end
 
     comment_activity = Activity.find_by(parent_id: @activity.id)
@@ -49,21 +53,63 @@ class CommentCreationTest < ActiveSupport::TestCase
   end
 
   test "correctly nests replies and increases depth" do
-    comment_activity = CommentCreation.new(
-      author: @actor,
-      user_author: @user,
-      parent_activity: @activity,
-      text: "Nice post!"
-    ).call
+    comment_activity = nil
+    reply_activity = nil
 
-    reply_activity = CommentCreation.new(
-      author: @actor,
-      user_author: @user,
-      parent_activity: comment_activity,
-      text: "Nice reply!"
-    ).call
+    perform_enqueued_jobs do
+      comment_activity = CommentCreation.new(
+        author: @actor,
+        user_author: @user,
+        parent_activity: @activity,
+        text: "Nice post!"
+      ).call
+
+      reply_activity = CommentCreation.new(
+        author: @actor,
+        user_author: @user,
+        parent_activity: comment_activity,
+        text: "Nice reply!"
+      ).call
+    end
 
     assert_equal comment_activity.id, reply_activity.parent_id
     assert_equal 1, reply_activity.direct_object.objectable.depth
+    assert_equal 1, reply_activity.direct_object.objectable.score
+  end
+
+  test "score of nested comment updates correctly on vote" do
+    comment_activity = nil
+    reply_activity = nil
+
+    perform_enqueued_jobs do
+      comment_activity = CommentCreation.new(
+        author: @actor,
+        user_author: @user,
+        parent_activity: @activity,
+        text: "Nice post!"
+      ).call
+
+      reply_activity = CommentCreation.new(
+        author: @actor,
+        user_author: @user,
+        parent_activity: comment_activity,
+        text: "Nice reply!"
+      ).call
+    end
+
+    reply_comment = reply_activity.direct_object.objectable
+    assert_equal 1, reply_comment.score
+
+    bob = users(:bob)
+    bob_profile = create_profile_for(bob)
+
+    CommentVoteService.new(
+      actor: bob_profile,
+      user: bob,
+      comment_activity: reply_activity,
+      value: 1
+    ).call
+
+    assert_equal 2, reply_comment.reload.score
   end
 end

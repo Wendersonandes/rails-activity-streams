@@ -5,14 +5,14 @@
 <!-- Upvote button -->
 <% if current_actor %>
   <% if vote_val == 1 %>
-    <%= button_to upvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-red-500 hover:text-red-600 bg-transparent border-0 cursor-pointer p-0 font-medium" do %>
-      <i data-lucide="arrow-up" class="w-4 h-4 fill-current"></i>
-      <span><%= comment.score %></span>
+    <%= button_to upvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-blue-500 hover:text-blue-600 bg-transparent border-0 cursor-pointer p-0 font-medium", data: { comment_target: "upvoteButton", action: "click->comment#upvote" } do %>
+      <i data-lucide="arrow-up" class="w-4 h-4 fill-current" data-comment-target="upvoteIcon"></i>
+      <span data-comment-target="score"><%= comment.score %></span>
     <% end %>
   <% else %>
-    <%= button_to upvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-gray-400 hover:text-red-500 bg-transparent border-0 cursor-pointer p-0 font-medium" do %>
-      <i data-lucide="arrow-up" class="w-4 h-4"></i>
-      <span><%= comment.score %></span>
+    <%= button_to upvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-gray-400 hover:text-blue-500 bg-transparent border-0 cursor-pointer p-0 font-medium", data: { comment_target: "upvoteButton", action: "click->comment#upvote" } do %>
+      <i data-lucide="arrow-up" class="w-4 h-4" data-comment-target="upvoteIcon"></i>
+      <span data-comment-target="score"><%= comment.score %></span>
     <% end %>
   <% end %>
 <% else %>
@@ -25,12 +25,12 @@
 <!-- Downvote button -->
 <% if current_actor %>
   <% if vote_val == -1 %>
-    <%= button_to downvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-blue-500 hover:text-blue-600 bg-transparent border-0 cursor-pointer p-0" do %>
-      <i data-lucide="arrow-down" class="w-4 h-4 fill-current"></i>
+    <%= button_to downvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-red-500 hover:text-red-600 bg-transparent border-0 cursor-pointer p-0", data: { comment_target: "downvoteButton", action: "click->comment#downvote" } do %>
+      <i data-lucide="arrow-down" class="w-4 h-4 fill-current" data-comment-target="downvoteIcon"></i>
     <% end %>
   <% else %>
-    <%= button_to downvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-gray-400 hover:text-blue-500 bg-transparent border-0 cursor-pointer p-0" do %>
-      <i data-lucide="arrow-down" class="w-4 h-4"></i>
+    <%= button_to downvote_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-gray-400 hover:text-red-500 bg-transparent border-0 cursor-pointer p-0", data: { comment_target: "downvoteButton", action: "click->comment#downvote" } do %>
+      <i data-lucide="arrow-down" class="w-4 h-4" data-comment-target="downvoteIcon"></i>
     <% end %>
   <% end %>
 <% end %>
@@ -60,16 +60,4 @@
 <% end %>
 
 <!-- Flag button (other users only) -->
-<% if current_actor && comment_activity.author_id != current_actor.id %>
-  <% if comment_activity.current_user_flagged %>
-    <%= button_to unflag_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-orange-500 hover:text-orange-600 bg-transparent border-0 cursor-pointer p-0 font-medium" do %>
-      <i data-lucide="flag" class="w-3.5 h-3.5 fill-current"></i>
-      <span>Flagged</span>
-    <% end %>
-  <% else %>
-    <%= button_to flag_comment_path(comment.short_id), method: :post, class: "flex items-center gap-1 text-gray-400 hover:text-orange-500 bg-transparent border-0 cursor-pointer p-0" do %>
-      <i data-lucide="flag" class="w-3.5 h-3.5"></i>
-      <span>Flag</span>
-    <% end %>
-  <% end %>
-<% end %>
+<%= render "comments/flag_button", comment: comment, comment_activity: comment_activity %>

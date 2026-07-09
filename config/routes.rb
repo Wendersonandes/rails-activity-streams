@@ -19,6 +19,11 @@ Rails.application.routes.draw do
 
   # Activity stream — feed
   resources :activities, only: [ :index, :show, :new, :create, :destroy ] do
+    member do
+      get  :flag_form
+      post :flag
+      post :unflag
+    end
     resources :activity_actions, only: [ :create, :destroy ]
     resources :likes, only: [ :create, :destroy ]
     resources :comments, only: [ :create ]
@@ -27,6 +32,7 @@ Rails.application.routes.draw do
   resources :comments, only: [ :edit, :update, :destroy ] do
     member do
       get  :reply
+      get  :flag_form
       post :upvote
       post :downvote
       post :flag

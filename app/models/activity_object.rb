@@ -51,7 +51,7 @@
 # @see ActivityAction  Per-actor actions (e.g. follow) received by this object.
 # @see Post            A common concrete object subtype.
 class ActivityObject < ApplicationRecord
-  delegated_type :objectable, types: %w[Profile Group Post Comment]
+  delegated_type :objectable, types: %w[Profile Group Post Comment Flag]
 
   belongs_to :author, class_name: "Actor", optional: true
   belongs_to :owner, class_name: "Actor", optional: true

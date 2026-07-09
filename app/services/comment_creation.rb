@@ -52,10 +52,8 @@ class CommentCreation
         object_type: "Comment"
       )
 
-      # 5. Propagates visibility by copying audiences from the parent activity
-      @parent_activity.audiences.each do |audience|
-        comment_activity.audiences.create!(relation_id: audience.relation_id)
-      end
+      # 5. Propagates visibility by copying audiences from the parent activity (asynchronously)
+      CreateActivityAudiencesJob.perform_later(comment_activity.id, @parent_activity.relation_ids)
 
       # 6. Record author's upvote (automatic like)
       like_activity = Activity.create!(
@@ -65,12 +63,10 @@ class CommentCreation
         owner: comment.activity_object.owner || @author,
         parent: comment_activity
       )
-      # Copy comment activity audiences to the like
-      comment_activity.audiences.each do |audience|
-        like_activity.audiences.create!(relation_id: audience.relation_id)
-      end
+      # Copy audiences to the like (asynchronously)
+      CreateActivityAudiencesJob.perform_later(like_activity.id, @parent_activity.relation_ids)
 
-      # 7. Update score/confidence of the comment object
+      # 7. Update score/confidence of the comment object (synchronously for immediate UI update)
       comment.update_score!(comment_activity)
 
       # 8. Increment parent's comment_count

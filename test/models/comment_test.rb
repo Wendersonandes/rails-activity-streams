@@ -1,5 +1,27 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: comments
+#
+#  id               :bigint           not null, primary key
+#  body_html        :string
+#  confidence       :decimal(20, 19)  default(0.0), not null
+#  deleted          :boolean          default(FALSE), not null
+#  depth            :integer          default(0), not null
+#  last_edited_at   :datetime
+#  moderated        :boolean          default(FALSE), not null
+#  moderated_reason :text
+#  reply_count      :integer          default(0), not null
+#  score            :integer          default(1), not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  short_id         :string           not null
+#
+# Indexes
+#
+#  index_comments_on_short_id  (short_id) UNIQUE
+#
 class CommentTest < ActiveSupport::TestCase
   setup do
     seed_permissions_and_relations

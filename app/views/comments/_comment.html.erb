@@ -3,7 +3,9 @@
 
 <article id="<%= dom_id(comment_activity) %>"
          class="comment relative group flex items-start gap-3 p-4 bg-white rounded-lg border border-gray-200 shadow-sm hover:border-gray-300 transition-all duration-200"
-         data-controller="comment">
+         data-controller="comment"
+         data-comment-current-vote-value="<%= comment_activity.current_user_vote || 0 %>"
+         data-comment-score-value="<%= comment.score %>">
 
   <!-- Hidden checkbox for CSS collapse -->
   <input type="checkbox"
