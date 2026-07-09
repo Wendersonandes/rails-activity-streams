@@ -16,7 +16,8 @@ class ActivitiesController < ApplicationController
   def index
     authorize Activity
     @pagy, @activities = pagy(
-      policy_scope(Activity).home_timeline(current_actor)
+      policy_scope(Activity).home_timeline(current_actor),
+      limit: 10
     )
     if current_actor
       @activity = Activity.new(verb: :post, author: current_actor, owner: current_actor)

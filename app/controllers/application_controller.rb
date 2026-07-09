@@ -16,6 +16,8 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include Pagy::Backend
 
+  layout -> { false if turbo_frame_request? }
+
   allow_browser versions: :modern
   stale_when_importmap_changes
 

@@ -1,49 +1,67 @@
-<%= content_for :title, @group.name %>
-
-<%
-  can_see_content = @group.public_group? || @is_member
-%>
-
-<%= render "groups/header", group: @group, is_member: @is_member %>
-
-<% if can_see_content %>
-  <%= render "groups/navigation" %>
-
-  <% if @is_member %>
-    <div class="mb-6">
-      <%= render "activities/form", activity: @activity %>
-    </div>
-  <% end %>
-
-  <div id="feed" class="space-y-4">
-    <% if @activities.any? %>
-      <%= render partial: "shared/activity", collection: @activities, as: :activity %>
-    <% else %>
-      <div class="text-center text-gray-500 py-16 bg-white rounded-xl border border-gray-200/80 p-8 shadow-sm">
-        <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
-          <i data-lucide="file-text" class="w-6 h-6 text-gray-400"></i>
+<% if turbo_frame_request? && @pagy.page > 1 %>
+  <%= turbo_frame_tag "group_activities_page_#{@pagy.page}", class: "space-y-4 block" do %>
+    <%= render partial: "shared/activity", collection: @activities, as: :activity %>
+    <% if @pagy.next %>
+      <%= turbo_frame_tag "group_activities_page_#{@pagy.next}", src: group_path(@group, page: @pagy.next), loading: :lazy, class: "space-y-4 block" do %>
+        <div class="flex justify-center items-center py-6 gap-2 text-gray-500">
+          <div class="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-blue-600"></div>
+          <span class="text-sm font-medium">Loading more posts...</span>
         </div>
-        <h3 class="text-base font-semibold text-gray-900">No posts yet</h3>
-        <p class="text-sm text-gray-500 mt-1 max-w-sm mx-auto">No one has shared anything in this group yet.</p>
-      </div>
+      <% end %>
     <% end %>
-  </div>
-
-  <% if @pagy.pages > 1 %>
-    <div class="mt-6 flex justify-center"><%== pagy_nav(@pagy) %></div>
   <% end %>
 <% else %>
-  <div class="text-center py-16 bg-white rounded-xl border border-gray-200/80 p-8 shadow-sm">
-    <div class="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-100">
-      <i data-lucide="lock" class="w-6 h-6 text-yellow-600"></i>
-    </div>
-    <h2 class="text-base font-bold text-gray-900">Private Group</h2>
-    <p class="text-sm text-gray-500 mt-1 max-w-xs mx-auto mb-6">This community is private. Request to join below to view its posts and members list.</p>
-    <%= button_to group_memberships_path(@group), params: { actor_id: current_actor&.id }, method: :post, class: "inline-flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-all shadow-sm cursor-pointer border-0" do %>
-      <i data-lucide="user-plus" class="w-4 h-4"></i>
-      <span>Request to Join Group</span>
+  <%= content_for :title, @group.name %>
+
+  <%
+    can_see_content = @group.public_group? || @is_member
+  %>
+
+  <%= render "groups/header", group: @group, is_member: @is_member %>
+
+  <% if can_see_content %>
+    <%= render "groups/navigation" %>
+
+    <% if @is_member %>
+      <div class="mb-6">
+        <%= render "activities/form", activity: @activity %>
+      </div>
     <% end %>
-  </div>
+
+    <div id="feed" class="space-y-4">
+      <% if @activities.any? %>
+        <%= render partial: "shared/activity", collection: @activities, as: :activity %>
+      <% if @pagy.next %>
+        <%= turbo_frame_tag "group_activities_page_#{@pagy.next}", src: group_path(@group, page: @pagy.next), loading: :lazy, class: "space-y-4 block" do %>
+          <div class="flex justify-center items-center py-6 gap-2 text-gray-500">
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-blue-600"></div>
+            <span class="text-sm font-medium">Loading more posts...</span>
+          </div>
+        <% end %>
+      <% end %>
+      <% else %>
+        <div class="text-center text-gray-500 py-16 bg-white rounded-xl border border-gray-200/80 p-8 shadow-sm">
+          <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
+            <i data-lucide="file-text" class="w-6 h-6 text-gray-400"></i>
+          </div>
+          <h3 class="text-base font-semibold text-gray-900">No posts yet</h3>
+          <p class="text-sm text-gray-500 mt-1 max-w-sm mx-auto">No one has shared anything in this group yet.</p>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 bg-white rounded-xl border border-gray-200/80 p-8 shadow-sm">
+      <div class="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-100">
+        <i data-lucide="lock" class="w-6 h-6 text-yellow-600"></i>
+      </div>
+      <h2 class="text-base font-bold text-gray-900">Private Group</h2>
+      <p class="text-sm text-gray-500 mt-1 max-w-xs mx-auto mb-6">This community is private. Request to join below to view its posts and members list.</p>
+      <%= button_to group_memberships_path(@group), params: { actor_id: current_actor&.id }, method: :post, class: "inline-flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-all shadow-sm cursor-pointer border-0" do %>
+        <i data-lucide="user-plus" class="w-4 h-4"></i>
+        <span>Request to Join Group</span>
+      <% end %>
+    </div>
+  <% end %>
 <% end %>
 
 <% if @is_member %>

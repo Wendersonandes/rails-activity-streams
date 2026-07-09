@@ -12,9 +12,19 @@ class GroupsController < ApplicationController
   # Lists group actors, paginated. Scoped through +ActorPolicy::Scope+ and filtered to groups.
   def index
     authorize Actor
-    @groups = policy_scope(Actor).where(actorable_type: "Group").includes(:actorable, :avatar_attachment)
-    @pagy, @groups = pagy(@groups)
+    @groups = policy_scope(Actor).where(actorable_type: "Group")
+                                 .includes(:actorable, :avatar_attachment, sent_contacts: :ties)
+    @pagy, @groups = pagy(@groups, limit: 10)
     @groups = @groups.to_a
+
+    if current_actor
+      group_ids = @groups.map(&:id)
+      member_ties = Tie.joins(:contact, :relation)
+                       .where(contacts: { sender_id: group_ids, receiver_id: current_actor.id })
+                       .select("contacts.sender_id, relations.name")
+      @membership_map = member_ties.group_by(&:sender_id)
+                                   .transform_values { |ties| ties.map { |t| t[:name]&.downcase } }
+    end
   end
 
   def show
@@ -22,7 +32,7 @@ class GroupsController < ApplicationController
     @activities = policy_scope(Activity).owned_by(@group.actor)
                                         .roots.recent
                                         .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: :received_actions }, { parent: :author }, :likes)
-    @pagy, @activities = pagy(@activities)
+    @pagy, @activities = pagy(@activities, limit: 10)
 
     @is_member = current_actor && @group.actor.member_roles_for(current_actor).any?
     if @is_member

@@ -236,4 +236,25 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_match /turbo-stream action="replace" target="activity_form_container"/, response.body
     assert_match /Validation failed: Text can&#39;t be blank/, response.body
   end
+
+  test "should get index without layout for turbo frame request" do
+    get activities_path, headers: { "Turbo-Frame" => "activities_page_2" }
+    assert_response :success
+    assert_no_match /<html/i, response.body
+  end
+
+  test "should render turbo frame wrapper for page 2 turbo frame request" do
+    # Create enough activities to ensure pagination is active (at least 2 pages)
+    # Default pagy page size is typically 20 or similar, let's create 25 activities
+    activities = 25.times.map do |i|
+      Activity.create!(verb: :post, author: @actor, owner: @actor, user_author: @user)
+    end
+    activities.each { |a| a.audiences.create!(relation: Relation::Public.instance) }
+
+    get activities_path(page: 2), headers: { "Turbo-Frame" => "activities_page_2" }
+    assert_response :success
+    assert_select "turbo-frame#activities_page_2"
+    # Since page size is 2, page 2 is not the last page, so there should be a next page frame
+    assert_select "turbo-frame#activities_page_3", count: 1
+  end
 end
