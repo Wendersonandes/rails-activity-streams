@@ -8,6 +8,7 @@
 #  email                 :string
 #  name                  :string           not null
 #  notification_settings :jsonb
+#  sent_contacts_count   :integer          default(0), not null
 #  slug                  :string           not null
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null

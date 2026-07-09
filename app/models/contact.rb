@@ -39,7 +39,7 @@
 # @see Relation The type carried by each tie.
 class Contact < ApplicationRecord
   belongs_to :inverse, class_name: "Contact", optional: true
-  belongs_to :sender, class_name: "Actor"
+  belongs_to :sender, class_name: "Actor", counter_cache: :sent_contacts_count
   belongs_to :receiver, class_name: "Actor"
 
   has_many :ties, class_name: "Tie", dependent: :destroy, inverse_of: :contact

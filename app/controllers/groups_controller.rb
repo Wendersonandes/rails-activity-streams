@@ -13,7 +13,7 @@ class GroupsController < ApplicationController
   def index
     authorize Actor
     @groups = policy_scope(Actor).where(actorable_type: "Group")
-                                 .includes(:actorable, :avatar_attachment, sent_contacts: :ties)
+                                 .includes(:actorable, :avatar_attachment)
     @pagy, @groups = pagy(@groups, limit: 10)
     @groups = @groups.to_a
 

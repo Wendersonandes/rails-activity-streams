@@ -25,7 +25,7 @@
       <% end %>
         <p class="text-xs text-gray-400 font-medium flex items-center gap-1">
           <i data-lucide="users" class="w-3.5 h-3.5"></i>
-          <span><%= group_actor.sent_contacts.count { |c| c.established? } %> members</span>
+          <span><%= group_actor.sent_contacts.size %> members</span>
         </p>
     </div>
   </div>
