@@ -1,6 +1,7 @@
+<% actor ||= (defined?(current_actor) ? current_actor : nil) %>
 <div id="nav_notification_badge" class="inline">
-  <% if current_actor %>
-    <% count = current_actor.notifications.unread.count %>
+  <% if actor %>
+    <% count = actor.notifications.unread.count %>
     <% if count > 0 %>
       <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white">
         <%= count %>

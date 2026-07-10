@@ -1,6 +1,9 @@
 require "test_helper"
 
 class NotificationsControllerTest < ActionDispatch::IntegrationTest
+  include ActionCable::TestHelper
+  include ActiveJob::TestHelper
+
   setup do
     seed_permissions_and_relations
     @user = users(:alice)
@@ -103,5 +106,27 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     assert_equal "You are not authorized to perform this action.", flash[:alert]
     assert @notification.reload.unread?
+  end
+
+  test "should broadcast badge update on notification creation" do
+    stream_name = Turbo::StreamsChannel.send(:stream_name_from, [@actor, :notifications])
+    assert_broadcasts(stream_name, 1) do
+      perform_enqueued_jobs do
+        activity = Activity.new(
+          verb: :post,
+          author: @bob_actor,
+          owner: @bob_actor,
+          user_author: @bob_user
+        )
+        ActivityCreation.new(activity, text: { body: "Broadcast check" }).call
+      end
+    end
+  end
+
+  test "should broadcast badge update on notification update" do
+    stream_name = Turbo::StreamsChannel.send(:stream_name_from, [@actor, :notifications])
+    assert_broadcasts(stream_name, 1) do
+      @notification.mark_as_read
+    end
   end
 end

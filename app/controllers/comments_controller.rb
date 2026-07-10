@@ -17,7 +17,7 @@ class CommentsController < ApplicationController
     end
 
     if post_activity
-      redirect_to activity_path(post_activity, anchor: dom_id(comment.activity))
+      redirect_to activity_path(post_activity, anchor: ActionView::RecordIdentifier.dom_id(comment.activity))
     else
       redirect_to root_path, alert: "Comment parent post not found."
     end

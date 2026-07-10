@@ -61,6 +61,7 @@ class Activity < ApplicationRecord
   belongs_to :parent, class_name: "Activity", optional: true
   has_many :children, class_name: "Activity", foreign_key: :parent_id, dependent: :destroy
   has_many :likes, -> { where(verb: :like) }, class_name: "Activity", foreign_key: :parent_id, dependent: :destroy
+  has_many :noticed_events, as: :record, class_name: "Noticed::Event", dependent: :destroy
 
   has_many :audiences, dependent: :destroy, autosave: true
   has_many :relations, through: :audiences
@@ -326,16 +327,16 @@ class Activity < ApplicationRecord
   def notify_followers_of_new_post
     return unless author&.activity_object
     followers = author.activity_object.followers.merge(ActivityAction.followed)
-    PostPublishedNotifier.with(activity: self).deliver(followers)
+    PostPublishedNotifier.with(activity: self, record: self).deliver_later(followers, wait: 5.seconds)
   end
 
   def notify_owner_of_new_like
     return unless parent&.author
-    ObjectLikedNotifier.with(activity: self).deliver(parent.author)
+    ObjectLikedNotifier.with(activity: self, record: self).deliver_later(parent.author, wait: 5.seconds)
   end
 
   def notify_owner_of_new_comment
     return unless parent&.author
-    ObjectCommentedNotifier.with(activity: self).deliver(parent.author)
+    ObjectCommentedNotifier.with(activity: self, record: self).deliver_later(parent.author, wait: 5.seconds)
   end
 end

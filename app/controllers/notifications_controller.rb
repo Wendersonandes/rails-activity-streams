@@ -5,7 +5,7 @@ class NotificationsController < ApplicationController
   # GET /notifications
   def index
     authorize Noticed::Notification, policy_class: Noticed::NotificationPolicy
-    @notifications = policy_scope(Noticed::Notification).order(created_at: :desc)
+    @notifications = policy_scope(Noticed::Notification).includes(:event).order(created_at: :desc)
     @pagy, @notifications = pagy(@notifications, limit: 15)
   end
 
@@ -32,7 +32,7 @@ class NotificationsController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        @notifications = policy_scope(Noticed::Notification).order(created_at: :desc)
+        @notifications = policy_scope(Noticed::Notification).includes(:event).order(created_at: :desc)
         @pagy, @notifications = pagy(@notifications, limit: 15)
         render turbo_stream: [
           turbo_stream.replace("notifications_list_container", partial: "notifications/list", locals: { notifications: @notifications, pagy: @pagy }),

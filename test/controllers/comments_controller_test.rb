@@ -77,4 +77,9 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     flag_activity = Activity.find_by(verb: :flag, author_id: @bob_actor.id, parent_id: @comment_activity.id)
     assert_nil flag_activity
   end
+
+  test "GET show redirects to parent activity with anchor" do
+    get comment_permalink_path(@comment.short_id)
+    assert_redirected_to activity_path(@activity, anchor: "activity_#{@comment_activity.id}")
+  end
 end

@@ -30,6 +30,8 @@ require "test_helper"
 #  fk_rails_...  (user_author_id => users.id) ON DELETE => restrict
 #
 class ActivityTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     seed_permissions_and_relations
     @alice = users(:alice)
@@ -120,7 +122,9 @@ class ActivityTest < ActiveSupport::TestCase
     ActivityAction.create!(actor: @owner, activity_object: @author.activity_object, follow: true)
 
     activity = Activity.new(verb: :post, author: @author, owner: @author)
-    post_activity = ActivityCreation.new(activity, text: { body: "Alice's new post" }).call
+    perform_enqueued_jobs do
+      post_activity = ActivityCreation.new(activity, text: { body: "Alice's new post" }).call
+    end
 
     assert_equal 1, @owner.notifications.count
     notification = @owner.notifications.first
@@ -135,8 +139,10 @@ class ActivityTest < ActiveSupport::TestCase
     activity = Activity.new(verb: :post, author: @author, owner: @author)
     post_activity = ActivityCreation.new(activity, text: { body: "Alice's new post" }).call
 
-    like = Like.build(@owner, @bob, post_activity)
-    like.save!
+    perform_enqueued_jobs do
+      like = Like.build(@owner, @bob, post_activity)
+      like.save!
+    end
 
     assert_equal 1, @author.notifications.count
     notification = @author.notifications.first
@@ -151,16 +157,56 @@ class ActivityTest < ActiveSupport::TestCase
     activity = Activity.new(verb: :post, author: @author, owner: @author)
     post_activity = ActivityCreation.new(activity, text: { body: "Alice's new post" }).call
 
-    comment_activity = CommentCreation.new(
-      author: @owner,
-      user_author: @bob,
-      parent_activity: post_activity,
-      text: "Nice post!"
-    ).call
+    perform_enqueued_jobs do
+      comment_activity = CommentCreation.new(
+        author: @owner,
+        user_author: @bob,
+        parent_activity: post_activity,
+        text: "Nice post!"
+      ).call
+    end
 
     assert_equal 1, @author.notifications.count
     notification = @author.notifications.first
     assert_equal "ObjectCommentedNotifier", notification.event.class.name
     assert_equal "bob comentou em sua publicação.", notification.message
+  end
+
+  test "destroying activity destroys associated noticed event and notifications" do
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_notifications")
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_events")
+
+    activity = Activity.new(verb: :post, author: @author, owner: @author)
+    ActivityAction.create!(actor: @owner, activity_object: @author.activity_object, follow: true)
+    post_activity = nil
+    perform_enqueued_jobs do
+      post_activity = ActivityCreation.new(activity, text: { body: "Alice's new post" }).call
+    end
+
+    assert_equal 1, Noticed::Event.count
+    assert_equal 1, Noticed::Notification.count
+
+    assert_difference -> { Noticed::Event.count } => -1, -> { Noticed::Notification.count } => -1 do
+      post_activity.destroy!
+    end
+  end
+
+  test "deleting activity before job runs prevents notification delivery" do
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_notifications")
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_events")
+
+    ActivityAction.create!(actor: @owner, activity_object: @author.activity_object, follow: true)
+    activity = Activity.new(verb: :post, author: @author, owner: @author)
+    post_activity = ActivityCreation.new(activity, text: { body: "Quickly deleted" }).call
+    
+    # Destroy the activity before the queued job is processed
+    post_activity.destroy!
+
+    # Execute all queued jobs (which will try to run PostPublishedNotifier job)
+    perform_enqueued_jobs
+
+    # Validation should prevent the creation of the event and notification
+    assert_equal 0, Noticed::Event.count
+    assert_equal 0, Noticed::Notification.count
   end
 end
