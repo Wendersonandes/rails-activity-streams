@@ -1,11 +1,18 @@
 # Authorization for {Permission Permissions}. Permissions are a fixed system catalog assigned
 # to {Relation Relations}, not a user-facing resource, so listing is denied and the {Scope} is
-# empty.
+# empty. Site admins may inspect permissions via the admin panel.
 #
 # @see Permission
 class PermissionPolicy < ApplicationPolicy
   def index?
-    false
+    site_admin?
+  end
+
+  private
+
+  def site_admin?
+    return false unless actor
+    Site.instance.actor.has_relation_with?(actor, "Admin")
   end
 
   class Scope < Scope

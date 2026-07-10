@@ -17,7 +17,7 @@
         <!-- Panel (slides in) -->
         <div data-drawer-target="panel"
              class="pointer-events-auto w-screen max-w-lg transform transition ease-in-out duration-300 translate-x-full">
-          <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+          <div class="flex h-full flex-col bg-white shadow-xl">
             
             <!-- Header -->
             <div class="px-6 py-5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
@@ -35,7 +35,7 @@
             </div>
 
             <!-- Content -->
-            <div class="relative flex-1 px-6 py-6 space-y-6">
+            <div class="relative flex-1 overflow-y-auto px-6 py-6 space-y-6">
               <!-- The Main Post -->
               <div class="pb-6 border-b border-gray-200">
                 <%= render "shared/activity", activity: activity %>

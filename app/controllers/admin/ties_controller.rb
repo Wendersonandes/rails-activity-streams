@@ -3,6 +3,8 @@
 #
 # @see Tie
 class Admin::TiesController < ApplicationController
+  skip_after_action :verify_policy_scoped, only: [ :index, :show ]
+
   def index
     @ties = Tie.includes(:contact, :relation).order(created_at: :desc)
     authorize Tie

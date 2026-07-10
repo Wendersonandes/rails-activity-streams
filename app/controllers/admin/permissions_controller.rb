@@ -3,6 +3,8 @@
 #
 # @see Permission
 class Admin::PermissionsController < ApplicationController
+  skip_after_action :verify_policy_scoped, only: [ :index ]
+
   def index
     @permissions = Permission.all.order(:action, :object)
     authorize Permission
