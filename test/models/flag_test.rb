@@ -1,5 +1,15 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: flags
+#
+#  id         :bigint           not null, primary key
+#  note       :text
+#  reason     :string           not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
 class FlagTest < ActiveSupport::TestCase
   setup do
     seed_permissions_and_relations

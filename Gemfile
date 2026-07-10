@@ -46,6 +46,9 @@ gem "devise", "~> 4.9"
 # Authorization
 gem "pundit", "~> 2.4"
 
+# Notifications
+gem "noticed"
+
 # Location — country/city selects
 gem "country_select", "~> 9.0"
 gem "city-state", "~> 1.1"

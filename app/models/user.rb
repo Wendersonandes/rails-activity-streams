@@ -44,6 +44,7 @@ class User < ApplicationRecord
 
   has_many :profiles, dependent: :destroy
   belongs_to :current_profile, class_name: "Actor", optional: true
+  has_many :notifications, as: :recipient, dependent: :destroy, class_name: "Noticed::Notification"
 
   attr_accessor :profile_name
 

@@ -73,6 +73,10 @@ class Activity < ApplicationRecord
   after_create :increment_like_count, if: :verb_like?
   after_destroy :decrement_like_count, if: :verb_like?
 
+  after_create_commit :notify_followers_of_new_post, if: -> { verb_post? && root? && direct_object&.objectable_type == "Post" }
+  after_create_commit :notify_owner_of_new_like, if: -> { verb_like? && parent.present? && parent.author != author }
+  after_create_commit :notify_owner_of_new_comment, if: -> { verb_post? && parent.present? && direct_object&.objectable_type == "Comment" && parent.author != author }
+
   # Activities authored by +actor+. Returns all activities when +actor+ is blank.
   #
   # @param actor [Actor, Integer, nil] the author (or its id).
@@ -317,5 +321,21 @@ class Activity < ApplicationRecord
 
   def decrement_like_count
     targeted_activity_object&.decrement!(:like_count)
+  end
+
+  def notify_followers_of_new_post
+    return unless author&.activity_object
+    followers = author.activity_object.followers.merge(ActivityAction.followed)
+    PostPublishedNotifier.with(activity: self).deliver(followers)
+  end
+
+  def notify_owner_of_new_like
+    return unless parent&.author
+    ObjectLikedNotifier.with(activity: self).deliver(parent.author)
+  end
+
+  def notify_owner_of_new_comment
+    return unless parent&.author
+    ObjectCommentedNotifier.with(activity: self).deliver(parent.author)
   end
 end

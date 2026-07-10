@@ -112,4 +112,55 @@ class ActivityTest < ActiveSupport::TestCase
                                 relation_ids: [ Relation::Public.instance.id ])
     assert_equal activity, activity.root
   end
+
+  test "new post notifies followers" do
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_notifications")
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_events")
+
+    ActivityAction.create!(actor: @owner, activity_object: @author.activity_object, follow: true)
+
+    activity = Activity.new(verb: :post, author: @author, owner: @author)
+    post_activity = ActivityCreation.new(activity, text: { body: "Alice's new post" }).call
+
+    assert_equal 1, @owner.notifications.count
+    notification = @owner.notifications.first
+    assert_equal "PostPublishedNotifier", notification.event.class.name
+    assert_equal "alice publicou um novo post.", notification.message
+  end
+
+  test "liking post notifies author" do
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_notifications")
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_events")
+
+    activity = Activity.new(verb: :post, author: @author, owner: @author)
+    post_activity = ActivityCreation.new(activity, text: { body: "Alice's new post" }).call
+
+    like = Like.build(@owner, @bob, post_activity)
+    like.save!
+
+    assert_equal 1, @author.notifications.count
+    notification = @author.notifications.first
+    assert_equal "ObjectLikedNotifier", notification.event.class.name
+    assert_equal "bob curtiu sua publicação.", notification.message
+  end
+
+  test "commenting post notifies author" do
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_notifications")
+    ActiveRecord::Base.connection.execute("DELETE FROM noticed_events")
+
+    activity = Activity.new(verb: :post, author: @author, owner: @author)
+    post_activity = ActivityCreation.new(activity, text: { body: "Alice's new post" }).call
+
+    comment_activity = CommentCreation.new(
+      author: @owner,
+      user_author: @bob,
+      parent_activity: post_activity,
+      text: "Nice post!"
+    ).call
+
+    assert_equal 1, @author.notifications.count
+    notification = @author.notifications.first
+    assert_equal "ObjectCommentedNotifier", notification.event.class.name
+    assert_equal "bob comentou em sua publicação.", notification.message
+  end
 end

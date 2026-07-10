@@ -48,6 +48,7 @@ class Actor < ApplicationRecord
   delegated_type :actorable, types: %w[Profile Group Site]
 
   belongs_to :activity_object, optional: true
+  has_many :notifications, as: :recipient, dependent: :destroy, class_name: "Noticed::Notification"
 
   has_many :sent_contacts, class_name: "Contact", foreign_key: :sender_id, dependent: :destroy
   has_many :received_contacts, class_name: "Contact", foreign_key: :receiver_id, dependent: :destroy

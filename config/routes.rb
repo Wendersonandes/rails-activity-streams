@@ -42,6 +42,13 @@ Rails.application.routes.draw do
 
   get "/c/:short_id", to: "comments#show", as: :comment_permalink
 
+  # Notifications
+  resources :notifications, only: [ :index, :update ] do
+    collection do
+      post :mark_all_as_read
+    end
+  end
+
   # Contacts — gerenciamento de conexoes
   resources :contacts, only: [ :index, :create, :destroy ]
   resources :suggestions, only: [ :index ]
