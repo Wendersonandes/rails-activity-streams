@@ -29,6 +29,16 @@
 
 en:
   hello: "Hello world"
+  notifications:
+    post_published:
+      message: "%{author} publicou um novo post."
+      default_message: "Um novo post foi publicado."
+    object_liked:
+      message: "%{author} curtiu sua publicação."
+      default_message: "Alguém curtiu sua publicação."
+    object_commented:
+      message: "%{author} comentou em sua publicação."
+      default_message: "Alguém comentou em sua publicação."
   activity:
     description:
       follow: "%{author} started following %{owner}"

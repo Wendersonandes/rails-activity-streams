@@ -13,9 +13,9 @@ class PostPublishedNotifier < ApplicationNotifier
     def message
       activity = params[:activity]
       if activity&.author
-        "#{activity.author.name} publicou um novo post."
+        I18n.t("notifications.post_published.message", author: activity.author.name)
       else
-        "Um novo post foi publicado."
+        I18n.t("notifications.post_published.default_message")
       end
     end
 

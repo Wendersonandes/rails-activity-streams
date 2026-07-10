@@ -13,9 +13,9 @@ class ObjectLikedNotifier < ApplicationNotifier
     def message
       activity = params[:activity]
       if activity&.author
-        "#{activity.author.name} curtiu sua publicação."
+        I18n.t("notifications.object_liked.message", author: activity.author.name)
       else
-        "Alguém curtiu sua publicação."
+        I18n.t("notifications.object_liked.default_message")
       end
     end
 

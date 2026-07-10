@@ -13,9 +13,9 @@ class ObjectCommentedNotifier < ApplicationNotifier
     def message
       activity = params[:activity]
       if activity&.author
-        "#{activity.author.name} comentou em sua publicação."
+        I18n.t("notifications.object_commented.message", author: activity.author.name)
       else
-        "Alguém comentou em sua publicação."
+        I18n.t("notifications.object_commented.default_message")
       end
     end
 
