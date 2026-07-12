@@ -25,7 +25,7 @@
           <p class="text-sm text-gray-600 mt-1 leading-relaxed"><%= @actor.description %></p>
         <% end %>
         <div class="flex gap-4 mt-2 text-xs font-medium text-gray-400">
-          <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> <%= @actor.authored_activities.count %> posts</span>
+          <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> <%= @actor.authored_activities.posts.count %> posts</span>
           <% if @actor.sent_active_contact_ids.any? %>
             <span class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5"></i> <%= @actor.sent_active_contact_ids.size %> connections</span>
           <% end %>

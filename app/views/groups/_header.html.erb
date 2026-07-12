@@ -37,7 +37,7 @@
         <% end %>
         
         <div class="flex gap-4 mt-3 text-xs text-gray-400 font-medium">
-          <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> <%= group.actor.authored_activities.count %> posts</span>
+          <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> <%= group.actor.authored_activities.posts.count %> posts</span>
           <span class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5"></i> <%= group.actor.sent_contacts.active.count %> members</span>
         </div>
 

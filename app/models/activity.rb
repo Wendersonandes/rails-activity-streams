@@ -105,6 +105,11 @@ class Activity < ApplicationRecord
   # @return [ActiveRecord::Relation<Activity>]
   scope :roots, -> { where(parent_id: nil) }
 
+  # Post activities only (excluding likes, comments, follows, etc.).
+  #
+  # @return [ActiveRecord::Relation<Activity>]
+  scope :posts, -> { where(verb: :post) }
+
   # Activities ordered from newest to oldest by creation time.
   #
   # @return [ActiveRecord::Relation<Activity>]

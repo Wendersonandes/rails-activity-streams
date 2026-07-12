@@ -28,7 +28,7 @@ class GroupMembershipsController < ApplicationController
     end
     @member_roles = current_actor ? @group_actor.member_roles_for(current_actor) : []
     @total_members = @group.actor.sent_contacts.active.count
-    @total_posts = @group.actor.authored_activities.count
+    @total_posts = @group.actor.authored_activities.posts.count
   end
 
   # Admin-only analytics dashboard (authorized via +GroupPolicy#manage_members?+).
@@ -166,7 +166,7 @@ class GroupMembershipsController < ApplicationController
   # @return [Hash] aggregated metrics consumed by the insights view.
   def build_insights
     range = 7.days.ago..Time.current
-    posts = Activity.roots.where(owner: @group_actor)
+    posts = Activity.roots.posts.where(owner: @group_actor)
 
     new_members = Tie.joins(:contact)
                      .where(contacts: { sender_id: @group_actor.id })
