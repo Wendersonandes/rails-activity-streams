@@ -1,0 +1,46 @@
+<%= content_for :title, "People & Groups" %>
+
+<div class="flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">People &amp; Groups</h1>
+    <p class="text-xs text-gray-500 mt-0.5">Browse profiles and communities on the platform</p>
+  </div>
+</div>
+
+<% if @actors.any? %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+    <% @actors.each do |actor| %>
+      <%= link_to public_path_for(actor), class: "bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm hover:border-gray-300 hover:shadow-md transition-all duration-200 flex items-center gap-4" do %>
+        <%
+          is_group = actor.actorable_type == "Group"
+          avatar_rounded = is_group ? "rounded-lg" : "rounded-full"
+          avatar_bg = is_group ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"
+        %>
+        <% if actor.avatar&.attached? %>
+          <%= image_tag actor.avatar.variant(:thumb), class: "w-12 h-12 #{avatar_rounded} object-cover border border-gray-100 flex-shrink-0" %>
+        <% else %>
+          <div class="w-12 h-12 #{avatar_rounded} #{avatar_bg} flex items-center justify-center text-sm font-bold border flex-shrink-0">
+            <%= actor.name.first.upcase %>
+          </div>
+        <% end %>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-gray-900 truncate"><%= actor.name %></p>
+          <p class="text-[10px] font-medium text-gray-400 uppercase tracking-wider"><%= actor.actorable_type %></p>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+  <% if @pagy.next %>
+    <div class="flex justify-center mt-8">
+      <%= link_to "Load more", actors_path(page: @pagy.next), class: "text-sm text-blue-600 hover:text-blue-700 font-medium" %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="text-center text-gray-500 py-16 bg-white rounded-xl border border-gray-200/80 p-8 shadow-sm mt-6">
+    <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
+      <i data-lucide="users" class="w-6 h-6 text-gray-400"></i>
+    </div>
+    <h3 class="text-base font-semibold text-gray-900">No profiles yet</h3>
+    <p class="text-sm text-gray-500 mt-1 max-w-sm mx-auto">Profiles and groups will appear here once they are created.</p>
+  </div>
+<% end %>

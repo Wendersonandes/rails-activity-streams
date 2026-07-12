@@ -31,7 +31,7 @@ class GroupsController < ApplicationController
     authorize @group.actor, policy_class: GroupPolicy
     @activities = policy_scope(Activity).owned_by(@group.actor)
                                         .roots.recent
-                                        .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: :received_actions }, { parent: :author }, :likes)
+                                        .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: [:received_actions, { mentions: :actor }] }, { parent: :author }, :likes)
     @pagy, @activities = pagy(@activities, limit: 10)
 
     @is_member = current_actor && @group.actor.member_roles_for(current_actor).any?

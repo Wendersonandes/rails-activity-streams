@@ -39,6 +39,10 @@ en:
     object_commented:
       message: "%{author} comentou em sua publicação."
       default_message: "Alguém comentou em sua publicação."
+    actor_mentioned:
+      post_message: "%{author} mencionou você em uma publicação."
+      comment_message: "%{author} mencionou você em um comentário."
+      default_message: "Alguém mencionou você."
   activity:
     description:
       follow: "%{author} started following %{owner}"

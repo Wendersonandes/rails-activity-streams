@@ -27,6 +27,13 @@ class CreateActivityAudiencesJob < ApplicationJob
       else
         activity.audiences.create!(relation: Relation::Public.instance)
       end
+
+      # Scan and create mentions now that the audiences are in the database
+      activity.activity_objects.each do |ao|
+        if ao.objectable_type == "Post" || ao.objectable_type == "Comment"
+          MentionManager.new(ao).call(ao.description)
+        end
+      end
     end
   end
 end

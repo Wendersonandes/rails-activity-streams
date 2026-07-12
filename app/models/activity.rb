@@ -124,7 +124,7 @@ class Activity < ApplicationRecord
   scope :timeline, ->(actor) {
     select("DISTINCT activities.*")
       .roots
-      .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: :received_actions }, { parent: :author }, :likes)
+      .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: [:received_actions, { mentions: :actor }] }, { parent: :author }, :likes)
       .shared_with(actor)
       .recent
   }
@@ -140,7 +140,7 @@ class Activity < ApplicationRecord
     ids = actor.sent_active_contact_ids + [ actor.id ]
     select("DISTINCT activities.*")
       .roots
-      .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: :received_actions }, { parent: :author }, :likes)
+      .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: [:received_actions, { mentions: :actor }] }, { parent: :author }, :likes)
       .where(author_id: ids)
       .shared_with(actor)
       .recent

@@ -3,7 +3,7 @@
   body_value = local_assigns[:clear_inputs] ? "" : (activity.direct_object&.description || params.dig(:activity, :text, :body))
 %>
 
-<%= form_with model: activity, id: "activity_form_container", class: "bg-white rounded-xl border border-gray-200/80 p-6 shadow-sm space-y-5" do |f| %>
+<%= form_with model: activity, id: "activity_form_container", class: "bg-white rounded-xl border border-gray-200/80 p-6 shadow-sm space-y-5", data: { controller: "mention", action: "submit->mention#sync" } do |f| %>
   <%= f.hidden_field :verb %>
   <%= f.hidden_field :owner_id %>
 
@@ -23,8 +23,13 @@
 
   <div class="space-y-1">
     <%= f.label :body, class: "block text-sm font-medium text-gray-700" %>
-    <%= f.text_area :body, name: "activity[text][body]", value: body_value, rows: 5, placeholder: "What would you like to share?",
-          class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow" %>
+    <%= f.hidden_field :body, name: "activity[text][body]", value: body_value, data: { mention_target: "hiddenInput" } %>
+    <div data-mention-target="editor"
+         data-action="input->mention#sync blur->mention#sync"
+         contenteditable="true"
+         placeholder="What would you like to share?"
+         class="w-full min-h-[120px] rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow overflow-y-auto max-h-[300px] empty:before:content-[attr(placeholder)] empty:before:text-gray-400 empty:before:pointer-events-none empty:before:block">
+    </div>
   </div>
 
   <div class="flex items-center justify-between pt-2">

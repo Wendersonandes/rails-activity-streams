@@ -54,7 +54,7 @@
           <% else %>
             <%= turbo_frame_tag dom_id(comment, :text) do %>
               <div>
-                <%= simple_format(comment.text) %>
+                <%= simple_format(render_with_mentions(comment.activity_object), {}, sanitize: false) %>
               </div>
             <% end %>
           <% end %>

@@ -224,7 +224,7 @@ initial_activity_count = Activity.count
 c1 = create_comment(
   author: actors[:bruno],
   parent_activity: welcome_post,
-  text: "Bem-vinda, Ana! Ótimo termos esse espaço. Vai facilitar muito a comunicação do time."
+  text: "Bem-vinda, @[Ana Silva](ana-silva)! Ótimo termos esse espaço. Vai facilitar muito a comunicação do time."
 )
 
 c2 = create_comment(
@@ -277,7 +277,7 @@ create_comment(
 c6 = create_comment(
   author: actors[:diego],
   parent_activity: ci_pr_post,
-  text: "Bacana, Carla! Dei uma olhada no PR. A separação dos stages ficou muito mais clara."
+  text: "Bacana, @[Carla Mendes](carla-mendes)! Dei uma olhada no PR. A separação dos stages ficou muito mais clara."
 )
 
 # Reply to Diego

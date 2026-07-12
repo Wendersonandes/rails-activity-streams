@@ -58,7 +58,7 @@ class CommentsController < ApplicationController
           dom_id(@parent_activity, :reply_form),
           partial: "comments/form",
           locals: { parent_activity: @parent_activity, comment: @comment }
-        ), status: :unprocessable_entity
+        )
       end
     end
   end
@@ -88,6 +88,7 @@ class CommentsController < ApplicationController
   def update
     authorize @comment
     if @comment.update(comment_params.merge(last_edited_at: Time.current))
+      MentionManager.new(@comment.activity_object).call(@comment.text)
       @comment_activity = @comment.activity
       CommentVoteHydrator.new([@comment_activity], current_actor)
 

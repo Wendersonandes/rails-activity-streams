@@ -13,10 +13,15 @@ class ActorsController < ApplicationController
     authorize Actor
     @actors = Actor.name_search(params[:q])
                    .where.not(id: params[:exclude].presence&.split(","))
-                   .includes(:actorable)
+                   .includes(:actorable, avatar_attachment: :blob)
                    .limit(20)
 
     respond_to do |format|
+      format.html do
+        @actors = Actor.includes(:actorable, avatar_attachment: :blob)
+                       .alphabetic
+        @pagy, @actors = pagy(@actors, limit: 24)
+      end
       format.json do
         if params[:include_site_roles] == "true"
           site_actor = Site.instance.actor
@@ -29,11 +34,24 @@ class ActorsController < ApplicationController
           actor_roles = ties.each_with_object({}) { |tie, hash| hash[tie.receiver_id] = tie.relation_name.downcase }
 
           render json: @actors.map { |a|
-            { id: a.id, name: a.name, slug: a.slug, type: a.actorable_type, role: actor_roles[a.id] || "none" }
+            {
+              id: a.id,
+              name: a.name,
+              slug: a.slug,
+              type: a.actorable_type,
+              role: actor_roles[a.id] || "none",
+              avatar_url: a.avatar.attached? ? rails_representation_path(a.avatar.variant(:thumb)) : nil
+            }
           }
         else
           render json: @actors.map { |a|
-            { id: a.id, name: a.name, slug: a.slug, type: a.actorable_type }
+            {
+              id: a.id,
+              name: a.name,
+              slug: a.slug,
+              type: a.actorable_type,
+              avatar_url: a.avatar.attached? ? rails_representation_path(a.avatar.variant(:thumb)) : nil
+            }
           }
         end
       end
@@ -47,7 +65,7 @@ class ActorsController < ApplicationController
     authorize @actor
     @activities = policy_scope(Activity).where(author: @actor)
                                         .roots.recent
-                                        .includes(:owner, { author: :avatar_attachment }, :user_author, :activity_objects, { parent: :author })
+                                        .includes(:owner, { author: :avatar_attachment }, :user_author, { activity_objects: { mentions: :actor } }, { parent: :author })
     @pagy, @activities = pagy(@activities)
   end
 end

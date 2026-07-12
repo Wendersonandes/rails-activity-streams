@@ -38,7 +38,7 @@ class ActivityCreation
 
       @activity.save!
 
-      CreateActivityAudiencesJob.perform_later(@activity.id, @relation_ids)
+      CreateActivityAudiencesJob.perform_now(@activity.id, @relation_ids)
 
       @activity
     end

@@ -30,3 +30,38 @@ ol.comments {
   list-style: none;
   border-left: 1px dashed rgb(229 231 235);
 }
+
+/* Tribute.js Mentions Autocomplete Dropdown Styling */
+.tribute-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: auto;
+  max-height: 250px;
+  max-width: 320px;
+  overflow-y: auto;
+  display: block;
+  z-index: 999999;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.tribute-container ul {
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+}
+
+.tribute-container li {
+  cursor: pointer;
+  padding: 0.125rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tribute-container li.highlight {
+  background-color: #eff6ff;
+}
+

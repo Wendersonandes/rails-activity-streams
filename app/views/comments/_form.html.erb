@@ -4,7 +4,7 @@
 <% method = is_persisted ? :patch : :post %>
 
 <div class="comment_form_container bg-gray-50 border border-gray-200 rounded-lg p-3 mt-3">
-  <%= form_with(model: comment, url: url, method: method, class: "space-y-3", data: { controller: "comment-form", action: "turbo:submit-end->comment-form#reset" }) do |f| %>
+  <%= form_with(model: comment, url: url, method: method, class: "space-y-3", data: { controller: "comment-form mention", action: "submit->mention#sync turbo:submit-end->comment-form#reset turbo:submit-end->mention#clear" }) do |f| %>
     <% if comment.errors.any? %>
       <div class="text-xs text-red-500 font-medium">
         <%= comment.errors.full_messages.to_sentence %>
@@ -12,11 +12,14 @@
     <% end %>
 
     <div>
-      <%= f.text_area :text,
-                     rows: 2,
-                     placeholder: is_persisted ? "Edit your comment..." : "Write a reply or comment...",
-                     class: "w-full p-2.5 text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 focus:outline-none",
-                     data: { comment_form_target: "textarea" } %>
+      <%= f.hidden_field :text, data: { comment_form_target: "textarea", mention_target: "hiddenInput" } %>
+      <div data-mention-target="editor"
+           data-action="input->mention#sync blur->mention#sync"
+           contenteditable="true"
+           placeholder="<%= is_persisted ? "Edit your comment..." : "Write a reply or comment..." %>"
+           class="w-full p-2.5 text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 focus:outline-none min-h-[60px] max-h-[150px] overflow-y-auto empty:before:content-[attr(placeholder)] empty:before:text-gray-400 empty:before:pointer-events-none empty:before:block">
+        <%= render_editor_mentions(comment.activity_object) if is_persisted %>
+      </div>
     </div>
     <div class="flex items-center gap-2">
       <%= f.submit is_persisted ? "Update" : "Comment",

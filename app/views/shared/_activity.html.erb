@@ -35,8 +35,8 @@
           <% if ao.title.present? %>
             <h3 class="font-semibold text-gray-900 text-base leading-tight"><%= ao.title %></h3>
           <% end %>
-          <% if ao.description.present? %>
-            <p class="text-sm leading-relaxed text-gray-600"><%= ao.description %></p>
+          <% if (rendered_text = render_with_mentions(ao)).present? %>
+            <p class="text-sm leading-relaxed text-gray-600 whitespace-pre-line"><%= rendered_text %></p>
           <% end %>
         </div>
       <% end %>

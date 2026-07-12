@@ -63,6 +63,8 @@ class ActivityObject < ApplicationRecord
   has_many :activities, through: :activity_object_activities
   has_many :received_actions, class_name: "ActivityAction", dependent: :destroy
   has_many :followers, through: :received_actions, source: :actor
+  has_many :mentions, dependent: :destroy
+  has_many :mentioned_actors, through: :mentions, source: :actor
 
   validates :objectable_type, presence: true
 
